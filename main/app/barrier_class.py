@@ -14,7 +14,7 @@ class Result:
         self.param_title = set_title_param(vars(param))
         self.lenB = len(idxB)
         self.lenf = len(param.global_feats())
-        self.title = '%s |B|=%s(%s%s) acc=%s f=%s %s' % (self.alg_name, self.lenB, self.pers, '%', self.acc,
+        self.title = '%s B=%s(%s%s) acc=%s f=%s %s' % (self.alg_name, self.lenB, self.pers, '%', self.acc,
                                                          self.lenf, self.param_title)
 
 
