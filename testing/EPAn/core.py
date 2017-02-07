@@ -1,5 +1,5 @@
 import numpy as np
-from main.alghTools.tools import *
+from testing.alghTools.tools import *
 import time
 import math
 

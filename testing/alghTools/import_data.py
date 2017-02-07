@@ -6,12 +6,12 @@ from testing.alghTools.tools import read_csv
 class ImportData:
     def __init__(self, folder_name):
         if os.name == 'nt':
-            res_dir = 'C:\\Users\\smoky\\Documents\workspace\\resourses\\csv\\newEPA\\'
-            eq_dir = 'C:\\Users\\smoky\\Documents\\workspace\\resourses\\csv\\geop\\kvz\\'
-            self.save_path = 'C:\\Users\\smoky\\Documents\\workspace\\result\\Barrier\\best\\'
+            res_dir = 'C:\\Users\\smoky\\Documents\workspace\\resources\\csv\\Barrier\\'
+            eq_dir = 'C:\\Users\\smoky\\Documents\\workspace\\resources\\csv\\geop\\kvz\\'
+            self.save_path = 'C:\\Users\\smoky\\Documents\\workspace\\result\\Barrier\\%s\\' % folder_name
         elif os.name == 'posix':
-            res_dir = '/Users/Ivan/Documents/workspace/resourses/csv/newEPA/'
-            eq_dir = '/Users/Ivan/Documents/workspace/resourses/csv/geop/kvz/'
+            res_dir = '/Users/Ivan/Documents/workspace/resources/csv/Barrier/'
+            eq_dir = '/Users/Ivan/Documents/workspace/resources/csv/geop/kvz/'
             self.save_path = '/Users/Ivan/Documents/workspace/result/Barrier/%s/' % folder_name
         else:
             print('os not supported')

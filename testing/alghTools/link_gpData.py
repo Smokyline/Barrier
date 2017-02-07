@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from testing.alghTools.tools import read_csv, find_VinXV
 
+
 data_coord = read_csv('/Users/Ivan/Documents/workspace/resourses/csv/newEPA/Caucasus_coord.csv', ['x', 'y']).T
 gp_data = read_csv('/Users/Ivan/Documents/workspace/resourses/csv/newEPA/kvz_grav.csv', ['x', 'y', 'value']).T
 
