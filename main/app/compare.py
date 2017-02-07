@@ -60,7 +60,7 @@ alg_stack = {
 
 
 
-for name in ['allVoneF', 'oneVallF', 'iter_learn', 'allVoneP_iter','adaXallV']:
+for name in ['allVoneP_iter', 'iter_learn','adaXallV']:
 
     algmod = alg_stack[name]
     start_time = int(time.time() * 1000)
