@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
-from alghTools.tools import read_csv
-from EPAn.core import checkVinXV
+from main.alghTools.tools import read_csv, find_VinXV
+
 
 data_coord = read_csv('/Users/Ivan/Documents/workspace/resourses/csv/newEPA/Caucasus_coord.csv', ['x', 'y']).T
 gp_data = read_csv('/Users/Ivan/Documents/workspace/resourses/csv/newEPA/kvz_grav.csv', ['x', 'y', 'value']).T
@@ -48,7 +48,7 @@ for i, my in enumerate(data_coord):
 fullData_PlusGP = np.append(data_coord, gp_par, axis=1)
 
 idxXV = np.arange(len(data_coord))
-idxVV = checkVinXV(idxCX, idxXV, idxCV)
+idxVV = find_VinXV(idxCX, idxXV, idxCV)
 
 sampleData_PlusGP = fullData_PlusGP[idxVV]
 

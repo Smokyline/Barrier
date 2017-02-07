@@ -8,7 +8,7 @@ import matplotlib.patches as patches
 
 from PIL import Image
 from skimage.color import rgb2gray
-from alghTools.tools import read_csv, eq_os_import
+from main.alghTools.tools import read_csv
 import scipy.misc
 
 
@@ -17,12 +17,12 @@ def get_field_coords():
 
 
 class Visual:
-    def __init__(self, X, r, path):
+    def __init__(self, X, r, imp, path):
         self.X = X
         self.path = path
         self.m_c = get_field_coords()
         self.r = r
-        self.eq_all, self.eq_ist, self.eq_instr, self.eqLegend = eq_os_import()
+        self.eq_all, self.eq_ist, self.eq_instr, self.eqLegend = imp.eq_stack()
 
     def color_res(self, B, title, V):
         fig = plt.figure()
@@ -140,16 +140,17 @@ class Visual:
         meridians = np.arange(0., 360, 2)
         m.drawmeridians(meridians, labels=[True, False, False, True], zorder=1, linewidth=0.4)
 
-        _, eq_is, eq_in = eq_os_import()
-
         ax.scatter(self.X[:, 0], self.X[:, 1], marker='s', color='b', lw=0, s=70)
         ax.scatter(V[:, 0], V[:, 1], marker='s', color='g', lw=0, s=70)
 
-        ax.scatter(eq_is[:, 0], eq_is[:, 1], marker='^', color='r', lw=0.5)
-        ax.scatter(eq_in[:, 0], eq_in[:, 1], marker='o', color='r', lw=0.5)
+        ax.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], marker='^', color='r', lw=0.5)
+        ax.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], marker='o', color='r', lw=0.5)
 
         plt.savefig(self.path + title + '.png', dpi=400)
         plt.close()
+
+
+
 
 def visuaMSdiffPix_ras(Aln, Bln, r, direc, title, head_title):
 
@@ -269,9 +270,7 @@ def check_pix_pers(A):
 
     ax.add_patch(patches.Polygon(pol, color='#008000', zorder=1))
     for x, y, r in zip(A[:, 0], A[:, 1], [0.225 for i in range(len(A))]):
-        circleA = ax.add_artist(Circle(xy=(x, y),
-                                       radius=r, alpha=1, linewidth=0, zorder=2, facecolor='#ff0000',
-                                       edgecolor='#ff0000'))
+        ax.add_artist(Circle(xy=(x, y), radius=r, alpha=1, linewidth=0, zorder=2, facecolor='#ff0000', edgecolor='#ff0000'))
 
     fig.canvas.draw()
 
@@ -288,5 +287,5 @@ def check_pix_pers(A):
     r = len(red_array)
     f = len(green_array) + r
     plt.close()
-    return round(r * 100 / f, 1)
+    return round(r * 100 / f, 3)
 

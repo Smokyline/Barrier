@@ -8,7 +8,7 @@ import matplotlib.patches as patches
 
 from PIL import Image
 from skimage.color import rgb2gray
-from alghTools.tools import read_csv
+from testing.alghTools.tools import read_csv
 import scipy.misc
 
 
