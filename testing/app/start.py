@@ -6,17 +6,17 @@ import numpy as np
 
 class ParamGlobal:
     def __init__(self):
-        self.q = -0.9
-        self.s = -0.5  # AlphaMax!!
+        self.q = -1.1
+        self.s = -1.1  # AlphaMax!!
         self.r = False
         self.delta = False
         self.kmeans = False
         self.alphaMax = False
         self.pers = False
         self.bar = False
-        self.border = False
-        #self.border = ['h(X)', 6]
-        #self.border = ['kmeans', 2]
+        #self.border = False
+        self.border = ['h(X)', 7]
+        #self.border = ['kmeans', 10]
 
     def global_feats(self):
         FEATS_GLOBAL = [1, 2, 3, 4, 5, 7, 10, 12, 13, 14, 15]  # 11
@@ -28,14 +28,15 @@ class ParamGlobal:
 
         return FEATS_GLOBAL
 
-imp = ImportData(folder_name='test')
+imp = ImportData(save_folder_name='test')
 bar = BarrierMod(imp, ParamGlobal())
 
 #r = bar.oneVoneP()
-r = bar.simple()
+#r = bar.simple()
 #r = bar.allVoneF()
-# r = bar.adaXoneV()
+#r = bar.adaXoneV()
 # r = bar.adaXfullV()
+r = bar.oneVoneP()
 
 
 print(r.title)
