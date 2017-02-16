@@ -137,7 +137,7 @@ class Core:
             idxB = persRunner(X, self.param.pers, revers=False)
             return idxB
         elif self.param.kmeans is not False:
-            '''kmeans кластер с наибольшим центроидом'''
+            '''kmeans кластер с наименьшим центроидом'''
             idxB = km(XV, self.param.kmeans, randCZ=False)[0]
             return np.array(idxB).astype(int)
         else:

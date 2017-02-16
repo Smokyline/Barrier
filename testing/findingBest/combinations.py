@@ -37,6 +37,7 @@ def run_bar(name_mod, alg_mod):
 
     # algname, кол-во объектов, точность, % территории, параметры
     row = [res.alg_name, res.lenB, res.acc, res.pers, round(psi, 4), res.param_title.replace(" ", "_")[:-1]]
+    imp.set_save_path(folder_name='comp', res=res)
     res_to_txt(imp.save_path + name_mod + '.txt', row)
 
     return res
@@ -84,7 +85,7 @@ def run_comb():
 
 
 gp = ParamGlobal()
-imp = ImportData(save_folder_name='comp')
+imp = ImportData(zone='kvz')
 bar = BarrierMod(imp, gp)
 
 alg_stack = {

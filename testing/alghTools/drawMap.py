@@ -38,6 +38,8 @@ class Visual:
         meridians = np.arange(0., 360, 2)
         m.drawmeridians(meridians, labels=[True, False, False, True], zorder=1, linewidth=0.4)
 
+        plt.scatter(self.X[:, 0], self.X[:, 1], c='k', marker='.', lw=0, zorder=0, s=8)
+
         for x, y, r in zip(B[:, 0], B[:, 1], [self.r for i in range(len(B))]):
             circle_B = ax.add_artist(Circle(xy=(x, y),
                                            radius=r, alpha=0.8, linewidth=0.75, zorder=2, facecolor='b',
