@@ -4,16 +4,6 @@ import time
 import math
 
 
-def parseIdxH(lX, IDX, h, r, hcalc=None):
-    finalIdx = []
-    if h is False:
-        hC = hcalc[np.where(hcalc > 0)]
-        h = int((np.sum(hC ** r) / len(hC)) ** (1 / r))
-    for i in range(lX):
-        if IDX[i] >= h:
-            finalIdx.append(i)
-    return np.array(finalIdx)
-
 
 def mq_axis1(XV, q):
     """степенное среднее каждой строки"""
@@ -97,8 +87,9 @@ def findFbarDelta(X, x, v, feat):
 
 
 class Core:
-    def __init__(self, X, V, param, feats):
+    def __init__(self, X, Y, V, param, feats):
         self.X = X
+        self.Y = Y
         self.V = V
         self.feats = feats
         self.param = param
@@ -110,16 +101,16 @@ class Core:
 
     def learning(self):
         if self.param.bar is True:
-            learnV = barLength_2point(self.X, self.V, self.V, self.feats, self.param.delta)
+            learnV = barLength_2point(self.Y, self.V, self.V, self.feats, self.param.delta)
         else:
-            learnV = length_2point(self.X, self.V, self.V, self.feats, self.param.delta)
+            learnV = length_2point(self.Y, self.V, self.V, self.feats, self.param.delta)
         return learnV
 
     def calc_XV(self):
         if self.param.bar is True:
-            XV = barLength_2point(self.X, self.X, self.V, self.feats, self.param.delta)
+            XV = barLength_2point(self.Y, self.X, self.V, self.feats, self.param.delta)
         else:
-            XV = length_2point(self.X, self.X, self.V, self.feats, self.param.delta)
+            XV = length_2point(self.Y, self.X, self.V, self.feats, self.param.delta)
         if len(XV[0]) > 1:
             XV = mq_axis1(XV, self.param.q)
         return XV

@@ -4,7 +4,9 @@ matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 from matplotlib.patches import Circle
+from matplotlib.patches import RegularPolygon
 import matplotlib.patches as patches
+import math
 
 from PIL import Image
 from skimage.color import rgb2gray
@@ -142,12 +144,17 @@ class Visual:
         meridians = np.arange(0., 360, 2)
         m.drawmeridians(meridians, labels=[True, False, False, True], zorder=1, linewidth=0.4)
 
-        ax.scatter(self.X[:, 0], self.X[:, 1], marker='s', color='b', lw=0, s=70)
-        ax.scatter(V[:, 0], V[:, 1], marker='s', color='g', lw=0, s=70)
+        ax.scatter(self.X[:, 0], self.X[:, 1], marker='.', color='k', lw=0, s=8, zorder=0)
+        #ax.scatter(V[:, 0], V[:, 1], marker='s', color='g', lw=0, s=70)
 
-        ax.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], marker='^', color='r', lw=0.5)
-        ax.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], marker='o', color='r', lw=0.5)
+        for xy in V:
+                ax.add_artist(RegularPolygon(xy=(xy[0], xy[1]), numVertices=4, radius=0.15, orientation=math.pi/4, lw=0,
+                                             color='b', zorder=2, alpha=0.75))
 
+        ax.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], marker='^', color='r', lw=0.5, zorder=3)
+        ax.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], marker='o', color='r', lw=0.5, zorder=4)
+
+        plt.title(title)
         plt.savefig(self.path + title + '.png', dpi=400)
         plt.close()
 
@@ -272,7 +279,11 @@ def check_pix_pers(A):
 
     ax.add_patch(patches.Polygon(pol, color='#008000', zorder=1))
     for x, y, r in zip(A[:, 0], A[:, 1], [0.225 for i in range(len(A))]):
-        ax.add_artist(Circle(xy=(x, y), radius=r, alpha=1, linewidth=0, zorder=2, facecolor='#ff0000', edgecolor='#ff0000'))
+        if len(A) > 300:
+            ax.add_artist(RegularPolygon(xy=(x, y), numVertices=4, radius=0.15, orientation=math.pi / 4, lw=0,
+                                         facecolor='#ff0000', edgecolor='#ff0000', zorder=2))
+        else:
+            ax.add_artist(Circle(xy=(x, y), radius=r, alpha=1, linewidth=0, zorder=2, facecolor='#ff0000', edgecolor='#ff0000'))
 
     fig.canvas.draw()
 
@@ -291,3 +302,66 @@ def check_pix_pers(A):
     plt.close()
     return round(r * 100 / f, 3)
 
+
+
+def calc_acc_pixpoly(B, eq_data,  delta):
+    fig = plt.figure()
+    #ax = fig.add_subplot(111, aspect='equal')
+
+    figManager = plt.get_current_fig_manager()
+    figManager.window.showMaximized()
+    ax = plt.gca()
+
+    plt.axis('off')
+
+    coord_field = get_field_coords()
+    plt.xlim(coord_field[0], coord_field[1])
+    plt.ylim(coord_field[2], coord_field[3])
+    center_x, center_y = np.mean(coord_field[:2]), np.mean(coord_field[2:])
+
+    def calc_len_pix():
+        fig.canvas.draw()
+        reso = fig.canvas.get_width_height()
+
+        data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
+        data = data.reshape((reso[0] * reso[1], 3))
+
+        #idx_green_array1 = np.where(data[:, 1] == 128)[0]
+        #green_array = data[np.where(data[idx_green_array1, 2] == 0)]
+
+        idx_red_array1 = np.where(data[:, 0] == 255)[0]
+        red_array = data[np.where(data[idx_red_array1, 1] == 0)]
+
+        return len(red_array)
+
+
+    #ax.add_patch(patches.Polygon(pols, color='#008000', zorder=0))
+
+    test_dot = ax.scatter(center_x, center_y, marker='o', c='#ff0000', lw=0, s=70, zorder=2)
+    one_dot_leng = calc_len_pix()
+    test_dot.set_visible(False)
+
+    #ax.scatter(B[:, 0], B[:, 1], c='#ff0000', marker='s', s=100, linewidths=0.0, alpha=1, zorder=1)
+    for x, y, r in zip(B[:, 0], B[:, 1], [delta for i in range(len(B))]):
+        ax.add_artist(RegularPolygon(xy=(x, y), numVertices=4, radius=r, orientation=math.pi / 4, lw=0,
+                                 facecolor='#ff0000', edgecolor='#ff0000', zorder=1))
+    zero_r = calc_len_pix()
+
+    w = 0
+    acc_points = 0
+    miss_points = 0
+
+    for i, xy in enumerate(eq_data):
+        r = ax.scatter(xy[0], xy[1], marker='o', c='#ff0000', lw=0, s=70, zorder=2)
+        a_r = calc_len_pix()
+
+        if np.abs(zero_r - a_r) < one_dot_leng:
+            acc_points += 1
+            w += 1
+        else:
+            #plt.savefig('/Users/Ivan/Documents/workspace/result/tmp/' + 'figD' +str(i+1)+ '.png', dpi=100)
+            miss_points += 1
+        r.set_visible(False)
+
+    plt.close()
+    return w / len(eq_data), acc_points, miss_points

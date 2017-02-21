@@ -18,13 +18,17 @@ class ImportData:
             print('os not supported')
 
         if gridVers:
-            col = ['idx', 'Hmax', 'Hmin', 'DH', 'DH/l', 'Hdisp', 'Bmax', 'Bmin', 'DB', 'Bdisp', 'Mmax',
-                   'Mmin', 'DM', 'Mdisp']
+            """col = ['idx', 'Hmax', 'Hmin', 'DH', 'DH/l', 'Hdisp', 'Bmax', 'Bmin', 'DB', 'Bdisp', 'Mmax',
+                   'Mmin', 'DM', 'Mdisp']"""
+            col = ['idx', 'Hmax', 'Hmin', 'DH', 'DH/l', 'Bmax', 'Bmin', 'DB', 'Mmax',
+                   'Mmin', 'DM',]
         else:
-            col = ['idx', 'Hmax', 'Hmin', 'DH', 'Top', 'Q', 'HR', 'Nl', 'Rint', 'DH/l', 'Nlc', 'R1', 'R2',
-               'Bmax', 'Bmin', 'DB', 'Mmax', 'Mmin', 'DM', 'dps', 'Hdisp', 'Bdisp']
+            """col = ['idx', 'Hmax', 'Hmin', 'DH', 'Top', 'Q', 'HR', 'Nl', 'Rint', 'DH/l', 'Nlc', 'R1', 'R2',
+               'Bmax', 'Bmin', 'DB', 'Mmax', 'Mmin', 'DM', 'dps', 'Hdisp', 'Bdisp']"""
+            col = ['idx', 'Hmax', 'Hmin', 'DH', 'DH/l', 'Bmax', 'Bmin', 'DB', 'Mmax', 'Mmin', 'DM']
 
         self.data_full = read_csv(res_dir + 'kvz_khar.csv', col).T
+        self.data_field = read_csv(res_dir + 'kvz_field.csv', col).T
         self.data_sample = read_csv(res_dir + 'kvz_sample.csv', col).T
         self.data_coord = read_csv(res_dir + 'kvz_coord.csv', ['x', 'y']).T
         self.indexX = np.array(self.data_full[:, 0]).astype(int)

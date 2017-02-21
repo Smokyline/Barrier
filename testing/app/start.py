@@ -8,7 +8,6 @@ class ParamGlobal:
     def __init__(self):
         self.q = -1.1
         self.s = -1.1  # AlphaMax!!
-        self.r = False
         self.delta = False
         self.kmeans = False
         self.alphaMax = False

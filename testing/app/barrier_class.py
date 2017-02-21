@@ -66,6 +66,7 @@ class BarrierMod:
     def __init__(self, imp, g_param):
         self.imp = imp
         self.X = imp.data_full
+        self.Y = imp.data_field
         self.V = imp.data_sample
         self.indexX = imp.indexX
         self.indexV = imp.indexV
@@ -75,16 +76,16 @@ class BarrierMod:
 
     def border_blade(self, border, countX, idxB=None):
         """h(V); h(X); pers; kmeans"""
-        if border[0] == 'h(V)':
-            idxV = find_VinXV(self.indexX, np.unique(idxB), self.indexV)
-            hCalc = [x for i, x in enumerate(countX) if i in idxV]
-            idxXV = parseIdxH(len(self.X), countX, h=border[1], r=self.param.r, hcalc=hCalc)
-        elif border[0] == 'h(X)':
-            idxXV = parseIdxH(len(self.X), countX, h=border[1], r=self.param.r)
+
+        if border[0] == 'h(X)':
+            idxXV = parseIdxH(len(self.X), countX, h=border[1])
+        elif border[0] == 'ro':
+            idxXV = parseIdx_ro(len(self.X), countX, r=border[1])
         elif border[0] == 'pers':
             idxXV = np.array(persRunner(countX, pers=border[1], revers=True)).astype(int)
         elif border[0] == 'kmeans':
             idxXV = km(countX, border[1], randCZ=False)[-1]
+
         else:
             print('wrong border')
             idxXV = None
@@ -92,17 +93,19 @@ class BarrierMod:
 
     def simple(self):
         X = self.X[:, self.feats]
+        Y = self.Y[:, self.feats]
         V = self.V[:, self.feats]
-        idxB = Core(X, V, self.param, self.feats).idxB
+        idxB = Core(X, Y, V, self.param, self.feats).idxB
 
         return Result(idxB, self.param, self.imp, 'simple')
 
     def iter_learning(self):
         X = self.X[:, self.feats]
+        Y = self.Y[:, self.feats]
         V = self.V[:, self.feats]
         old_idx = None
         while True:
-            idxB = Core(X, V, self.param, self.feats).idxB
+            idxB = Core(X, Y, V, self.param, self.feats).idxB
             V = X[idxB]
             if len(idxB) >= 130:
                 break
@@ -184,7 +187,8 @@ class BarrierMod:
             feat = [f, ]
             X = self.X[:, feat]
             V = self.V[:, feat]
-            idxB = Core(X, V, self.param, feat).idxB
+            Y = self.Y[:, feat]
+            idxB = Core(X, Y, V, self.param, feat).idxB
             IDX = np.append(IDX, idxB)
         countX = np.array([len(np.where(IDX == i)[0]) for i in range(len(self.X))])
         idxB = self.border_blade(self.param.border, countX, IDX)
@@ -195,7 +199,8 @@ class BarrierMod:
         for v in self.V:
             V = np.array([v])[:, self.feats]
             X = self.X[:, self.feats]
-            idxB = Core(X, V, self.param, self.feats).idxB
+            Y = self.Y[:, self.feats]
+            idxB = Core(X, Y, V, self.param, self.feats).idxB
             IDX = np.append(IDX, idxB)
         countX = np.array([len(np.where(IDX == i)[0]) for i in range(len(self.X))])
         idxB = self.border_blade(self.param.border, countX, IDX)
@@ -208,8 +213,9 @@ class BarrierMod:
             for f in self.feats:
                 feat = [f, ]
                 XF = self.X[:, feat]
+                YF = self.Y[:, feat]
                 VF = np.array([v])[:, feat]
-                idxB = Core(XF, VF, self.param, feat).idxB
+                idxB = Core(XF, YF, VF, self.param, feat).idxB
                 idxXVF = np.append(idxXVF, idxB)
 
             countX = np.array([len(np.where(idxXVF == i)[0]) for i in range(len(self.X))]).astype(int)
@@ -229,7 +235,8 @@ class BarrierMod:
                 feat = [f, ]
                 XF = self.X[idxX][:, feat]
                 VF = self.X[idxV][:, feat]
-                idxB = Core(XF, VF, self.param, feat).idxB
+                YF = self.Y[idxV][:, feat]
+                idxB = Core(XF, YF, VF, self.param, feat).idxB
                 fullIDX = np.append(fullIDX, idxB)
 
             countX = np.array([len(np.where(fullIDX == i)[0]) for i in range(len(idxX))]).astype(int)

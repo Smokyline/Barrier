@@ -7,7 +7,7 @@ import os
 
 def set_title_param(param):
     title = ''
-    for key in ['q', 's', 'r', 'bar', 'delta', 'kmeans', 'alphaMax', 'pers', 'border']:
+    for key in ['q', 's', 'bar', 'delta', 'kmeans', 'alphaMax', 'pers', 'border']:
         value = param[key]
         if value is not False:
             title += '%s=%s ' % (key, value)
@@ -42,6 +42,24 @@ def idx_diff_runnerAwB(A, B):
         if a not in B:
             narr = np.append(narr, a)
     return narr
+
+def parseIdxH(lX, countX, h, ):
+    finalIdx = []
+    for i in range(lX):
+        if countX[i] >= h:
+            finalIdx.append(i)
+    return np.array(finalIdx)
+
+def parseIdx_ro(lX, countX, r):
+    """расчет границы по колмогоровском среднему"""
+    not_zero_count = countX[np.where(countX > 0)]
+    h = int((np.sum(not_zero_count ** r) / len(not_zero_count)) ** (1 / r))
+    finalIdx = []
+    for i in range(lX):
+        if countX[i] >= h:
+            finalIdx.append(i)
+    return np.array(finalIdx)
+
 
 
 def read_cora_res(idxCX, c):
