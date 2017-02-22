@@ -87,7 +87,7 @@ def findFbarDelta(X, x, v, feat):
 
 
 class Core:
-    def __init__(self, X, Y, V, param, feats):
+    def __init__(self, X, Y, V, param, feats, alpha=None):
         self.X = X
         self.Y = Y
         self.V = V
@@ -97,7 +97,8 @@ class Core:
         self.VV = self.learning()
         self.XV = self.calc_XV()
 
-        self.idxB = self.alpha_parser(self.XV)
+        self.alpha_const = None
+        self.idxB = self.alpha_parser(self.XV, alpha)
 
     def learning(self):
         if self.param.bar is True:
@@ -115,21 +116,24 @@ class Core:
             XV = mq_axis1(XV, self.param.q)
         return XV
 
-    def alpha_parser(self, XV):
-        if self.param.alphaMax:
+    def alpha_parser(self, XV, alpha):
+        if alpha is not None:
+            idxB = np.where(XV <= alpha)[0]
+            return idxB
+        elif self.param.alphaMax:
             '''alpha по границе V(V)'''
             Mq_learnV = mq_axis1(self.VV, self.param.q)
-            alpha = max(Mq_learnV)
-            idxB = np.where(self.XV <= alpha)[0]
+            self.alpha_const = max(Mq_learnV)
+            idxB = np.where(self.XV <= self.alpha_const)[0]
             return idxB
         elif type(self.param.pers) is int:
             '''процент от XV'''
             X = np.ravel(XV)
-            idxB = persRunner(X, self.param.pers, revers=False)
+            idxB, self.alpha_const = persRunner(X, self.param.pers, revers=False)
             return idxB
         elif self.param.kmeans is not False:
             '''kmeans кластер с наименьшим центроидом'''
-            idxB = km(XV, self.param.kmeans, randCZ=False)[0]
+            idxB, self.alpha_const = km(XV, self.param.kmeans, randCZ=False)[0]
             return np.array(idxB).astype(int)
         else:
             '''разделение по s степенному среднему'''
@@ -137,8 +141,7 @@ class Core:
             s = self.param.s
             if s is None:
                 print('Error\nFalse alpha param  s is None')
-                alpha = None
             else:
-                alpha = (np.sum(MqXV ** s) / len(MqXV)) ** (1 / s)
-            idxB = np.where(XV <= alpha)[0]
+                self.alpha_const = (np.sum(MqXV ** s) / len(MqXV)) ** (1 / s)
+            idxB = np.where(XV <= self.alpha_const)[0]
             return idxB

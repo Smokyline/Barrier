@@ -34,7 +34,8 @@ def run_bar():
     bar = BarrierMod(imp, gp)
 
     #res = bar.simple()
-    res = bar.oneVoneP()
+    #res = bar.oneVoneP()
+    res = bar.oneVoneP_Y()
     #res = bar.oneVallF()
 
     if res.pers == 0:
@@ -61,11 +62,10 @@ for gridVers in [True]:
 
     gp.FEATS_GLOBAL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-    for s in np.arange(-2.4, -4.5, -0.2):
+    for s in np.arange(-0.4, -4.5, -0.2):
         gp.s = s
         for q in np.arange(-0.1, -0.15, -0.2):
             gp.q = q
-
             res = run_bar()
 
             imp.set_save_path(folder_name='', res=res)

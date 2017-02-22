@@ -74,22 +74,26 @@ class BarrierMod:
         self.param = g_param
         self.feats = g_param.global_feats()
 
-    def border_blade(self, border, countX, idxB=None):
+    def count_border_blade(self, border, countX, border_const=None):
         """h(V); h(X); pers; kmeans"""
 
-        if border[0] == 'h(X)':
-            idxXV = parseIdxH(len(self.X), countX, h=border[1])
-        elif border[0] == 'ro':
-            idxXV = parseIdx_ro(len(self.X), countX, r=border[1])
-        elif border[0] == 'pers':
-            idxXV = np.array(persRunner(countX, pers=border[1], revers=True)).astype(int)
-        elif border[0] == 'kmeans':
-            idxXV = km(countX, border[1], randCZ=False)[-1]
-
+        if border_const is not None:
+            idxXV = np.array(np.where(countX >= border_const)[0]).astype(int)
+            return idxXV
         else:
-            print('wrong border')
-            idxXV = None
-        return np.array(idxXV).astype(int)
+            if border[0] == 'h(X)':
+                idxXV, const = parseIdxH(len(countX), countX, h=border[1])
+            elif border[0] == 'ro':
+                idxXV, const = parseIdx_ro(len(countX), countX, r=border[1])
+            elif border[0] == 'pers':
+                idxXV, const = persRunner(countX, pers=border[1], revers=True)
+            elif border[0] == 'kmeans':
+                idxXV, const = km(countX, border[1], randCZ=False)[-1]
+
+            else:
+                print('wrong border')
+                idxXV, const = None, None
+            return np.array(idxXV).astype(int), const
 
     def simple(self):
         X = self.X[:, self.feats]
@@ -191,7 +195,7 @@ class BarrierMod:
             idxB = Core(X, Y, V, self.param, feat).idxB
             IDX = np.append(IDX, idxB)
         countX = np.array([len(np.where(IDX == i)[0]) for i in range(len(self.X))])
-        idxB = self.border_blade(self.param.border, countX, IDX)
+        idxB = self.count_border_blade(self.param.border, countX, IDX)
         return Result(idxB, self.param, self.imp, 'allVoneF')
 
     def oneVallF(self):
@@ -203,7 +207,7 @@ class BarrierMod:
             idxB = Core(X, Y, V, self.param, self.feats).idxB
             IDX = np.append(IDX, idxB)
         countX = np.array([len(np.where(IDX == i)[0]) for i in range(len(self.X))])
-        idxB = self.border_blade(self.param.border, countX, IDX)
+        idxB = self.count_border_blade(self.param.border, countX, IDX)
         return Result(idxB, self.param, self.imp, 'oneVallF')
 
     def oneVoneP(self):
@@ -219,11 +223,51 @@ class BarrierMod:
                 idxXVF = np.append(idxXVF, idxB)
 
             countX = np.array([len(np.where(idxXVF == i)[0]) for i in range(len(self.X))]).astype(int)
-            idxXv = self.border_blade(self.param.border, countX, idxB=np.unique(idxXVF))
+            idxXv = self.count_border_blade(self.param.border, countX)
             fullXV = np.append(fullXV, idxXv)
 
         idxXV = np.unique(fullXV).astype(int)
         return Result(idxXV, self.param, self.imp, 'oneVoneP')
+
+    def oneVoneP_Y(self):
+        alpha_const_Y_array = [[] for i in range(len(self.V))]
+        countY_const_array = []
+
+        for vi, v in enumerate(self.V):
+            idxYVF = np.array([]).astype(int)
+            for fi, f in enumerate(self.feats):
+                feat = [f, ]
+                YF = self.Y[:, feat]
+                VF = np.array([v])[:, feat]
+                res = Core(YF, YF, VF, self.param, feat)
+                alpha_const_Y_array[vi].append(res.alpha_const)
+                idxYVF = np.append(idxYVF, res.idxB)
+
+            countY = np.array([len(np.where(idxYVF == i)[0]) for i in range(len(self.Y))]).astype(int)
+            _, border_const_Y = self.count_border_blade(self.param.border, countY)
+            countY_const_array.append(border_const_Y)
+
+
+        fullXV = np.array([]).astype(int)
+        for vi, v in enumerate(self.V):
+            idxXVF = np.array([]).astype(int)
+            for fi, f in enumerate(self.feats):
+                feat = [f, ]
+                XF = self.X[:, feat]
+                YF = self.Y[:, feat]
+                VF = np.array([v])[:, feat]
+                res = Core(XF, YF, VF, self.param, feat, alpha=alpha_const_Y_array[vi][fi])
+                idxXVF = np.append(idxXVF, res.idxB)
+
+            countX = np.array([len(np.where(idxXVF == i)[0]) for i in range(len(self.X))]).astype(int)
+            idxXv = self.count_border_blade(self.param.border, countX, border_const=countY_const_array[vi])
+            fullXV = np.append(fullXV, idxXv)
+
+        idxXV = np.unique(fullXV).astype(int)
+        return Result(idxXV, self.param, self.imp, 'oneVoneP_Y')
+
+
+
 
     def allVoneP_iter(self):
         idxX = np.arange(len(self.X))
@@ -240,7 +284,7 @@ class BarrierMod:
                 fullIDX = np.append(fullIDX, idxB)
 
             countX = np.array([len(np.where(fullIDX == i)[0]) for i in range(len(idxX))]).astype(int)
-            idxNewV = self.border_blade(self.param.border, countX)
+            idxNewV = self.count_border_blade(self.param.border, countX)
             UPDidxV = np.union1d(idxV, idxNewV)
             if len(UPDidxV) > 140:
                 return Result(idxV, self.param, self.imp, 'allVonePiter')

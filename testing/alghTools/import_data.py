@@ -9,10 +9,11 @@ class ImportData:
             res_dir = 'C:\\Users\\smoky\\Documents\workspace\\resources\\csv\\Barrier\\'
             eq_dir = 'C:\\Users\\smoky\\Documents\\workspace\\resources\\csv\\geop\\kvz\\'
         elif os.name == 'posix':
-            eq_dir = '/Users/Ivan/Documents/workspace/resources/csv/geop/%s/' % zone
+            eq_dir = '/Users/Ivan/Documents/workspace/resources/csv/geop/kvz/'
             if gridVers:
-                zone = zone + '/gridVers/d0.2/'
-            res_dir = '/Users/Ivan/Documents/workspace/resources/csv/Barrier/%s/' % zone
+                res_dir = '/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz/gridVers/d0.2/'
+            else:
+                res_dir = '/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz_upd/'
 
         else:
             print('os not supported')

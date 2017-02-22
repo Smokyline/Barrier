@@ -43,12 +43,12 @@ def idx_diff_runnerAwB(A, B):
             narr = np.append(narr, a)
     return narr
 
-def parseIdxH(lX, countX, h, ):
+def parseIdxH(lX, countX, h):
     finalIdx = []
     for i in range(lX):
         if countX[i] >= h:
             finalIdx.append(i)
-    return np.array(finalIdx)
+    return np.array(finalIdx), h
 
 def parseIdx_ro(lX, countX, r):
     """расчет границы по колмогоровском среднему"""
@@ -58,7 +58,7 @@ def parseIdx_ro(lX, countX, r):
     for i in range(lX):
         if countX[i] >= h:
             finalIdx.append(i)
-    return np.array(finalIdx)
+    return np.array(finalIdx), h
 
 
 
@@ -103,7 +103,7 @@ def persRunner(X, pers, revers=False):
     else:
         sXV = np.argsort(X)
 
-    return sXV[:border]
+    return np.array(sXV[:border]).astype(int), sXV[border]
 
 
 def find_VinXV(Xidx, idxXV, Vidx):
@@ -166,7 +166,7 @@ def km(data, k, randCZ=False):
         idxClusters_sort[i] = idx_clusters[remove_index]
         idx_clusters = np.delete(idx_clusters, remove_index, 0)
         centroids = np.delete(centroids, remove_index)
-    return np.array(idxClusters_sort)
+    return np.array(idxClusters_sort), np.min(idxClusters_sort[-1])
 
 
 def acc_check(result, EQ):
