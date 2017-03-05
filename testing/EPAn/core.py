@@ -7,20 +7,48 @@ import math
 
 def mq_axis1(XV, q):
     """степенное среднее каждой строки"""
-    ax1 = len(XV[0])
     if q is None:
         print('Error\nq is None or v!=1')
         mq_array = None
     else:
-        mq_array = (np.sum(XV ** q, axis=1) / ax1) ** (1 / q)
+        mq_array = np.array([])
+        for xv in XV:
+            idx_wh = np.where(xv != 0)[0]
+            xv = xv[idx_wh]
+            mq_xv = np.mean(xv ** q) ** (1 / q)
+            mq_array = np.append(mq_array, [mq_xv])
     return mq_array
 
+def length_2point(XX, X, V, F, delta=False, metrix=False):
+    XV = np.zeros((len(X), len(V)))
+    lengthAx = len(XX)
+    for f in range(len(F)):
+        XXf = XX[:, f]
+        for iX, x in enumerate(X[:, f]):
+            if delta:
+                xi_array = [1 - findFdelta(XXf, lengthAx, max(x, v), min(x, v)) for v in V[:, f]]
+            elif metrix:
+                xi_array = [findF_metrix(XXf, lengthAx, max(x, v), min(x, v)) for v in V[:, f]]
+            else:
+                xi_array = [findF(XXf, lengthAx, max(x, v), min(x, v)) for v in V[:, f]]
+            XV[iX] += xi_array
+    return XV
 
 def findF(X, lX, maxF, minF):
     range_x = np.where(np.logical_and(X >= minF, X <= maxF))[0]  # 7.3
     # range_x = np.where((X >= minF) & (X <= maxF))[0] #7.5
     return len(range_x) / lX
 
+
+def findF_metrix(X, lX, maxF, minF):
+    F = 0
+    d_xv = np.sum(abs(maxF - minF))
+    for x in X:
+        d1 = np.sum(abs(maxF - x))
+        d2 = np.sum(abs(minF - x))
+        if max(d1, d2) <= d_xv:
+            F += 1
+    return F / lX
 
 def findFdelta(X, lX, maxF, minF):
     delta = 0
@@ -33,42 +61,27 @@ def findFdelta(X, lX, maxF, minF):
             delta += (minPix / maxPix)
     return delta / lX
 
-
-
-
-def length_2point(XX, X, V, F, delta=False):
-    XV = np.zeros((len(X), len(V)))
-    lengthAx = len(XX)
-    for f in range(len(F)):
-        XXf = XX[:, f]
-        for iX, x in enumerate(X[:, f]):
-            if delta:
-                xi_array = [1 - findFdelta(XXf, lengthAx, max(x, v), min(x, v)) for v in V[:, f]]
-            else:
-                xi_array = [findF(XXf, lengthAx, max(x, v), min(x, v)) for v in V[:, f]]
-            XV[iX] += xi_array
-    return XV
-
 def barLength_2point(XX, X, V, F, delta=False):
     XV = np.zeros((len(X), len(V)))
     lengthAx = len(XX)
-    for feat_group in F:
+    for jf, feat_group in enumerate(F):
         for iX, x in enumerate(X):
             if delta:
-                xi_array = [1 - (findFbarDelta(XX, x, v, feat_group) / lengthAx) for v in V]
+                xi_array = [1 - (findFbarDelta(XX[:, jf], x[jf], v[jf], feat_group) / lengthAx) for v in V]
             else:
-                xi_array = [findFbar(XX, x, v, feat_group) / lengthAx for v in V]
+                xi_array = [findFbar(XX[:, jf], x[jf], v[jf], feat_group) / lengthAx for v in V]
             XV[iX] += xi_array
-    return XV / len(F)
+    return XV
 
 def findFbar(X, x, v, feat):
     Fx = 0
-    for f in feat:
+    for f in range(len(feat)):
         maxF = max(x[f], v[f])
         minF = min(x[f], v[f])
-        range_x = np.where(np.logical_and(X[:, f] >= minF, X[:, f] <= maxF))[0]
-        Fx += len(range_x)
-    return Fx / len(feat)
+        range_x = len(np.where(np.logical_and(X[:, f] >= minF, X[:, f] <= maxF))[0])
+        Fx += (range_x / len(feat))
+    return Fx
+
 
 
 def findFbarDelta(X, x, v, feat):
@@ -86,6 +99,8 @@ def findFbarDelta(X, x, v, feat):
     return Fx / len(feat)
 
 
+
+
 class Core:
     def __init__(self, X, Y, V, param, feats, alpha=None):
         self.X = X
@@ -94,24 +109,25 @@ class Core:
         self.feats = feats
         self.param = param
 
-        self.VV = self.learning()
         self.XV = self.calc_XV()
 
         self.alpha_const = None
         self.idxB = self.alpha_parser(self.XV, alpha)
 
-    def learning(self):
+    def calc_VV(self):
         if self.param.bar is True:
             learnV = barLength_2point(self.Y, self.V, self.V, self.feats, self.param.delta)
         else:
-            learnV = length_2point(self.Y, self.V, self.V, self.feats, self.param.delta)
+            learnV = length_2point(self.Y, self.V, self.V, self.feats, self.param.delta, self.param.metrix)
+        if len(learnV[0]) > 1:
+            learnV = mq_axis1(learnV, self.param.q)
         return learnV
 
     def calc_XV(self):
         if self.param.bar is True:
             XV = barLength_2point(self.Y, self.X, self.V, self.feats, self.param.delta)
         else:
-            XV = length_2point(self.Y, self.X, self.V, self.feats, self.param.delta)
+            XV = length_2point(self.Y, self.X, self.V, self.feats, self.param.delta, self.param.metrix)
         if len(XV[0]) > 1:
             XV = mq_axis1(XV, self.param.q)
         return XV
@@ -122,7 +138,7 @@ class Core:
             return idxB
         elif self.param.alphaMax:
             '''alpha по границе V(V)'''
-            Mq_learnV = mq_axis1(self.VV, self.param.q)
+            Mq_learnV = mq_axis1(self.calc_VV(), self.param.q)
             self.alpha_const = max(Mq_learnV)
             idxB = np.where(self.XV <= self.alpha_const)[0]
             return idxB

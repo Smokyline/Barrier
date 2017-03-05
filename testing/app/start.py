@@ -7,15 +7,16 @@ from testing.alghTools.import_data import ImportData
 class ParamGlobal:
     def __init__(self):
         self.q = -1.1
-        self.s = -1.1  # AlphaMax!!
+        self.s = -1.4  # AlphaMax!!
         self.delta = False
         self.kmeans = False
         self.alphaMax = False
         self.pers = False
         self.bar = False
-        self.border = False
+        #self.border = False
         #self.border = ['h(X)', 7]
         #self.border = ['kmeans', 10]
+        self.border = ['ro', 8]
 
     def global_feats(self):
         #FEATS_GLOBAL = [1, 2, 3, 4, 5, 7, 10, 12, 13, 14, 15]  # 11
@@ -25,7 +26,8 @@ class ParamGlobal:
         # FEATS = [1, 2, 3, 4, 5, 7, 9, 10, 12, 13, 15, 16, 17, 18, 19, 20, 21]
         #FEATS_GLOBAL = [[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12], [13, 14], [15, 16], [17, 18]]
 
-        FEATS_GLOBAL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]  #grid
+        #FEATS_GLOBAL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]  #grid
+        FEATS_GLOBAL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  #grid
 
         return FEATS_GLOBAL
 
@@ -33,7 +35,9 @@ imp = ImportData(zone='kvz', gridVers=True)
 bar = BarrierMod(imp, ParamGlobal())
 
 #r = bar.oneVoneP()
-r = bar.simple()
+#r = bar.simple()
+#r = bar.oneVoneP()
+r = bar.oneVoneP_Y()
 #r = bar.allVoneF()
 #r = bar.adaXoneV()
 # r = bar.adaXfullV()

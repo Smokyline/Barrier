@@ -7,7 +7,7 @@ import os
 
 def set_title_param(param):
     title = ''
-    for key in ['q', 's', 'bar', 'delta', 'kmeans', 'alphaMax', 'pers', 'border']:
+    for key in ['q', 's', 'bar', 'delta', 'kmeans', 'alphaMax', 'pers', 'metrix', 'border']:
         value = param[key]
         if value is not False:
             title += '%s=%s ' % (key, value)
@@ -97,13 +97,17 @@ def read_csv(path, col):
 
 
 def persRunner(X, pers, revers=False):
+    print(X)
     border = int(len(X) * pers / 100)
+    #if border >= len(X):
+     #   border = len(X)-1
+    sXV = np.argsort(X)
     if revers:
-        sXV = np.argsort(X)[::-1]
-    else:
-        sXV = np.argsort(X)
+        return np.array(sXV[border:]).astype(int), sXV[border]
 
-    return np.array(sXV[:border]).astype(int), sXV[border]
+    else:
+        return np.array(sXV[:border]).astype(int), sXV[border]
+
 
 
 def find_VinXV(Xidx, idxXV, Vidx):

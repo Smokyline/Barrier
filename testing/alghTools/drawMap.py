@@ -47,11 +47,11 @@ class Visual:
                                            radius=r, alpha=0.8, linewidth=0.75, zorder=2, facecolor='b',
                                            edgecolor="k"))
 
-        if V is not None:
+        """if V is not None:
             for x, y, r in zip(V[:, 0], V[:, 1], [self.r for i in range(len(V))]):
                 circle_V = ax.add_artist(Circle(xy=(x, y),
                                                 radius=r, alpha=0.9, linewidth=0.75, zorder=3, facecolor="g",
-                                                edgecolor="k"))
+                                                edgecolor="k"))"""
 
         plt.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], c='r', marker='^', linewidths=0.45, zorder=4, s=20)
         plt.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], c='r', marker='o', linewidths=0.45, zorder=4, s=20)
@@ -129,7 +129,7 @@ class Visual:
         plt.savefig(self.path + title + '.png', dpi=400)
         plt.close()
 
-    def grid_res(self, V, title):
+    def grid_res(self, X, title, r):
         plt.clf()
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
@@ -147,9 +147,9 @@ class Visual:
         ax.scatter(self.X[:, 0], self.X[:, 1], marker='.', color='k', lw=0, s=8, zorder=0)
         #ax.scatter(V[:, 0], V[:, 1], marker='s', color='g', lw=0, s=70)
 
-        for xy in V:
-                ax.add_artist(RegularPolygon(xy=(xy[0], xy[1]), numVertices=4, radius=0.15, orientation=math.pi/4, lw=0,
-                                             color='b', zorder=2, alpha=0.75))
+        for xy in X:
+            ax.add_artist(RegularPolygon(xy=(xy[0], xy[1]), numVertices=4, radius=r-0.05, orientation=math.pi/4, lw=0,
+                                           color='b', zorder=2, alpha=0.75))
 
         ax.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], marker='^', color='r', lw=0.5, zorder=3)
         ax.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], marker='o', color='r', lw=0.5, zorder=4)
@@ -265,7 +265,7 @@ def visuaMSdiffPix_ras(Aln, Bln, r, direc, title, head_title):
 
 
 
-def check_pix_pers(A):
+def check_pix_pers(A, grid=False):
     fig = plt.figure()
     ax = plt.gca(aspect='equal')
 
@@ -279,8 +279,8 @@ def check_pix_pers(A):
 
     ax.add_patch(patches.Polygon(pol, color='#008000', zorder=1))
     for x, y, r in zip(A[:, 0], A[:, 1], [0.225 for i in range(len(A))]):
-        if len(A) > 300:
-            ax.add_artist(RegularPolygon(xy=(x, y), numVertices=4, radius=0.15, orientation=math.pi / 4, lw=0,
+        if grid:
+            ax.add_artist(RegularPolygon(xy=(x, y), numVertices=4, radius=0.21, orientation=math.pi / 4, lw=0,
                                          facecolor='#ff0000', edgecolor='#ff0000', zorder=2))
         else:
             ax.add_artist(Circle(xy=(x, y), radius=r, alpha=1, linewidth=0, zorder=2, facecolor='#ff0000', edgecolor='#ff0000'))
@@ -343,9 +343,13 @@ def calc_acc_pixpoly(B, eq_data,  delta):
 
     #ax.scatter(B[:, 0], B[:, 1], c='#ff0000', marker='s', s=100, linewidths=0.0, alpha=1, zorder=1)
     for x, y, r in zip(B[:, 0], B[:, 1], [delta for i in range(len(B))]):
-        ax.add_artist(RegularPolygon(xy=(x, y), numVertices=4, radius=r, orientation=math.pi / 4, lw=0,
+        ax.add_artist(RegularPolygon(xy=(x, y), numVertices=4, radius=r-0.05, orientation=math.pi / 4, lw=0,
                                  facecolor='#ff0000', edgecolor='#ff0000', zorder=1))
+
+    #plt.savefig('/Users/Ivan/Documents/workspace/result/tmp/' + 'field.png', dpi=100)
+
     zero_r = calc_len_pix()
+
 
     w = 0
     acc_points = 0

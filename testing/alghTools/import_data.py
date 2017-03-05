@@ -13,20 +13,20 @@ class ImportData:
             if gridVers:
                 res_dir = '/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz/gridVers/d0.2/'
             else:
-                res_dir = '/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz_upd/'
+                res_dir = '/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz/kvz_upd/'
 
         else:
             print('os not supported')
 
-        if gridVers:
-            """col = ['idx', 'Hmax', 'Hmin', 'DH', 'DH/l', 'Hdisp', 'Bmax', 'Bmin', 'DB', 'Bdisp', 'Mmax',
-                   'Mmin', 'DM', 'Mdisp']"""
-            col = ['idx', 'Hmax', 'Hmin', 'DH', 'DH/l', 'Bmax', 'Bmin', 'DB', 'Mmax',
-                   'Mmin', 'DM',]
-        else:
-            """col = ['idx', 'Hmax', 'Hmin', 'DH', 'Top', 'Q', 'HR', 'Nl', 'Rint', 'DH/l', 'Nlc', 'R1', 'R2',
-               'Bmax', 'Bmin', 'DB', 'Mmax', 'Mmin', 'DM', 'dps', 'Hdisp', 'Bdisp']"""
-            col = ['idx', 'Hmax', 'Hmin', 'DH', 'DH/l', 'Bmax', 'Bmin', 'DB', 'Mmax', 'Mmin', 'DM']
+        col = ['idx', 'Hmax', 'Hmin', 'Hdelta', 'Hgrad', 'Hdisp', 'Hnch', 'Hcnt', 'Hw3-1', 'Hw3-2'
+, 'Hw3-3', 'Hw4-1', 'Hw4-2', 'Hw4-3', 'Hw4-4', 'Hw5-1', 'Hw5-2', 'Hw5-3', 'Hw5-4'
+, 'Hw5-5', 'Hw6-1', 'Hw6-2', 'Hw6-3', 'Hw6-4', 'Hw6-5', 'Hw6-6', 'Bmax', 'Bmin'
+, 'Bdelta', 'Bgrad', 'Bdisp', 'Bnch', 'Bcnt', 'Bw3-1', 'Bw3-2', 'Bw3-3', 'Bw4-1'
+, 'Bw4-2', 'Bw4-3', 'Bw4-4', 'Bw5-1', 'Bw5-2', 'Bw5-3', 'Bw5-4', 'Bw5-5', 'Bw6-1'
+, 'Bw6-2', 'Bw6-3', 'Bw6-4', 'Bw6-5', 'Bw6-6', 'Mmax', 'Mmin', 'Mdelta', 'Mgrad'
+, 'Mdisp', 'Mnch', 'Mcnt', 'Mw3-1', 'Mw3-2', 'Mw3-3', 'Mw4-1', 'Mw4-2', 'Mw4-3'
+, 'Mw4-4', 'Mw5-1', 'Mw5-2', 'Mw5-3', 'Mw5-4', 'Mw5-5', 'Mw6-1', 'Mw6-2', 'Mw6-3'
+, 'Mw6-4', 'Mw6-5', 'Mw6-6']
 
         self.data_full = read_csv(res_dir + 'kvz_khar.csv', col).T
         self.data_field = read_csv(res_dir + 'kvz_field.csv', col).T

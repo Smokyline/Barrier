@@ -8,8 +8,9 @@ class Result:
     def __init__(self, idxB, param, imp, alg_name):
         self.result = idxB
         self.alg_name = alg_name
-        self.V = find_VinXV(imp.indexX, idxB, imp.indexV)
-        self.pers = check_pix_pers(imp.data_coord[self.result])
+        #self.V = find_VinXV(imp.indexX, idxB, imp.indexV)
+        self.V = np.array([[]])
+        self.pers = check_pix_pers(imp.data_coord[self.result], grid=True)
         self.acc = acc_check(imp.data_coord[self.result], imp.eq_all)
         self.param_title = set_title_param(vars(param))
         self.lenB = len(idxB)
@@ -195,7 +196,7 @@ class BarrierMod:
             idxB = Core(X, Y, V, self.param, feat).idxB
             IDX = np.append(IDX, idxB)
         countX = np.array([len(np.where(IDX == i)[0]) for i in range(len(self.X))])
-        idxB = self.count_border_blade(self.param.border, countX, IDX)
+        idxB, _ = self.count_border_blade(self.param.border, countX)
         return Result(idxB, self.param, self.imp, 'allVoneF')
 
     def oneVallF(self):
@@ -212,7 +213,7 @@ class BarrierMod:
 
     def oneVoneP(self):
         fullXV = np.array([]).astype(int)
-        for v in self.V:
+        for vi, v in enumerate(self.V):
             idxXVF = np.array([]).astype(int)
             for f in self.feats:
                 feat = [f, ]
@@ -223,7 +224,7 @@ class BarrierMod:
                 idxXVF = np.append(idxXVF, idxB)
 
             countX = np.array([len(np.where(idxXVF == i)[0]) for i in range(len(self.X))]).astype(int)
-            idxXv = self.count_border_blade(self.param.border, countX)
+            idxXv, _ = self.count_border_blade(self.param.border, countX)
             fullXV = np.append(fullXV, idxXv)
 
         idxXV = np.unique(fullXV).astype(int)
@@ -244,7 +245,7 @@ class BarrierMod:
                 idxYVF = np.append(idxYVF, res.idxB)
 
             countY = np.array([len(np.where(idxYVF == i)[0]) for i in range(len(self.Y))]).astype(int)
-            _, border_const_Y = self.count_border_blade(self.param.border, countY)
+            idxYv, border_const_Y = self.count_border_blade(self.param.border, countY)
             countY_const_array.append(border_const_Y)
 
 
