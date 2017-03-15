@@ -19,7 +19,7 @@ def mq_axis1(XV, q):
             mq_array = np.append(mq_array, [mq_xv])
     return mq_array
 
-def length_2point(XX, X, V, F, delta=False, metrix=False):
+def length_2point(XX, X, V, F, delta=False):
     XV = np.zeros((len(X), len(V)))
     lengthAx = len(XX)
     for f in range(len(F)):
@@ -27,8 +27,6 @@ def length_2point(XX, X, V, F, delta=False, metrix=False):
         for iX, x in enumerate(X[:, f]):
             if delta:
                 xi_array = [1 - findFdelta(XXf, lengthAx, max(x, v), min(x, v)) for v in V[:, f]]
-            elif metrix:
-                xi_array = [findF_metrix(XXf, lengthAx, max(x, v), min(x, v)) for v in V[:, f]]
             else:
                 xi_array = [findF(XXf, lengthAx, max(x, v), min(x, v)) for v in V[:, f]]
             XV[iX] += xi_array
@@ -39,16 +37,6 @@ def findF(X, lX, maxF, minF):
     # range_x = np.where((X >= minF) & (X <= maxF))[0] #7.5
     return len(range_x) / lX
 
-
-def findF_metrix(X, lX, maxF, minF):
-    F = 0
-    d_xv = np.sum(abs(maxF - minF))
-    for x in X:
-        d1 = np.sum(abs(maxF - x))
-        d2 = np.sum(abs(minF - x))
-        if max(d1, d2) <= d_xv:
-            F += 1
-    return F / lX
 
 def findFdelta(X, lX, maxF, minF):
     delta = 0
@@ -98,6 +86,24 @@ def findFbarDelta(X, x, v, feat):
                 Fx += (minPix / maxPix)
     return Fx / len(feat)
 
+def metrix_length_2point(XX, X, V):
+
+    XV = np.zeros((len(X), len(V)))
+    len_x = XX.shape[0]
+    for iX, x in enumerate(X):
+        xi_array = [findF_metrix(XX, len_x, x[0], v[0]) for v in V]
+        XV[iX] += xi_array
+    return XV
+
+def findF_metrix(Y, len_y, x, v):
+
+    dxv = np.sum(np.abs(x - v))
+    dxy = np.sum(np.abs(x - Y), axis=2)
+    dvy = np.sum(np.abs(v - Y), axis=2)
+    dy = np.amax(np.append(dvy, dxy, axis=1), axis=1)
+    ro_xv = len(np.where(dy <= dxv)[0])
+
+    return ro_xv/len_y
 
 
 
@@ -117,8 +123,11 @@ class Core:
     def calc_VV(self):
         if self.param.bar is True:
             learnV = barLength_2point(self.Y, self.V, self.V, self.feats, self.param.delta)
+        elif self.param.metrix is True:
+            learnV = metrix_length_2point(self.Y, self.V, self.V)
+
         else:
-            learnV = length_2point(self.Y, self.V, self.V, self.feats, self.param.delta, self.param.metrix)
+            learnV = length_2point(self.Y, self.V, self.V, self.feats, self.param.delta)
         if len(learnV[0]) > 1:
             learnV = mq_axis1(learnV, self.param.q)
         return learnV
@@ -126,8 +135,10 @@ class Core:
     def calc_XV(self):
         if self.param.bar is True:
             XV = barLength_2point(self.Y, self.X, self.V, self.feats, self.param.delta)
+        elif self.param.metrix is True:
+            XV = metrix_length_2point(self.Y, self.X, self.V)
         else:
-            XV = length_2point(self.Y, self.X, self.V, self.feats, self.param.delta, self.param.metrix)
+            XV = length_2point(self.Y, self.X, self.V, self.feats, self.param.delta)
         if len(XV[0]) > 1:
             XV = mq_axis1(XV, self.param.q)
         return XV

@@ -37,6 +37,8 @@ class CompareAlgh:
         self.accB = acc_check(imp.data_coord[self.algB], imp.eq_all)
         self.accUnion = acc_check(imp.data_coord[self.union], imp.eq_all)
 
+        self.data_coord = imp.data_coord
+
     def tanimoto(self):
         """мера Танимото (пересечение\объединение)"""
         return round(len(self.inters) / len(self.union), 2)
@@ -45,20 +47,20 @@ class CompareAlgh:
         """разность (объединение минус пересечение)"""
         return np.union1d(self.AwB, self.BwA)
 
-    def visual_compare(self, data_coord, result, compare, vis, directory):
+    def visual_compare(self, result, compare, vis, directory):
         compare_title = 'comp %s P=%s Bar(%s%s) vs Cora(%s%s) U=%s(%s%s) ' % (
             result.alg_name, result.lenf, compare.persA, '%', compare.persB, '%', len(compare.union), compare.persUnion, '%')
         compare_title2 = 'accBar=%s accCora=%s accU=%s tanim=%s BnC=%s B/C=%s C/B=%s' % (
             compare.accA, compare.accB, compare.accUnion, compare.tanimoto(), len(compare.inters), len(compare.AwB), len(compare.BwA))
-        vis.diff_res(SETS=[data_coord[compare.inters], data_coord[compare.AwB], data_coord[compare.BwA]], labels=['BnC', 'B/C', 'C/B'],
+        vis.diff_res(SETS=[self.data_coord[compare.inters], self.data_coord[compare.AwB], self.data_coord[compare.BwA]], labels=['BnC', 'B/C', 'C/B'],
                      title=compare_title, title2=compare_title2)
-        vis.color_res(B=data_coord[compare.algB], title='Cora-3', V=None)
+        vis.color_res(B=self.data_coord[compare.algB], title='Cora-3', V=None)
 
-        vis.bw_stere_res(B=data_coord[compare.algA], head_title='Барьер', circle_color='#aeaeae')
-        vis.bw_stere_res(B=data_coord[compare.algB], head_title='Кора-3', circle_color='none')
-        vis.bw_stere_res(B=data_coord[compare.union], head_title='Объединение', circle_color='#898989')
+        vis.bw_stere_res(B=self.data_coord[compare.algA], head_title='Барьер', circle_color='#aeaeae')
+        vis.bw_stere_res(B=self.data_coord[compare.algB], head_title='Кора-3', circle_color='none')
+        vis.bw_stere_res(B=self.data_coord[compare.union], head_title='Объединение', circle_color='#898989')
 
-        visuaMSdiffPix_ras(data_coord[compare.union], data_coord[compare.inters], r=0.225, title='ras_diff', head_title='Разность',
+        visuaMSdiffPix_ras(self.data_coord[compare.union], self.data_coord[compare.inters], r=0.225, title='ras_diff', head_title='Разность',
                            direc=directory)
 
 
@@ -208,7 +210,7 @@ class BarrierMod:
             idxB = Core(X, Y, V, self.param, self.feats).idxB
             IDX = np.append(IDX, idxB)
         countX = np.array([len(np.where(IDX == i)[0]) for i in range(len(self.X))])
-        idxB = self.count_border_blade(self.param.border, countX, IDX)
+        idxB, _ = self.count_border_blade(self.param.border, countX)
         return Result(idxB, self.param, self.imp, 'oneVallF')
 
     def oneVoneP(self):

@@ -63,7 +63,7 @@ def parseIdx_ro(lX, countX, r):
 
 
 def read_cora_res(idxCX, c):
-    CORAres = read_csv('/Users/Ivan/Documents/workspace/resourses/csv/newEPA/Caucasus_CORA_result.csv',
+    CORAres = read_csv('/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz/kvz_CORA_result.csv',
                        ['idx', 'r1', 'r2', 'r3', 'r4']).T
     idxX = np.array([]).astype(int)
     for res in CORAres:
@@ -97,7 +97,6 @@ def read_csv(path, col):
 
 
 def persRunner(X, pers, revers=False):
-    print(X)
     border = int(len(X) * pers / 100)
     #if border >= len(X):
      #   border = len(X)-1

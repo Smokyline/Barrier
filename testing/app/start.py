@@ -1,25 +1,31 @@
-from testing.app.barrier_class import BarrierMod
+from testing.app.barrier_class import BarrierMod, CompareAlgh
 from testing.alghTools.drawMap import Visual
 from testing.alghTools.import_data import ImportData
+from testing.alghTools.tools import read_cora_res
 
 
 
 class ParamGlobal:
     def __init__(self):
-        self.q = -1.1
-        self.s = -1.4  # AlphaMax!!
+        self.q = False
+        self.s = -0.7
         self.delta = False
         self.kmeans = False
         self.alphaMax = False
         self.pers = False
+        self.epsilon = False
         self.bar = False
-        #self.border = False
-        #self.border = ['h(X)', 7]
-        #self.border = ['kmeans', 10]
-        self.border = ['ro', 8]
+        self.metrix = False
+
+        # self.border = False
+        self.border = ['h(X)', 8]
+        # self.border = ['ro', 6]
+        # self.border = ['kmeans', 10]
+        # self.border = ['pers', 30]
+
 
     def global_feats(self):
-        #FEATS_GLOBAL = [1, 2, 3, 4, 5, 7, 10, 12, 13, 14, 15]  # 11
+        FEATS_GLOBAL = [1, 2, 3, 4, 5, 7, 10, 12, 13, 14, 15]  # 11
         # FEATS_GLOBAL = [1, 2, 3, 4, 5, 13, 14, 15] #8
         # FEATS_GLOBAL = [1, 2, 3, 4, 5, 7, 10, 12, 13, 14, 15, 16, 17, 18] #14
         # FEATS_GLOBAL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18] #18
@@ -27,17 +33,17 @@ class ParamGlobal:
         #FEATS_GLOBAL = [[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12], [13, 14], [15, 16], [17, 18]]
 
         #FEATS_GLOBAL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]  #grid
-        FEATS_GLOBAL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  #grid
+        #FEATS_GLOBAL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  #grid
 
         return FEATS_GLOBAL
 
-imp = ImportData(zone='kvz', gridVers=True)
+imp = ImportData(zone='kvz', gridVers=False)
 bar = BarrierMod(imp, ParamGlobal())
 
-#r = bar.oneVoneP()
+r = bar.oneVoneP()
 #r = bar.simple()
 #r = bar.oneVoneP()
-r = bar.oneVoneP_Y()
+#r = bar.oneVoneP_Y()
 #r = bar.allVoneF()
 #r = bar.adaXoneV()
 # r = bar.adaXfullV()
@@ -48,8 +54,9 @@ print(r.title)
 
 imp.set_save_path(folder_name='', res=r)
 vis = Visual(X=imp.data_coord, r=0.225, imp=imp, path=imp.save_path)
-vis.color_res(B=imp.data_coord[r.result], title=r.title, V=imp.data_coord[r.V])
+vis.color_res(res=r.result, title=r.title)
 
 
 
-#c = CompareAlgh(barrierX=r.result, coraX=read_cora_res(idxCX, c=1))
+c = CompareAlgh(imp=imp, barrierX=r.result, coraX=read_cora_res(imp.indexX, c=1))
+c.visual_compare()

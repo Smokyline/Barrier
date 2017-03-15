@@ -21,12 +21,15 @@ def get_field_coords():
 class Visual:
     def __init__(self, X, r, imp, path):
         self.X = X
+        self.imp = imp
         self.path = path
         self.m_c = get_field_coords()
         self.r = r
         self.eq_all, self.eq_ist, self.eq_instr, self.eqLegend = imp.eq_stack()
 
-    def color_res(self, B, title, V):
+    def color_res(self, res, title):
+        B = self.imp.data_coord[res]
+        #V = self.imp.data_coord[v_res]
         fig = plt.figure()
         ax = fig.add_subplot(111, aspect='equal')
 
