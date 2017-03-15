@@ -10,8 +10,8 @@ class Result:
         self.alg_name = alg_name
         #self.V = find_VinXV(imp.indexX, idxB, imp.indexV)
         self.V = np.array([[]])
-        self.pers = check_pix_pers(imp.data_coord[self.result], grid=True)
-        self.acc = acc_check(imp.data_coord[self.result], imp.eq_all)
+        self.pers = check_pix_pers(imp.data_coord[self.result], grid=imp.gridVers)
+        self.acc = acc_check(imp.data_coord[self.result], imp.eq_all, grid=imp.gridVers)
         self.param_title = set_title_param(vars(param))
         self.lenB = len(idxB)
         self.lenf = len(param.global_feats())
@@ -20,7 +20,7 @@ class Result:
 
 
 class CompareAlgh:
-    def __init__(self, imp, barrierX, coraX):
+    def __init__(self, imp, vis, barrierX, coraX):
         self.algA = barrierX
         self.algB = coraX
 
@@ -29,15 +29,17 @@ class CompareAlgh:
         self.AwB = idx_diff_runnerAwB(self.algA, self.algB)
         self.BwA = idx_diff_runnerAwB(self.algB, self.algA)
 
-        self.persUnion = check_pix_pers(imp.data_coord[self.union])
-        self.persA = check_pix_pers(imp.data_coord[self.algA])
-        self.persB = check_pix_pers(imp.data_coord[self.algB])
+        self.persUnion = check_pix_pers(imp.data_coord[self.union], grid=imp.gridVers)
+        self.persA = check_pix_pers(imp.data_coord[self.algA], grid=imp.gridVers)
+        self.persB = check_pix_pers(imp.data_coord[self.algB], grid=imp.gridVers)
 
         self.accA = acc_check(imp.data_coord[self.algA], imp.eq_all)
         self.accB = acc_check(imp.data_coord[self.algB], imp.eq_all)
         self.accUnion = acc_check(imp.data_coord[self.union], imp.eq_all)
 
         self.data_coord = imp.data_coord
+        self.save_path = imp.save_path
+        self.vis = vis
 
     def tanimoto(self):
         """мера Танимото (пересечение\объединение)"""
@@ -47,21 +49,20 @@ class CompareAlgh:
         """разность (объединение минус пересечение)"""
         return np.union1d(self.AwB, self.BwA)
 
-    def visual_compare(self, result, compare, vis, directory):
+    def visual_compare(self, result):
         compare_title = 'comp %s P=%s Bar(%s%s) vs Cora(%s%s) U=%s(%s%s) ' % (
-            result.alg_name, result.lenf, compare.persA, '%', compare.persB, '%', len(compare.union), compare.persUnion, '%')
+            result.alg_name, result.lenf, self.persA, '%', self.persB, '%', len(self.union), self.persUnion, '%')
         compare_title2 = 'accBar=%s accCora=%s accU=%s tanim=%s BnC=%s B/C=%s C/B=%s' % (
-            compare.accA, compare.accB, compare.accUnion, compare.tanimoto(), len(compare.inters), len(compare.AwB), len(compare.BwA))
-        vis.diff_res(SETS=[self.data_coord[compare.inters], self.data_coord[compare.AwB], self.data_coord[compare.BwA]], labels=['BnC', 'B/C', 'C/B'],
-                     title=compare_title, title2=compare_title2)
-        vis.color_res(B=self.data_coord[compare.algB], title='Cora-3', V=None)
+            self.accA, self.accB, self.accUnion, self.tanimoto(), len(self.inters), len(self.AwB), len(self.BwA))
 
-        vis.bw_stere_res(B=self.data_coord[compare.algA], head_title='Барьер', circle_color='#aeaeae')
-        vis.bw_stere_res(B=self.data_coord[compare.algB], head_title='Кора-3', circle_color='none')
-        vis.bw_stere_res(B=self.data_coord[compare.union], head_title='Объединение', circle_color='#898989')
+        self.vis.ln_diff_res(SETS=[self.data_coord[self.inters], self.data_coord[self.AwB], self.data_coord[self.BwA]], labels=['BnC', 'B/C', 'C/B'], title=compare_title, title2=compare_title2)
+        self.vis.color_res(res=self.algB, title='Cora-3')
 
-        visuaMSdiffPix_ras(self.data_coord[compare.union], self.data_coord[compare.inters], r=0.225, title='ras_diff', head_title='Разность',
-                           direc=directory)
+        self.vis.bw_stere_res(B=self.data_coord[self.algA], head_title='Барьер', circle_color='#aeaeae')
+        self.vis.bw_stere_res(B=self.data_coord[self.algB], head_title='Кора-3', circle_color='none')
+        self.vis.bw_stere_res(B=self.data_coord[self.union], head_title='Объединение', circle_color='#898989')
+
+        visuaMSdiffPix_ras(self.data_coord[self.union], self.data_coord[self.inters], r=0.225, direc=self.save_path, title='Разность площадей')
 
 
 

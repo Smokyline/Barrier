@@ -25,8 +25,9 @@ class ParamGlobal:
 
 
     def global_feats(self):
-        FEATS_GLOBAL = [1, 2, 3, 4, 5, 7, 10, 12, 13, 14, 15]  # 11
-        # FEATS_GLOBAL = [1, 2, 3, 4, 5, 13, 14, 15] #8
+        FEATS_GLOBAL = [1, 2, 3, 4, 5, 7, 10, 12, 13, 14, 15]  # 11 old feats
+        #FEATS_GLOBAL = [1, 2, 3, 4, 24, 25, 26, 47, 48, 49] #10 new feats
+
         # FEATS_GLOBAL = [1, 2, 3, 4, 5, 7, 10, 12, 13, 14, 15, 16, 17, 18] #14
         # FEATS_GLOBAL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18] #18
         # FEATS = [1, 2, 3, 4, 5, 7, 9, 10, 12, 13, 15, 16, 17, 18, 19, 20, 21]
@@ -55,8 +56,8 @@ print(r.title)
 imp.set_save_path(folder_name='', res=r)
 vis = Visual(X=imp.data_coord, r=0.225, imp=imp, path=imp.save_path)
 vis.color_res(res=r.result, title=r.title)
+vis.ln_to_grid(r)
 
 
-
-c = CompareAlgh(imp=imp, barrierX=r.result, coraX=read_cora_res(imp.indexX, c=1))
-c.visual_compare()
+c = CompareAlgh(imp=imp, vis=vis, barrierX=r.result, coraX=read_cora_res(imp.indexX, c=1))
+c.visual_compare(result=r)

@@ -49,8 +49,8 @@ class CompareAlgh:
             result.alg_name, result.lenf, compare.persA, '%', compare.persB, '%', len(compare.union), compare.persUnion, '%')
         compare_title2 = 'accBar=%s accCora=%s accU=%s tanim=%s BnC=%s B/C=%s C/B=%s' % (
             compare.accA, compare.accB, compare.accUnion, compare.tanimoto(), len(compare.inters), len(compare.AwB), len(compare.BwA))
-        vis.diff_res(SETS=[data_coord[compare.inters], data_coord[compare.AwB], data_coord[compare.BwA]], labels=['BnC', 'B/C', 'C/B'],
-                     title=compare_title, title2=compare_title2)
+        vis.ln_diff_res(SETS=[data_coord[compare.inters], data_coord[compare.AwB], data_coord[compare.BwA]], labels=['BnC', 'B/C', 'C/B'],
+                        title=compare_title, title2=compare_title2)
         vis.color_res(B=data_coord[compare.algB], title='Cora-3', V=None)
 
         vis.bw_stere_res(B=data_coord[compare.algA], head_title='Барьер', circle_color='#aeaeae')

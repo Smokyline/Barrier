@@ -14,6 +14,8 @@ from testing.alghTools.tools import read_csv
 import scipy.misc
 
 
+from testing.alghTools.tools import acc_check
+
 def get_field_coords():
     return [36, 52, 37, 46]
 
@@ -97,7 +99,7 @@ class Visual:
         plt.savefig(self.path + head_title + '.png', dpi=400)
         plt.close()
 
-    def diff_res(self, SETS, labels, title, title2):
+    def ln_diff_res(self, SETS, labels, title, title2):
         fig = plt.figure()
         ax = fig.add_subplot(111,aspect='equal')
         m = Basemap(llcrnrlat=self.m_c[2], urcrnrlat=self.m_c[3],
@@ -162,9 +164,47 @@ class Visual:
         plt.close()
 
 
+    def ln_to_grid(self, res, r=0.2252):
+        GRID = read_csv(path='/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz/gridVers/d0.1/kvz_coord.csv', col=['x', 'y']).T
+
+        X = get_grid_around_ln(self.imp.data_coord[res.result], GRID, r=0.15)
+        pers = check_pix_pers(X, grid=True)
+        acc = acc_check(X, self.imp.eq_all, grid=True)
+        title = 'grid_%s B=%s(%s%s) acc=%s f=%s %s' % (res.alg_name, len(X), pers, '%', acc,
+                                                         res.lenf, res.param_title)
+        print(title)
+
+        plt.clf()
+        figManager = plt.get_current_fig_manager()
+        figManager.window.showMaximized()
+        ax = plt.gca()
+        m = Basemap(llcrnrlat=self.m_c[2], urcrnrlat=self.m_c[3],
+                    llcrnrlon=self.m_c[0], urcrnrlon=self.m_c[1],
+                    resolution='l')
+        m.drawcountries(zorder=1, linewidth=0.6)
+        m.drawcoastlines(zorder=1, linewidth=0.6)
+        parallels = np.arange(0., 90, 2)
+        m.drawparallels(parallels, labels=[False, True, True, False], zorder=1, linewidth=0.4)
+        meridians = np.arange(0., 360, 2)
+        m.drawmeridians(meridians, labels=[True, False, False, True], zorder=1, linewidth=0.4)
+
+        ax.scatter(GRID[:, 0], GRID[:, 1], marker='.', color='k', lw=0, s=8, zorder=0)
+        # ax.scatter(V[:, 0], V[:, 1], marker='s', color='g', lw=0, s=70)
+
+        for xy in X:
+            ax.add_artist(
+                RegularPolygon(xy=(xy[0], xy[1]), numVertices=4, radius=r - 0.05, orientation=math.pi / 4, lw=0,
+                               color='b', zorder=2, alpha=0.75))
+
+        ax.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], marker='^', color='r', lw=0.5, zorder=3)
+        ax.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], marker='o', color='r', lw=0.5, zorder=4)
+
+        plt.title(title)
+        plt.savefig(self.path + title + '.png', dpi=400)
+        plt.close()
 
 
-def visuaMSdiffPix_ras(Aln, Bln, r, direc, title, head_title):
+def visuaMSdiffPix_ras(Aln, Bln, r, direc, title):
 
     fc = get_field_coords()
 
@@ -189,8 +229,8 @@ def visuaMSdiffPix_ras(Aln, Bln, r, direc, title, head_title):
 
 
 
-        plt.savefig('/Users/Ivan/Documents/workspace/result/tmp/test.png', bbox_inches='tight', pad_inches=0, dpi=250)
-        img = Image.open('/Users/Ivan/Documents/workspace/result/tmp/test.png')
+        plt.savefig('/Users/Ivan/Documents/workspace/result/tmp/diff_tmp.png', bbox_inches='tight', pad_inches=0, dpi=250)
+        img = Image.open('/Users/Ivan/Documents/workspace/result/tmp/diff_tmp.png')
         rgb_im = img.convert('RGB')
         data = np.array(rgb_im)
         H, W = len(data), len(data[0])
@@ -266,6 +306,17 @@ def visuaMSdiffPix_ras(Aln, Bln, r, direc, title, head_title):
 ############################
 
 
+def get_grid_around_ln(ln, grid, r):
+    cutlnGrid = []
+    for i in grid:
+        evk_array = np.zeros((1, len(ln)))
+        for n, d in enumerate(i):
+            evk_array += (d - ln[:, n]) ** 2
+        evk_gpXY = np.sqrt(evk_array[0])
+        evk_wh = np.where(evk_gpXY <= r)[0]
+        if len(evk_wh) > 0:
+            cutlnGrid.append(i)
+    return np.array(cutlnGrid)
 
 
 def check_pix_pers(A, grid=False):
@@ -283,7 +334,7 @@ def check_pix_pers(A, grid=False):
     ax.add_patch(patches.Polygon(pol, color='#008000', zorder=1))
     for x, y, r in zip(A[:, 0], A[:, 1], [0.225 for i in range(len(A))]):
         if grid:
-            ax.add_artist(RegularPolygon(xy=(x, y), numVertices=4, radius=0.21, orientation=math.pi / 4, lw=0,
+            ax.add_artist(RegularPolygon(xy=(x, y), numVertices=4, radius=0.18, orientation=math.pi / 4, lw=0,
                                          facecolor='#ff0000', edgecolor='#ff0000', zorder=2))
         else:
             ax.add_artist(Circle(xy=(x, y), radius=r, alpha=1, linewidth=0, zorder=2, facecolor='#ff0000', edgecolor='#ff0000'))

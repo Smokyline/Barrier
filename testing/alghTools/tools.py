@@ -21,20 +21,6 @@ def res_to_txt(file, row):
     f.close()
 
 
-def points_diff_runnerAwB(A, B):
-    """coord"""
-    narrA = np.empty((0, 2))
-    for i, a in enumerate(A):
-        fDimEQLS = np.where(B[:, 0] == a[0])[0]
-        if len(fDimEQLS) > 0:
-            sDimEQLA = np.where(B[fDimEQLS, 1] == a[1])[0]
-            if len(sDimEQLA) == 0:
-                narrA = np.append(narrA, np.array([a]), axis=0)
-        else:
-            narrA = np.append(narrA, np.array([a]), axis=0)
-    return narrA
-
-
 def idx_diff_runnerAwB(A, B):
     '''idx'''
     narr = np.array([]).astype(int)
@@ -59,7 +45,6 @@ def parseIdx_ro(lX, countX, r):
         if countX[i] >= h:
             finalIdx.append(i)
     return np.array(finalIdx), h
-
 
 
 def read_cora_res(idxCX, c):
@@ -172,10 +157,14 @@ def km(data, k, randCZ=False):
     return np.array(idxClusters_sort), np.min(idxClusters_sort[-1])
 
 
-def acc_check(result, EQ):
+def acc_check(result, EQ, grid=False):
     accEQ = 0
-    p1 = 25 / 111
-    p2 = 50 / 111
+    if grid:
+        r1, r2 = 15.5, 22
+    else:
+        r1, r2 = 25, 50
+    p1 = r1 / 111
+    p2 = r2 / 111
 
     for eq in EQ:
 
@@ -195,3 +184,25 @@ def acc_check(result, EQ):
                 acc = 0
         accEQ += acc
     return round(accEQ / len(EQ), 4)
+
+
+
+
+
+
+
+
+"""
+def points_diff_runnerAwB(A, B):
+
+    narrA = np.empty((0, 2))
+    for i, a in enumerate(A):
+        fDimEQLS = np.where(B[:, 0] == a[0])[0]
+        if len(fDimEQLS) > 0:
+            sDimEQLA = np.where(B[fDimEQLS, 1] == a[1])[0]
+            if len(sDimEQLA) == 0:
+                narrA = np.append(narrA, np.array([a]), axis=0)
+        else:
+            narrA = np.append(narrA, np.array([a]), axis=0)
+    return narrA
+"""
