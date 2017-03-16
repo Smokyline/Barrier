@@ -16,11 +16,11 @@ class ParamGlobal:
         self.alphaMax = False
         self.pers = False
         self.epsilon = False
-        self.bar = False
+        self.bar = True
         self.metrix = False
 
         #self.border = False
-        self.border = ['h(X)', 2]
+        self.border = ['h(X)', 3]
         #self.border = ['ro', 6]
         #self.border = ['kmeans', 10]
         #self.border = ['pers', 30]
@@ -46,11 +46,7 @@ def run_bar():
     #res = bar.oneVoneP_Y()
     #res = bar.oneVallF()
 
-    if res.pers == 0:
-        psi = 0
-    else:
-        # a*(1 - s/100)
-        psi = res.acc * (1 - res.pers / 100)
+    #psi = res.acc * (1 - res.pers / 100)
 
     return res
 
@@ -59,16 +55,16 @@ gp = ParamGlobal()
 union = False
 for gridVers in [True]:
     imp = ImportData(zone='kvz', gridVers=gridVers)
-    gp.FEATS_GLOBAL = [34, 35, 36]
+    #gp.FEATS_GLOBAL = [75]
     #gp.FEATS_GLOBAL = [76, 77, 78, 79, 80, 81, 82]
-    #gp.FEATS_GLOBAL = np.array([[8, 9, 10], [33, 34, 35], [58, 59, 60], [83, 84, 85]])
+    gp.FEATS_GLOBAL = np.array([[8, 9, 10], [31, 32, 33], [54, 55, 56], [77, 78, 79]])
     #gp.FEATS_GLOBAL = np.array([[34, 35, 36]])
     #gp.FEATS_GLOBAL = np.array([[83, 84, 85]])
     #gp.FEATS_GLOBAL = [n for n in range(1, len(imp.data_full[0]))]
 
     #print([imp.col[i] for i in gp.FEATS_GLOBAL])
 
-    for s in np.arange(-0.7, -3.7, -0.2):
+    for s in np.arange(-0.7, -6.7, -0.3):
         gp.s = s
 
         if union:
@@ -95,7 +91,7 @@ for gridVers in [True]:
             vis.grid_res(imp.data_coord[res_idx], title=title, r=0.2)
         else:
             print(res.title)
-            vis.color_res(B=imp.data_coord[res_idx], title=res.title, V=None)
+            vis.color_res(res=imp.data_coord[res_idx], title=res.title)
 
 
 #run_comb()

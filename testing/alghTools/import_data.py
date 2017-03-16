@@ -12,9 +12,9 @@ class ImportData:
         elif os.name == 'posix':
             eq_dir = '/Users/Ivan/Documents/workspace/resources/csv/geop/kvz/'
             if self.gridVers:
-                res_dir = '/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz/gridVers/d0.1/'
+                res_dir = '/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz/gridVers/d0.1cut/'
             else:
-                res_dir = '/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz/'
+                res_dir = '/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz/kvz_upd/'
 
         else:
             print('os not supported')
@@ -45,13 +45,13 @@ class ImportData:
                 , 'Adisp', 'Anch', 'Acnt', 'Aw3-1', 'Aw3-2', 'Aw3-3', 'Aw3-1wei', 'Aw3-2wei'
                 , 'Aw3-3wei', 'Aw5-1', 'Aw5-2', 'Aw5-3', 'Aw5-4', 'Aw5-5', 'Aw5-1wei', 'Aw5-2wei'
                 , 'Aw5-3wei', 'Aw5-4wei', 'Aw5-5wei']
-            self.col = ['idx',	'Hmax',	'Hmin',	'DH',	'Top', 'Q',	'HR',	'Nl',	'Rint',	'DH/l',	'Nlc',	'R1',	'R2',
-                        'Bmax',	'Bmin',	'DB', 'Mmax',	'Mmin',	'DM',	'dps',	'Hdisp',	'Bdisp']
+            #self.col = ['idx',	'Hmax',	'Hmin',	'DH',	'Top', 'Q',	'HR',	'Nl',	'Rint',	'DH/l',	'Nlc',	'R1',	'R2',
+             #           'Bmax',	'Bmin',	'DB', 'Mmax',	'Mmin',	'DM',	'dps',	'Hdisp',	'Bdisp']
 
         self.data_full = read_csv(res_dir + 'kvz_khar.csv', self.col).T
 
-        #self.data_field = read_csv(res_dir + 'kvz_khar.csv', self.col).T
-        self.data_field = read_csv(res_dir + 'kvz_field.csv', self.col).T
+        self.data_field = read_csv(res_dir + 'kvz_khar.csv', self.col).T
+        #self.data_field = read_csv(res_dir + 'kvz_field.csv', self.col).T
 
         self.data_sample = read_csv(res_dir + 'kvz_sample.csv', self.col).T
         self.data_coord = read_csv(res_dir + 'kvz_coord.csv', ['x', 'y']).T

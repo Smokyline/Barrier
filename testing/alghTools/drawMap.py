@@ -164,14 +164,12 @@ class Visual:
         plt.close()
 
 
-    def ln_to_grid(self, res, r=0.2252):
+    def ln_to_grid(self, result, title, r=0.2252):
         GRID = read_csv(path='/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz/gridVers/d0.1/kvz_coord.csv', col=['x', 'y']).T
-
-        X = get_grid_around_ln(self.imp.data_coord[res.result], GRID, r=0.15)
+        X = get_grid_around_ln(self.imp.data_coord[result], GRID, r=0.15)
         pers = check_pix_pers(X, grid=True)
         acc = acc_check(X, self.imp.eq_all, grid=True)
-        title = 'grid_%s B=%s(%s%s) acc=%s f=%s %s' % (res.alg_name, len(X), pers, '%', acc,
-                                                         res.lenf, res.param_title)
+        title = 'grid_%s B=%s(%s%s) acc=%s' % (title, len(X), pers, '%', acc)
         print(title)
 
         plt.clf()
