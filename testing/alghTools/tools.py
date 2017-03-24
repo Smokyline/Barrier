@@ -7,7 +7,7 @@ import os
 
 def set_title_param(param):
     title = ''
-    for key in ['q', 's', 'bar', 'delta', 'kmeans', 'alphaMax', 'pers', 'metrix', 'border']:
+    for key in ['q', 's', 'bar', 'delta', 'kmeans', 'alphaMax', 'pers', 'metrix', 'nchCount', 'border', ]:
         value = param[key]
         if value is not False:
             title += '%s=%s ' % (key, value)
@@ -16,7 +16,7 @@ def set_title_param(param):
 
 def res_to_txt(file, row):
     f = open(file, 'a')
-    s = '{} {} {} {} {} {}'.format(row[0], row[1], row[2], row[3], row[4], row[5])  # name |B| acc s param
+    s = '{} {} {} {} {}'.format(row[0], row[1], row[2], row[3], row[4])  # name |B| acc s param
     f.write('%s\n' % s)
     f.close()
 
@@ -39,7 +39,7 @@ def parseIdxH(lX, countX, h):
 def parseIdx_ro(lX, countX, r):
     """расчет границы по колмогоровском среднему"""
     not_zero_count = countX[np.where(countX > 0)]
-    h = int((np.sum(not_zero_count ** r) / len(not_zero_count)) ** (1 / r))
+    h = (np.sum(not_zero_count ** r) / len(not_zero_count)) ** (1 / r)
     finalIdx = []
     for i in range(lX):
         if countX[i] >= h:
@@ -167,7 +167,6 @@ def acc_check(result, EQ, grid=False):
     p2 = r2 / 111
 
     for eq in EQ:
-
         if len(result) == 0:
             acc = 0
         else:

@@ -5,10 +5,11 @@ import numpy as np
 
 
 class Result:
-    def __init__(self, idxB, param, imp, alg_name):
+    def __init__(self, idxB, countX, countX_const_arr, param, imp, alg_name):
         self.result = idxB
+        self.countX = countX
+        self.psi_mean_const = countX_const_arr
         self.alg_name = alg_name
-        #self.V = find_VinXV(imp.indexX, idxB, imp.indexV)
         self.V = np.array([[]])
         self.pers = check_pix_pers(imp.data_coord[self.result], grid=imp.gridVers)
         self.acc = acc_check(imp.data_coord[self.result], imp.eq_all, grid=imp.gridVers)
@@ -98,6 +99,108 @@ class BarrierMod:
                 print('wrong border')
                 idxXV, const = None, None
             return np.array(idxXV).astype(int), const
+
+    def calc_count(self, idxs, XVF, lX, nch=False, alpha_array=None):
+        if not nch:
+            idxs = np.ravel(idxs)
+            return np.array([len(np.where(idxs == i)[0]) for i in range(lX)]).astype(int)
+        else:
+            count_Xi = np.zeros((1, lX))
+            for i, XV in enumerate(XVF):
+                alpha_i = alpha_array[i]
+                nch_XV = np.array([alpha_i / (max(alpha_i, xv)) for xv in np.ravel(XV)])
+                count_Xi += nch_XV
+            return count_Xi[0]
+
+    def union_nch_count_res(self, RE_count, RE_mean_const, gp, imp, theta):
+        shape = RE_count.shape  # (len res, len v , len X)
+        full_idx = np.array([]).astype(int)
+        for vi in range(shape[1]):
+            count_vi_R = RE_count[:, vi, :]
+            const_mean_vi_R = RE_mean_const[:, vi]
+
+            count_nch_vi = np.zeros((1, shape[2]))
+            for r in range(shape[0]):
+                const = const_mean_vi_R[r]
+                nch = np.array([min(cnt, const)/const for cnt in np.ravel(count_vi_R[r])])
+                count_nch_vi += nch
+            idx, _ = self.count_border_blade(theta, count_nch_vi[0])
+            full_idx = np.append(full_idx, idx)
+        final_idx = np.unique(full_idx).astype(int)
+        return Result(final_idx, None, None, gp, imp, 'nch_sum')
+
+
+    def oneVoneP(self):
+        fullXV = np.array([]).astype(int)
+        countXV = []
+        countX_const_arr = []
+        for vi, v in enumerate(self.V):
+            idxXVF = np.array([]).astype(int)
+            alpha_const_v = []
+            roXVF = []
+            for f in self.feats:
+                feat = [f, ]
+                XF = self.X[:, feat]
+                YF = self.Y[:, feat]
+                VF = np.array([v])[:, feat]
+                res = Core(XF, YF, VF, self.param, feat)
+                idxXVF = np.append(idxXVF, res.idxB)
+                roXVF.append(res.XV)
+                alpha_const_v.append(res.alpha_const)
+
+            countX = self.calc_count(idxXVF, roXVF, len(self.X), self.param.nchCount, alpha_const_v)
+            countXV.append(countX)
+            idxXv, countX_const = self.count_border_blade(self.param.border, countX, border_const=None)
+            fullXV = np.append(fullXV, idxXv)
+            countX_const_arr.append(countX_const)
+
+        idxXV = np.unique(fullXV).astype(int)
+        return Result(idxXV, countXV, countX_const_arr, self.param, self.imp, 'oneVoneP')
+
+    def oneVoneP_Y(self):
+        alpha_const_Y_array = []
+        countY_const_array = []
+
+        for vi, v in enumerate(self.V):
+            idxYVF = np.array([]).astype(int)
+            alpha_const_v = []
+            roYVF = []
+            for fi, f in enumerate(self.feats):
+                feat = [f, ]
+                YF = self.Y[:, feat]
+                VF = np.array([v])[:, feat]
+                res = Core(YF, YF, VF, self.param, feat)
+                idxYVF = np.append(idxYVF, res.idxB)
+                roYVF.append(res.XV)
+                alpha_const_v.append(res.alpha_const)
+            countY = self.calc_count(idxYVF, roYVF, len(self.Y), self.param.nchCount, alpha_const_v)
+            idxYv, border_const_Y = self.count_border_blade(self.param.border, countY)
+            alpha_const_Y_array.append(alpha_const_v)
+            countY_const_array.append(border_const_Y)
+
+        fullXV = np.array([]).astype(int)
+        countXV = []
+        for vi, v in enumerate(self.V):
+            idxXVF = np.array([]).astype(int)
+            roXVF = []
+            for fi, f in enumerate(self.feats):
+                feat = [f, ]
+                XF = self.X[:, feat]
+                YF = self.Y[:, feat]
+                VF = np.array([v])[:, feat]
+                res = Core(XF, YF, VF, self.param, feat, alpha=alpha_const_Y_array[vi][fi])
+                idxXVF = np.append(idxXVF, res.idxB)
+                roXVF.append(res.XV)
+
+            countX = self.calc_count(idxXVF, roXVF, len(self.X), self.param.nchCount, alpha_const_Y_array[vi])
+            countXV.append(countX)
+            idxXv = self.count_border_blade(self.param.border, countX, border_const=countY_const_array[vi])
+            fullXV = np.append(fullXV, idxXv)
+
+        idxXV = np.unique(fullXV).astype(int)
+        return Result(idxXV, countXV, countY_const_array, self.param, self.imp, 'oneVoneP_Y')
+
+
 
     def simple(self):
         X = self.X[:, self.feats]
@@ -214,61 +317,6 @@ class BarrierMod:
         idxB, _ = self.count_border_blade(self.param.border, countX)
         return Result(idxB, self.param, self.imp, 'oneVallF')
 
-    def oneVoneP(self):
-        fullXV = np.array([]).astype(int)
-        for vi, v in enumerate(self.V):
-            idxXVF = np.array([]).astype(int)
-            for f in self.feats:
-                feat = [f, ]
-                XF = self.X[:, feat]
-                YF = self.Y[:, feat]
-                VF = np.array([v])[:, feat]
-                idxB = Core(XF, YF, VF, self.param, feat).idxB
-                idxXVF = np.append(idxXVF, idxB)
-
-            countX = np.array([len(np.where(idxXVF == i)[0]) for i in range(len(self.X))]).astype(int)
-            idxXv, _ = self.count_border_blade(self.param.border, countX)
-            fullXV = np.append(fullXV, idxXv)
-
-        idxXV = np.unique(fullXV).astype(int)
-        return Result(idxXV, self.param, self.imp, 'oneVoneP')
-
-    def oneVoneP_Y(self):
-        alpha_const_Y_array = [[] for i in range(len(self.V))]
-        countY_const_array = []
-
-        for vi, v in enumerate(self.V):
-            idxYVF = np.array([]).astype(int)
-            for fi, f in enumerate(self.feats):
-                feat = [f, ]
-                YF = self.Y[:, feat]
-                VF = np.array([v])[:, feat]
-                res = Core(YF, YF, VF, self.param, feat)
-                alpha_const_Y_array[vi].append(res.alpha_const)
-                idxYVF = np.append(idxYVF, res.idxB)
-
-            countY = np.array([len(np.where(idxYVF == i)[0]) for i in range(len(self.Y))]).astype(int)
-            idxYv, border_const_Y = self.count_border_blade(self.param.border, countY)
-            countY_const_array.append(border_const_Y)
-
-
-        fullXV = np.array([]).astype(int)
-        for vi, v in enumerate(self.V):
-            idxXVF = np.array([]).astype(int)
-            for fi, f in enumerate(self.feats):
-                feat = [f, ]
-                XF = self.X[:, feat]
-                YF = self.Y[:, feat]
-                VF = np.array([v])[:, feat]
-                res = Core(XF, YF, VF, self.param, feat, alpha=alpha_const_Y_array[vi][fi])
-                idxXVF = np.append(idxXVF, res.idxB)
-
-            countX = np.array([len(np.where(idxXVF == i)[0]) for i in range(len(self.X))]).astype(int)
-            idxXv = self.count_border_blade(self.param.border, countX, border_const=countY_const_array[vi])
-            fullXV = np.append(fullXV, idxXv)
-
-        idxXV = np.unique(fullXV).astype(int)
-        return Result(idxXV, self.param, self.imp, 'oneVoneP_Y')
 
 
 
