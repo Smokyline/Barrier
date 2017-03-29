@@ -1,4 +1,3 @@
-import os
 import numpy as np
 
 barrier_vars = ['B_oneVoneP_Y']

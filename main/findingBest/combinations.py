@@ -1,9 +1,7 @@
 from main.app.barrier_class import BarrierMod
-from main.alghTools.drawMap import Visual
-from main.alghTools.import_data import ImportData
-from main.alghTools.tools import res_to_txt, set_title_param
+from main.supportAlg.import_data import ImportData
+from main.alghTools.tools import res_to_txt
 import numpy as np
-import time
 
 
 class ParamGlobal:

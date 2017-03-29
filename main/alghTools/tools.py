@@ -1,82 +1,10 @@
 import numpy as np
 import pandas as pd
-import math
-import shutil
 import os
 
 
-def set_title_param(param):
-    title = ''
-    for key in ['q', 's', 'bar', 'delta', 'kmeans', 'alphaMax', 'pers', 'metrix', 'nchCount', 'border', ]:
-        value = param[key]
-        if value is not False:
-            title += '%s=%s ' % (key, value)
-    return title
-
-
-def res_to_txt(file, row):
-    f = open(file, 'a')
-    s = '{} {} {} {} {}'.format(row[0], row[1], row[2], row[3], row[4])  # name |B| acc s param
-    f.write('%s\n' % s)
-    f.close()
-
-def save_xv_to_csv(XV, vi):
-    path = '/Users/Ivan/Documents/workspace/result/Barrier/XVrange/'
-    if not os.path.exists(path):
-        os.makedirs(path)
-    XVdf = pd.DataFrame(np.abs(np.array(XV).ravel()-1))
-    XVdf.to_csv(path + 'XV_' + str(vi+1)+'.csv', index=False, header=False,
-                  sep=';', decimal=',')
-
-def idx_diff_runnerAwB(A, B):
-    '''idx'''
-    narr = np.array([]).astype(int)
-    for i, a in enumerate(A):
-        if a not in B:
-            narr = np.append(narr, a)
-    return narr
-
-def parseIdxH(lX, countX, h):
-    finalIdx = []
-    for i in range(lX):
-        if countX[i] >= h:
-            finalIdx.append(i)
-    return np.array(finalIdx), h
-
-def parseIdx_ro(lX, countX, r):
-    """расчет границы по колмогоровском среднему"""
-    non_zero_count = countX[np.where(countX > 0)]
-    h = (np.sum(non_zero_count ** r) / len(non_zero_count)) ** (1 / r)
-    finalIdx = []
-    for i in range(lX):
-        if countX[i] >= h:
-            finalIdx.append(i)
-    return np.array(finalIdx), h
-
-
-def read_cora_res(idxCX, c):
-    CORAres = read_csv('/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz/kvz_CORA_result.csv',
-                       ['idx', 'r1', 'r2', 'r3', 'r4']).T
-    idxX = np.array([]).astype(int)
-    for res in CORAres:
-        if '+' in res[c]:
-            idxRes = np.where(idxCX == res[0])[0][0]
-            idxX = np.append(idxX, idxRes)
-    return idxX
-
-
-def create_folder(directory, title):
-    q_dir = '%s%s%s' % (directory, title, os.path.sep)
-    print('dir', q_dir)
-
-    if not os.path.exists(q_dir):
-        os.makedirs(q_dir)
-        # os.makedirs('C:\\Users\\smoky\\Documents\\workspace\\result\\Barrier\\test \\')
-
-    return q_dir
-
-
 def read_csv(path, col):
+    """чтение csv файла по col колонкам"""
     array = []
     frame = pd.read_csv(path, header=0, sep=';', decimal=",")
     for i, title in enumerate(col):
@@ -88,91 +16,81 @@ def read_csv(path, col):
     return np.array(array)
 
 
-def persRunner(X, pers, revers=False):
+def read_cora_res(idxCX, c):
+    """импорт результатов алгоритма EPA"""
+    CORAres = read_csv('/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz/kvz_CORA_result.csv',
+                       ['idx', 'r1', 'r2', 'r3', 'r4']).T
+    idxX = np.array([]).astype(int)
+    for res in CORAres:
+        if '+' in res[c]:
+            idxRes = np.where(idxCX == res[0])[0][0]
+            idxX = np.append(idxX, idxRes)
+    return idxX
+
+
+def set_title_param(param):
+    """преобрахование значения перменных параметров в str """
+    title = ''
+    for key in ['q', 's', 'bar', 'delta', 'kmeans', 'alphaMax', 'pers', 'metrix', 'nchCount', 'border', ]:
+        value = param[key]
+        if value is not False:
+            title += '%s=%s ' % (key, value)
+    return title
+
+
+def res_to_txt(file, row):
+    """сохранение результата алгоритма в txt файл """
+    f = open(file, 'a')
+    s = '{} {} {} {} {}'.format(row[0], row[1], row[2], row[3], row[4])  # name |B| acc s param
+    f.write('%s\n' % s)
+    f.close()
+
+
+def save_xv_to_csv(XV, vi):
+    """сохранение расстояний XV в csv файл """
+    path = '/Users/Ivan/Documents/workspace/result/Barrier/XVrange/'
+    if not os.path.exists(path):
+        os.makedirs(path)
+    XVdf = pd.DataFrame(np.abs(np.array(XV).ravel() - 1))
+    XVdf.to_csv(path + 'XV_' + str(vi + 1) + '.csv', index=False, header=False,
+                sep=';', decimal=',')
+
+
+def h_separator(lX, countX, h):
+    """Разделение множества попаданий по признаку по h границе"""
+    finalIdx = []
+    for i in range(lX):
+        if countX[i] >= h:
+            finalIdx.append(i)
+    return np.array(finalIdx), h
+
+
+def ro_separator(lX, countX, r):
+    """Разделение множества попаданий по признаку по степенному среднему"""
+    non_zero_count = countX[np.where(countX > 0)]
+    h = (np.sum(non_zero_count ** r) / len(non_zero_count)) ** (1 / r)
+    finalIdx = []
+    for i in range(lX):
+        if countX[i] >= h:
+            finalIdx.append(i)
+    return np.array(finalIdx), h
+
+
+def pers_separator(X, pers, revers=False):
+    """разделение множества по проценту от кол-ва"""
     border = int(len(X) * pers / 100)
-    #if border >= len(X):
-     #   border = len(X)-1
     sXV = np.argsort(X)
     if revers:
+        """если revers=True последние pers """
         return np.array(sXV[border:]).astype(int), sXV[border]
 
     else:
+        """если revers=False первые pers """
         return np.array(sXV[:border]).astype(int), sXV[border]
 
 
-
-def find_VinXV(Xidx, idxXV, Vidx):
-    w = []
-    for i, x in enumerate(Xidx[idxXV]):
-        if x in Vidx:
-            w.append(i)
-    return idxXV[w]
-
-
-def km(data, k, randCZ=False):
-
-    clusters = [[] for i in range(k)]
-    idx_clusters = [[] for i in range(k)]
-
-    centroids = np.array([])
-
-    if randCZ:
-        for cz_i in range(k):
-            while True:
-                cz = data[np.random.randint(len(data))]
-                if cz not in centroids:
-                    centroids = np.append(centroids, cz)
-                    break
-    else:
-        unD = np.unique(data)
-        for i in range(k):
-            centroids = np.append(centroids, unD[i])
-
-    def average(clusters):
-        c_array = np.array([])
-        for c in clusters:
-            c_array = np.append(c_array, np.mean(c))
-        return c_array
-
-    itr = 1
-    while True:
-        for it, i in enumerate(data):
-            evk_array = np.sqrt((i - centroids) ** 2)
-            minIDX = np.argmin(evk_array)
-            clusters[minIDX].append(i)
-            idx_clusters[minIDX].append(it)
-
-        oldCentroids = centroids.copy()
-        centroids = average(np.array(clusters))
-
-        if not np.array_equal(centroids, oldCentroids):
-            clusters = [[] for i in range(k)]
-            idx_clusters = [[] for i in range(k)]
-        else:
-            idx_clusters = np.array(idx_clusters)
-            break
-        itr += 1
-
-    idxClusters_sort = [[] for i in range(k)]
-    for i in range(len(centroids)):
-        remove_index = np.argmin(centroids)
-        #remove_index = np.argmax(centroids)
-
-        idxClusters_sort[i] = idx_clusters[remove_index]
-        idx_clusters = np.delete(idx_clusters, remove_index, 0)
-        centroids = np.delete(centroids, remove_index)
-
-    for k, idxs in enumerate(idxClusters_sort):
-        k_data = data[idxs]
-        print('k=%i [%f;%f] mean: %f' % (k+1, min(k_data), max(k_data), np.mean(k_data)))
-    print('---------------------\n')
-
-    alpha = np.min(data[idxClusters_sort[-1]])
-    parsed_data = data[np.where(data > alpha)]
-    return np.array(idxClusters_sort), parsed_data, alpha
-
-
 def acc_check(result, EQ, grid=False):
+    """вычисление точности алгоритма"""
     accEQ = 0
     if grid:
         r1, r2 = 15.5, 22
@@ -199,24 +117,3 @@ def acc_check(result, EQ, grid=False):
         accEQ += acc
     return round(accEQ / len(EQ), 4)
 
-
-
-
-
-
-
-
-"""
-def points_diff_runnerAwB(A, B):
-
-    narrA = np.empty((0, 2))
-    for i, a in enumerate(A):
-        fDimEQLS = np.where(B[:, 0] == a[0])[0]
-        if len(fDimEQLS) > 0:
-            sDimEQLA = np.where(B[fDimEQLS, 1] == a[1])[0]
-            if len(sDimEQLA) == 0:
-                narrA = np.append(narrA, np.array([a]), axis=0)
-        else:
-            narrA = np.append(narrA, np.array([a]), axis=0)
-    return narrA
-"""

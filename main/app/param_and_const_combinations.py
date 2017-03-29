@@ -1,10 +1,7 @@
 from main.app.barrier_class import BarrierMod
-from main.alghTools.drawMap import Visual
-from main.alghTools.import_data import ImportData
-from main.alghTools.tools import res_to_txt, set_title_param
+from main.supportAlg.drawMap import Visual
+from main.supportAlg.import_data import ImportData
 import numpy as np
-import itertools
-import time
 
 
 class ParamGlobal:
@@ -16,13 +13,13 @@ class ParamGlobal:
         self.alphaMax = False
         self.pers = False
         self.epsilon = False
-        self.bar = False
+        self.vector = False
         self.metrix = False
         self.nchCount = True
 
         # self.border = False
         #self.border = ['h(X)', 1]
-        self.border = ['ro', 6.8]
+        self.border = ['ro', 10]
         #self.border = ['kmeans', 25]
         # self.border = ['pers', 30]
 
@@ -105,15 +102,11 @@ def comb_grid_param():
             imp.set_save_path(folder_name='', res=res)
             vis = Visual(X=imp.data_coord, r=0.225, imp=imp, path=imp.save_path)
             if gridVers:
-                # acc_pers, acc_count, miss_count = calc_acc_pixpoly(imp.data_coord[res_idx], imp.eq_all, delta=0.2)
-                # +str(gp.FEATS_GLOBAL)
-                # title = '%s B=%s(%s%s) acc=%s(%s%s) f=%s %s' % (res.alg_name, len(res_idx), res.pers, '%', res.acc, round(acc_pers, 3), '%',
-                # res.lenf, res.param_title)
                 print(res.title)
                 vis.grid_res(imp.data_coord[res_idx], title=res.title, r=0.2)
             else:
                 print(res.title)
-                vis.color_res(res=imp.data_coord[res_idx], title=res.title)
+                vis.visual_circle(res=imp.data_coord[res_idx], title=res.title)
 
 
 

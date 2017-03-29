@@ -1,6 +1,7 @@
-from main.app.barrier_class import BarrierMod, CompareAlgh
-from main.alghTools.drawMap import Visual
-from main.alghTools.import_data import ImportData
+from main.app.barrier_class import BarrierMod
+from main.supportAlg.drawMap import Visual
+from main.supportAlg.import_data import ImportData
+from main.supportAlg.comparison import CompareAlgh
 from main.alghTools.tools import read_cora_res
 
 
@@ -59,13 +60,13 @@ print(r.title)
 imp.set_save_path(folder_name='', res=r)
 vis = Visual(X=imp.data_coord, r=0.225, imp=imp, path=imp.save_path)
 if not imp.gridVers:
-    vis.color_res(res=r.result, title=r.title)
+    vis.visual_circle(res=r.result, title=r.title)
 else:
     vis.grid_res(imp.data_coord[r.result], title=r.title, r=0.2)
 
 
 
-#vis.ln_to_grid(r.result, 'barrier')
+vis.ln_to_grid(r.result, 'barrier')
 
 #cora_res = read_cora_res(imp.indexX, c=1)
 #vis.ln_to_grid(cora_res, 'cora')
