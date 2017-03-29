@@ -4,7 +4,9 @@ matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 from matplotlib.patches import Circle
+from matplotlib.patches import RegularPolygon
 import matplotlib.patches as patches
+import math
 
 from PIL import Image
 from skimage.color import rgb2gray
@@ -12,22 +14,34 @@ from main.alghTools.tools import read_csv
 import scipy.misc
 
 
-def get_field_coords():
-    return [36, 52, 37, 46]
+from main.alghTools.tools import acc_check
 
+def get_field_coords():
+    coordinatesPoly = [36, 52, 37, 46]
+    return np.array(coordinatesPoly)
+
+def get_squar_poly_coords():
+    coordinatesPoly = [[36.6, 44.2], [37.4, 45.35], [40.2, 44.8], [40.2, 44], [41.5, 44], [41.7, 44.5], [43.2, 44.5],
+                       [44.1, 43.3], [47.8, 43.3], [51.2, 40.2], [51.2, 39.8], [48.5, 37.9], [47, 38.9], [46.1, 38.2],
+                       [44.2, 38.8], [41, 39.6], [40.4, 40.1], [41, 40.9], [41, 42.8], ]
+    return np.array(coordinatesPoly)
 
 class Visual:
     def __init__(self, X, r, imp, path):
         self.X = X
+        self.imp = imp
         self.path = path
         self.m_c = get_field_coords()
         self.r = r
         self.eq_all, self.eq_ist, self.eq_instr, self.eqLegend = imp.eq_stack()
 
-    def color_res(self, B, title, V):
+    def color_res(self, res, title):
+        B = self.imp.data_coord[res]
+        #V = self.imp.data_coord[v_res]
         fig = plt.figure()
         ax = fig.add_subplot(111, aspect='equal')
 
+        pol = get_squar_poly_coords()
         m = Basemap(llcrnrlat=self.m_c[2], urcrnrlat=self.m_c[3],
                     llcrnrlon=self.m_c[0], urcrnrlon=self.m_c[1],
                     resolution='l')
@@ -38,16 +52,20 @@ class Visual:
         meridians = np.arange(0., 360, 2)
         m.drawmeridians(meridians, labels=[True, False, False, True], zorder=1, linewidth=0.4)
 
+        ax.add_patch(patches.Polygon(pol, edgecolor="b", facecolor='none', alpha=0.6, zorder=0, ))
+
+        plt.scatter(self.X[:, 0], self.X[:, 1], c='k', marker='.', lw=0, zorder=0, s=8)
+
         for x, y, r in zip(B[:, 0], B[:, 1], [self.r for i in range(len(B))]):
             circle_B = ax.add_artist(Circle(xy=(x, y),
                                            radius=r, alpha=0.8, linewidth=0.75, zorder=2, facecolor='b',
                                            edgecolor="k"))
 
-        if V is not None:
+        """if V is not None:
             for x, y, r in zip(V[:, 0], V[:, 1], [self.r for i in range(len(V))]):
                 circle_V = ax.add_artist(Circle(xy=(x, y),
                                                 radius=r, alpha=0.9, linewidth=0.75, zorder=3, facecolor="g",
-                                                edgecolor="k"))
+                                                edgecolor="k"))"""
 
         plt.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], c='r', marker='^', linewidths=0.45, zorder=4, s=20)
         plt.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], c='r', marker='o', linewidths=0.45, zorder=4, s=20)
@@ -90,9 +108,11 @@ class Visual:
         plt.savefig(self.path + head_title + '.png', dpi=400)
         plt.close()
 
-    def diff_res(self, SETS, labels, title, title2):
+    def ln_diff_res(self, SETS, labels, title, title2):
         fig = plt.figure()
         ax = fig.add_subplot(111,aspect='equal')
+        sqrt_pol = get_squar_poly_coords()
+
         m = Basemap(llcrnrlat=self.m_c[2], urcrnrlat=self.m_c[3],
                     llcrnrlon=self.m_c[0], urcrnrlon=self.m_c[1],
                     resolution='l')
@@ -102,6 +122,8 @@ class Visual:
         m.drawparallels(parallels, labels=[False, True, True, False], zorder=1, linewidth=0.4)
         meridians = np.arange(0., 360, 2)
         m.drawmeridians(meridians, labels=[True, False, False, True], zorder=1, linewidth=0.4)
+
+        ax.add_patch(patches.Polygon(sqrt_pol, edgecolor="b", facecolor='none', alpha=0.4, zorder=0))
 
         plt.scatter(self.X[:, 0], self.X[:, 1], marker='.', s=11, c='k', linewidth=0, zorder=1)
 
@@ -125,7 +147,45 @@ class Visual:
         plt.savefig(self.path + title + '.png', dpi=400)
         plt.close()
 
-    def grid_res(self, V, title):
+    def grid_res(self, X, title, r):
+        plt.clf()
+        figManager = plt.get_current_fig_manager()
+        figManager.window.showMaximized()
+        ax = plt.gca()
+        m = Basemap(llcrnrlat=self.m_c[2], urcrnrlat=self.m_c[3],
+                    llcrnrlon=self.m_c[0], urcrnrlon=self.m_c[1],
+                    resolution='l')
+        m.drawcountries(zorder=1, linewidth=0.6)
+        m.drawcoastlines(zorder=1, linewidth=0.6)
+        delta = 2
+        parallels = np.arange(0., 90, delta)
+        m.drawparallels(parallels, labels=[False, True, True, False], zorder=1, linewidth=0.4)
+        meridians = np.arange(0., 360, delta)
+        m.drawmeridians(meridians, labels=[True, False, False, True], zorder=1, linewidth=0.4)
+
+        ax.scatter(self.X[:, 0], self.X[:, 1], marker='.', color='k', lw=0, s=8, zorder=0)
+        #ax.scatter(V[:, 0], V[:, 1], marker='s', color='g', lw=0, s=70)
+
+        for xy in X:
+            ax.add_artist(RegularPolygon(xy=(xy[0], xy[1]), numVertices=4, radius=r-0.05, orientation=math.pi/4, lw=0,
+                                           color='b', zorder=2, alpha=0.75))
+
+        ax.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], marker='^', color='r', lw=0.5, zorder=3)
+        ax.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], marker='o', color='r', lw=0.5, zorder=4)
+
+        plt.title(title)
+        plt.savefig(self.path + title + '.png', dpi=400)
+        plt.close()
+
+
+    def ln_to_grid(self, result, title, r=0.2252):
+        GRID = read_csv(path='/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz/gridVers/d0.1cut/kvz_coord.csv', col=['x', 'y']).T
+        X = get_grid_around_ln(self.imp.data_coord[result], GRID, r=0.15)
+        pers = check_pix_pers(X, grid=True)
+        acc = acc_check(X, self.imp.eq_all, grid=True)
+        title = 'grid_%s B=%s(%s%s) acc=%s' % (title, len(X), pers, '%', acc)
+        print(title)
+
         plt.clf()
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
@@ -140,23 +200,25 @@ class Visual:
         meridians = np.arange(0., 360, 2)
         m.drawmeridians(meridians, labels=[True, False, False, True], zorder=1, linewidth=0.4)
 
-        ax.scatter(self.X[:, 0], self.X[:, 1], marker='s', color='b', lw=0, s=70)
-        ax.scatter(V[:, 0], V[:, 1], marker='s', color='g', lw=0, s=70)
+        ax.scatter(GRID[:, 0], GRID[:, 1], marker='.', color='k', lw=0, s=8, zorder=0)
+        # ax.scatter(V[:, 0], V[:, 1], marker='s', color='g', lw=0, s=70)
 
-        ax.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], marker='^', color='r', lw=0.5)
-        ax.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], marker='o', color='r', lw=0.5)
+        for xy in X:
+            ax.add_artist(
+                RegularPolygon(xy=(xy[0], xy[1]), numVertices=4, radius=r - 0.05, orientation=math.pi / 4, lw=0,
+                               color='b', zorder=2, alpha=0.75))
 
+        ax.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], marker='^', color='r', lw=0.5, zorder=3)
+        ax.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], marker='o', color='r', lw=0.5, zorder=4)
+
+        plt.title(title)
         plt.savefig(self.path + title + '.png', dpi=400)
         plt.close()
 
 
-
-
-def visuaMSdiffPix_ras(Aln, Bln, r, direc, title, head_title):
+def visuaMSdiffPix_ras(Aln, Bln, r, direc, title):
 
     fc = get_field_coords()
-
-    pol = [[fc[0], fc[2]], [fc[0], fc[3]], [fc[1], fc[3]], [fc[1], fc[2]]]
 
     def calc_len_pix(data, r):
         lon_0 = np.mean(fc[:2])
@@ -177,8 +239,8 @@ def visuaMSdiffPix_ras(Aln, Bln, r, direc, title, head_title):
 
 
 
-        plt.savefig('/Users/Ivan/Documents/workspace/result/tmp/test.png', bbox_inches='tight', pad_inches=0, dpi=250)
-        img = Image.open('/Users/Ivan/Documents/workspace/result/tmp/test.png')
+        plt.savefig('/Users/Ivan/Documents/workspace/result/tmp/diff_tmp.png', bbox_inches='tight', pad_inches=0, dpi=250)
+        img = Image.open('/Users/Ivan/Documents/workspace/result/tmp/diff_tmp.png')
         rgb_im = img.convert('RGB')
         data = np.array(rgb_im)
         H, W = len(data), len(data[0])
@@ -254,23 +316,42 @@ def visuaMSdiffPix_ras(Aln, Bln, r, direc, title, head_title):
 ############################
 
 
+def get_grid_around_ln(ln, grid, r):
+    cutlnGrid = []
+    for i in grid:
+        evk_array = np.zeros((1, len(ln)))
+        for n, d in enumerate(i):
+            evk_array += (d - ln[:, n]) ** 2
+        evk_gpXY = np.sqrt(evk_array[0])
+        evk_wh = np.where(evk_gpXY <= r)[0]
+        if len(evk_wh) > 0:
+            cutlnGrid.append(i)
+    return np.array(cutlnGrid)
 
 
-def check_pix_pers(A):
+def check_pix_pers(A, grid=False):
     fig = plt.figure()
     ax = plt.gca(aspect='equal')
 
-    fc = get_field_coords()
+    fc = get_squar_poly_coords()
 
     plt.axis('off')
-    plt.xlim(fc[0], fc[1])
-    plt.ylim(fc[2], fc[3])
 
-    pol = [[fc[0], fc[2]], [fc[0], fc[3]], [fc[1], fc[3]], [fc[1], fc[2]]]
+    #plt.xlim(fc[0], fc[1])
+    #plt.xlim(fc[0], fc[1])
+    plt.xlim(np.min(fc[:, 0]), np.max(fc[:, 0]))
+    plt.ylim(np.min(fc[:, 1]), np.max(fc[:, 1]))
+
+    #pol = [[fc[0], fc[2]], [fc[0], fc[3]], [fc[1], fc[3]], [fc[1], fc[2]]]
+    pol = fc
 
     ax.add_patch(patches.Polygon(pol, color='#008000', zorder=1))
     for x, y, r in zip(A[:, 0], A[:, 1], [0.225 for i in range(len(A))]):
-        ax.add_artist(Circle(xy=(x, y), radius=r, alpha=1, linewidth=0, zorder=2, facecolor='#ff0000', edgecolor='#ff0000'))
+        if grid:
+            ax.add_artist(RegularPolygon(xy=(x, y), numVertices=4, radius=0.18, orientation=math.pi / 4, lw=0,
+                                         facecolor='#ff0000', edgecolor='#ff0000', zorder=2))
+        else:
+            ax.add_artist(Circle(xy=(x, y), radius=r, alpha=1, linewidth=0, zorder=2, facecolor='#ff0000', edgecolor='#ff0000'))
 
     fig.canvas.draw()
 
@@ -289,3 +370,70 @@ def check_pix_pers(A):
     plt.close()
     return round(r * 100 / f, 3)
 
+
+
+def calc_acc_pixpoly(B, eq_data,  delta):
+    fig = plt.figure()
+    #ax = fig.add_subplot(111, aspect='equal')
+
+    figManager = plt.get_current_fig_manager()
+    figManager.window.showMaximized()
+    ax = plt.gca()
+
+    plt.axis('off')
+
+    coord_field = get_field_coords()
+    plt.xlim(coord_field[0], coord_field[1])
+    plt.ylim(coord_field[2], coord_field[3])
+    center_x, center_y = np.mean(coord_field[:2]), np.mean(coord_field[2:])
+
+    def calc_len_pix():
+        fig.canvas.draw()
+        reso = fig.canvas.get_width_height()
+
+        data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
+        data = data.reshape((reso[0] * reso[1], 3))
+
+        #idx_green_array1 = np.where(data[:, 1] == 128)[0]
+        #green_array = data[np.where(data[idx_green_array1, 2] == 0)]
+
+        idx_red_array1 = np.where(data[:, 0] == 255)[0]
+        red_array = data[np.where(data[idx_red_array1, 1] == 0)]
+
+        return len(red_array)
+
+
+    #ax.add_patch(patches.Polygon(pols, color='#008000', zorder=0))
+
+    test_dot = ax.scatter(center_x, center_y, marker='o', c='#ff0000', lw=0, s=70, zorder=2)
+    one_dot_leng = calc_len_pix()
+    test_dot.set_visible(False)
+
+    #ax.scatter(B[:, 0], B[:, 1], c='#ff0000', marker='s', s=100, linewidths=0.0, alpha=1, zorder=1)
+    for x, y, r in zip(B[:, 0], B[:, 1], [delta for i in range(len(B))]):
+        ax.add_artist(RegularPolygon(xy=(x, y), numVertices=4, radius=r-0.05, orientation=math.pi / 4, lw=0,
+                                 facecolor='#ff0000', edgecolor='#ff0000', zorder=1))
+
+    #plt.savefig('/Users/Ivan/Documents/workspace/result/tmp/' + 'field.png', dpi=100)
+
+    zero_r = calc_len_pix()
+
+
+    w = 0
+    acc_points = 0
+    miss_points = 0
+
+    for i, xy in enumerate(eq_data):
+        r = ax.scatter(xy[0], xy[1], marker='o', c='#ff0000', lw=0, s=70, zorder=2)
+        a_r = calc_len_pix()
+
+        if np.abs(zero_r - a_r) < one_dot_leng:
+            acc_points += 1
+            w += 1
+        else:
+            #plt.savefig('/Users/Ivan/Documents/workspace/result/tmp/' + 'figD' +str(i+1)+ '.png', dpi=100)
+            miss_points += 1
+        r.set_visible(False)
+
+    plt.close()
+    return w / len(eq_data), acc_points, miss_points

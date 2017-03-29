@@ -1,7 +1,7 @@
-from testing.app.barrier_class import BarrierMod
-from testing.alghTools.drawMap import Visual, calc_acc_pixpoly
-from testing.alghTools.import_data import ImportData
-from testing.alghTools.tools import res_to_txt, set_title_param
+from main.app.barrier_class import BarrierMod
+from main.alghTools.drawMap import Visual
+from main.alghTools.import_data import ImportData
+from main.alghTools.tools import res_to_txt, set_title_param
 import numpy as np
 import itertools
 import time
@@ -21,9 +21,9 @@ class ParamGlobal:
         self.nchCount = True
 
         # self.border = False
-        # self.border = ['h(X)', 2.6]
-        self.border = ['ro', 10]
-        # self.border = ['kmeans', 2]
+        #self.border = ['h(X)', 1]
+        self.border = ['ro', 6.8]
+        #self.border = ['kmeans', 25]
         # self.border = ['pers', 30]
 
         self.FEATS_GLOBAL = None
@@ -77,9 +77,10 @@ def run_union_bar(gridVers=False):
 
 def run_bar(imp):
     bar = BarrierMod(imp, gp)
-    # res = bar.simple()
-    # res = bar.oneVoneP()
-    res = bar.oneVoneP_Y()
+
+    res = bar.oneVoneP()
+    #res = bar.oneVoneP_Y()
+
     return res
 
 
@@ -89,13 +90,13 @@ def comb_grid_param():
         gp.FEATS_GLOBAL = [31, 32, 33]
         # gp.FEATS_GLOBAL = [76, 77, 78, 79, 80, 81, 82]
         # gp.FEATS_GLOBAL = np.array([[8, 9, 10], [31, 32, 33], [54, 55, 56], [77, 78, 79]])
-        # gp.FEATS_GLOBAL = np.array([[34, 35, 36]])
+        #gp.FEATS_GLOBAL = np.array([[31, 32, 33]])
         # gp.FEATS_GLOBAL = np.array([[83, 84, 85]])
         # gp.FEATS_GLOBAL = [n for n in range(1, len(imp.data_full[0]))]
 
         # print([imp.col[i] for i in gp.FEATS_GLOBAL])
 
-        for s in np.arange(-5.2, -6.5, -0.2):
+        for s in np.arange(-2.5, -4.1, -0.2):
             gp.s = s
 
             res = run_bar(imp)
@@ -118,5 +119,5 @@ def comb_grid_param():
 
 gp = ParamGlobal()
 
-#comb_grid_param()
-run_union_bar(gridVers=True)
+comb_grid_param()
+#run_union_bar(gridVers=True)

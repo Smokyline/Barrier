@@ -1,16 +1,19 @@
 from main.EPAn.core import *
 from main.alghTools.drawMap import *
+from main.alghTools.tools import save_xv_to_csv
 import numpy as np
 
 
 
 class Result:
-    def __init__(self, idxB, param, imp, alg_name):
+    def __init__(self, idxB, countX, countX_const_arr, param, imp, alg_name):
         self.result = idxB
+        self.countX = countX
+        self.psi_mean_const = countX_const_arr
         self.alg_name = alg_name
-        self.V = find_VinXV(imp.indexX, idxB, imp.indexV)
-        self.pers = check_pix_pers(imp.data_coord[self.result])
-        self.acc = acc_check(imp.data_coord[self.result], imp.eq_all)
+        self.V = np.array([[]])
+        self.pers = check_pix_pers(imp.data_coord[self.result], grid=imp.gridVers)
+        self.acc = acc_check(imp.data_coord[self.result], imp.eq_all, grid=imp.gridVers)
         self.param_title = set_title_param(vars(param))
         self.lenB = len(idxB)
         self.lenf = len(param.global_feats())
@@ -19,7 +22,7 @@ class Result:
 
 
 class CompareAlgh:
-    def __init__(self, imp, barrierX, coraX):
+    def __init__(self, imp, vis, barrierX, coraX):
         self.algA = barrierX
         self.algB = coraX
 
@@ -28,13 +31,17 @@ class CompareAlgh:
         self.AwB = idx_diff_runnerAwB(self.algA, self.algB)
         self.BwA = idx_diff_runnerAwB(self.algB, self.algA)
 
-        self.persUnion = check_pix_pers(imp.data_coord[self.union])
-        self.persA = check_pix_pers(imp.data_coord[self.algA])
-        self.persB = check_pix_pers(imp.data_coord[self.algB])
+        self.persUnion = check_pix_pers(imp.data_coord[self.union], grid=imp.gridVers)
+        self.persA = check_pix_pers(imp.data_coord[self.algA], grid=imp.gridVers)
+        self.persB = check_pix_pers(imp.data_coord[self.algB], grid=imp.gridVers)
 
         self.accA = acc_check(imp.data_coord[self.algA], imp.eq_all)
         self.accB = acc_check(imp.data_coord[self.algB], imp.eq_all)
         self.accUnion = acc_check(imp.data_coord[self.union], imp.eq_all)
+
+        self.data_coord = imp.data_coord
+        self.save_path = imp.save_path
+        self.vis = vis
 
     def tanimoto(self):
         """мера Танимото (пересечение\объединение)"""
@@ -44,21 +51,20 @@ class CompareAlgh:
         """разность (объединение минус пересечение)"""
         return np.union1d(self.AwB, self.BwA)
 
-    def visual_compare(self, data_coord, result, compare, vis, directory):
+    def visual_compare(self, result):
         compare_title = 'comp %s P=%s Bar(%s%s) vs Cora(%s%s) U=%s(%s%s) ' % (
-            result.alg_name, result.lenf, compare.persA, '%', compare.persB, '%', len(compare.union), compare.persUnion, '%')
+            result.alg_name, result.lenf, self.persA, '%', self.persB, '%', len(self.union), self.persUnion, '%')
         compare_title2 = 'accBar=%s accCora=%s accU=%s tanim=%s BnC=%s B/C=%s C/B=%s' % (
-            compare.accA, compare.accB, compare.accUnion, compare.tanimoto(), len(compare.inters), len(compare.AwB), len(compare.BwA))
-        vis.ln_diff_res(SETS=[data_coord[compare.inters], data_coord[compare.AwB], data_coord[compare.BwA]], labels=['BnC', 'B/C', 'C/B'],
-                        title=compare_title, title2=compare_title2)
-        vis.color_res(B=data_coord[compare.algB], title='Cora-3', V=None)
+            self.accA, self.accB, self.accUnion, self.tanimoto(), len(self.inters), len(self.AwB), len(self.BwA))
 
-        vis.bw_stere_res(B=data_coord[compare.algA], head_title='Барьер', circle_color='#aeaeae')
-        vis.bw_stere_res(B=data_coord[compare.algB], head_title='Кора-3', circle_color='none')
-        vis.bw_stere_res(B=data_coord[compare.union], head_title='Объединение', circle_color='#898989')
+        self.vis.ln_diff_res(SETS=[self.data_coord[self.inters], self.data_coord[self.AwB], self.data_coord[self.BwA]], labels=['BnC', 'B/C', 'C/B'], title=compare_title, title2=compare_title2)
+        self.vis.color_res(res=self.algB, title='Cora-3')
 
-        visuaMSdiffPix_ras(data_coord[compare.union], data_coord[compare.inters], r=0.225, title='ras_diff', head_title='Разность',
-                           direc=directory)
+        self.vis.bw_stere_res(B=self.data_coord[self.algA], head_title='Барьер', circle_color='#aeaeae')
+        self.vis.bw_stere_res(B=self.data_coord[self.algB], head_title='Кора-3', circle_color='none')
+        self.vis.bw_stere_res(B=self.data_coord[self.union], head_title='Объединение', circle_color='#898989')
+
+        visuaMSdiffPix_ras(self.data_coord[self.union], self.data_coord[self.inters], r=0.225, direc=self.save_path, title='Разность площадей')
 
 
 
@@ -66,6 +72,7 @@ class BarrierMod:
     def __init__(self, imp, g_param):
         self.imp = imp
         self.X = imp.data_full
+        self.Y = imp.data_field
         self.V = imp.data_sample
         self.indexX = imp.indexX
         self.indexV = imp.indexV
@@ -73,36 +80,148 @@ class BarrierMod:
         self.param = g_param
         self.feats = g_param.global_feats()
 
-    def border_blade(self, border, countX, idxB=None):
+    def count_border_blade(self, border, countX, border_const=None):
         """h(V); h(X); pers; kmeans"""
-        if border[0] == 'h(V)':
-            idxV = find_VinXV(self.indexX, np.unique(idxB), self.indexV)
-            hCalc = [x for i, x in enumerate(countX) if i in idxV]
-            idxXV = parseIdxH(len(self.X), countX, h=border[1], r=self.param.r, hcalc=hCalc)
-        elif border[0] == 'h(X)':
-            idxXV = parseIdxH(len(self.X), countX, h=border[1], r=self.param.r)
-        elif border[0] == 'pers':
-            idxXV = np.array(persRunner(countX, pers=border[1], revers=True)).astype(int)
-        elif border[0] == 'kmeans':
-            idxXV = km(countX, border[1], randCZ=False)[-1]
-        else:
-            print('wrong border')
-            idxXV = None
-        return np.array(idxXV).astype(int)
 
+        if border_const is not None:
+            idxXV = np.array(np.where(countX >= border_const)[0]).astype(int)
+            return idxXV
+        else:
+            if border[0] == 'h(X)':
+                idxXV, const = parseIdxH(len(countX), countX, h=border[1])
+            elif border[0] == 'ro':
+                idxXV, const = parseIdx_ro(len(countX), countX, r=border[1])
+            elif border[0] == 'pers':
+                idxXV, const = persRunner(countX, pers=border[1], revers=True)
+            elif border[0] == 'kmeans':
+                _, idxXV, const = km(countX, border[1], randCZ=False)
+
+
+            else:
+                print('wrong border')
+                idxXV, const = None, None
+            return np.array(idxXV).astype(int), const
+
+    def calc_count(self, idxs, XVF, lX, nch=False, alpha_array=None):
+        if not nch:
+            idxs = np.ravel(idxs)
+            return np.array([len(np.where(idxs == i)[0]) for i in range(lX)]).astype(int)
+        else:
+            count_Xi = np.zeros((1, lX))
+            for i, XV in enumerate(XVF):
+                alpha_i = alpha_array[i]
+                nch_XV = np.array([alpha_i / (max(alpha_i, xv)) for xv in np.ravel(XV)])
+                count_Xi += nch_XV
+            return count_Xi[0]
+
+    def union_nch_count_res(self, RE_count, RE_mean_const, gp, imp, theta):
+        shape = RE_count.shape  # (len res, len v , len X)
+        full_idx = np.array([]).astype(int)
+        for vi in range(shape[1]):
+            count_vi_R = RE_count[:, vi, :]
+            const_mean_vi_R = RE_mean_const[:, vi]
+
+            count_nch_vi = np.zeros((1, shape[2]))
+            for r in range(shape[0]):
+                const = const_mean_vi_R[r]
+                nch = np.array([min(cnt, const)/const for cnt in np.ravel(count_vi_R[r])])
+                count_nch_vi += nch
+            idx, _ = self.count_border_blade(theta, count_nch_vi[0])
+            full_idx = np.append(full_idx, idx)
+        final_idx = np.unique(full_idx).astype(int)
+        gp.border = theta
+        gp.s = 'best'
+        return Result(final_idx, None, None, gp, imp, 'nch_sum')
+
+    def oneVoneP(self):
+        fullXV = np.array([]).astype(int)
+        countXV = []
+        countX_const_arr = []
+        for vi, v in enumerate(self.V):
+            idxXVF = np.array([]).astype(int)
+            alpha_const_v = []
+            roXVF = []
+            for f in self.feats:
+                feat = [f, ]
+                XF = self.X[:, feat]
+                YF = self.Y[:, feat]
+                VF = np.array([v])[:, feat]
+                res = Core(XF, YF, VF, self.param, feat)
+                idxXVF = np.append(idxXVF, res.idxB)
+                roXVF.append(res.XV)
+                alpha_const_v.append(res.alpha_const)
+            #save_xv_to_csv(roXVF, vi)
+            countX = self.calc_count(idxXVF, roXVF, len(self.X), self.param.nchCount, alpha_const_v)
+            countXV.append(countX)
+            idxXv, countX_const = self.count_border_blade(self.param.border, countX, border_const=None)
+            fullXV = np.append(fullXV, idxXv)
+            countX_const_arr.append(countX_const)
+        print(countX_const_arr)
+
+        idxXV = np.unique(fullXV).astype(int)
+        return Result(idxXV, countXV, countX_const_arr, self.param, self.imp, 'oneVoneP')
+
+    def oneVoneP_Y(self):
+        alpha_const_Y_array = []
+        countY_const_array = []
+
+        for vi, v in enumerate(self.V):
+            idxYVF = np.array([]).astype(int)
+            alpha_const_v = []
+            roYVF = []
+            for fi, f in enumerate(self.feats):
+                feat = [f, ]
+                YF = self.Y[:, feat]
+                VF = np.array([v])[:, feat]
+                res = Core(YF, YF, VF, self.param, feat)
+                idxYVF = np.append(idxYVF, res.idxB)
+                roYVF.append(res.XV)
+                alpha_const_v.append(res.alpha_const)
+            countY = self.calc_count(idxYVF, roYVF, len(self.Y), self.param.nchCount, alpha_const_v)
+            idxYv, border_const_Y = self.count_border_blade(self.param.border, countY)
+            alpha_const_Y_array.append(alpha_const_v)
+            countY_const_array.append(border_const_Y)
+        #print(countY_const_array)
+        #print(alpha_const_Y_array)
+        fullXV = np.array([]).astype(int)
+        countXV = []
+        for vi, v in enumerate(self.V):
+            idxXVF = np.array([]).astype(int)
+            roXVF = []
+            for fi, f in enumerate(self.feats):
+                feat = [f, ]
+                XF = self.X[:, feat]
+                YF = self.Y[:, feat]
+                VF = np.array([v])[:, feat]
+                res = Core(XF, YF, VF, self.param, feat, alpha=alpha_const_Y_array[vi][fi])
+                idxXVF = np.append(idxXVF, res.idxB)
+                roXVF.append(res.XV)
+
+            countX = self.calc_count(idxXVF, roXVF, len(self.X), self.param.nchCount, alpha_const_Y_array[vi])
+            countXV.append(countX)
+            idxXv = self.count_border_blade(self.param.border, countX, border_const=countY_const_array[vi])
+            fullXV = np.append(fullXV, idxXv)
+
+        idxXV = np.unique(fullXV).astype(int)
+        return Result(idxXV, countXV, countY_const_array, self.param, self.imp, 'oneVoneP_Y')
+
+
+'''
     def simple(self):
         X = self.X[:, self.feats]
+        Y = self.Y[:, self.feats]
         V = self.V[:, self.feats]
-        idxB = Core(X, V, self.param, self.feats).idxB
+        idxB = Core(X, Y, V, self.param, self.feats).idxB
 
         return Result(idxB, self.param, self.imp, 'simple')
 
     def iter_learning(self):
         X = self.X[:, self.feats]
+        Y = self.Y[:, self.feats]
         V = self.V[:, self.feats]
         old_idx = None
         while True:
-            idxB = Core(X, V, self.param, self.feats).idxB
+            idxB = Core(X, Y, V, self.param, self.feats).idxB
             V = X[idxB]
             if len(idxB) >= 130:
                 break
@@ -184,10 +303,11 @@ class BarrierMod:
             feat = [f, ]
             X = self.X[:, feat]
             V = self.V[:, feat]
-            idxB = Core(X, V, self.param, feat).idxB
+            Y = self.Y[:, feat]
+            idxB = Core(X, Y, V, self.param, feat).idxB
             IDX = np.append(IDX, idxB)
         countX = np.array([len(np.where(IDX == i)[0]) for i in range(len(self.X))])
-        idxB = self.border_blade(self.param.border, countX, IDX)
+        idxB, _ = self.count_border_blade(self.param.border, countX)
         return Result(idxB, self.param, self.imp, 'allVoneF')
 
     def oneVallF(self):
@@ -195,29 +315,16 @@ class BarrierMod:
         for v in self.V:
             V = np.array([v])[:, self.feats]
             X = self.X[:, self.feats]
-            idxB = Core(X, V, self.param, self.feats).idxB
+            Y = self.Y[:, self.feats]
+            idxB = Core(X, Y, V, self.param, self.feats).idxB
             IDX = np.append(IDX, idxB)
         countX = np.array([len(np.where(IDX == i)[0]) for i in range(len(self.X))])
-        idxB = self.border_blade(self.param.border, countX, IDX)
+        idxB, _ = self.count_border_blade(self.param.border, countX)
         return Result(idxB, self.param, self.imp, 'oneVallF')
 
-    def oneVoneP(self):
-        fullXV = np.array([]).astype(int)
-        for v in self.V:
-            idxXVF = np.array([]).astype(int)
-            for f in self.feats:
-                feat = [f, ]
-                XF = self.X[:, feat]
-                VF = np.array([v])[:, feat]
-                idxB = Core(XF, VF, self.param, feat).idxB
-                idxXVF = np.append(idxXVF, idxB)
 
-            countX = np.array([len(np.where(idxXVF == i)[0]) for i in range(len(self.X))]).astype(int)
-            idxXv = self.border_blade(self.param.border, countX, idxB=np.unique(idxXVF))
-            fullXV = np.append(fullXV, idxXv)
 
-        idxXV = np.unique(fullXV).astype(int)
-        return Result(idxXV, self.param, self.imp, 'oneVoneP')
+
 
     def allVoneP_iter(self):
         idxX = np.arange(len(self.X))
@@ -229,14 +336,16 @@ class BarrierMod:
                 feat = [f, ]
                 XF = self.X[idxX][:, feat]
                 VF = self.X[idxV][:, feat]
-                idxB = Core(XF, VF, self.param, feat).idxB
+                YF = self.Y[idxV][:, feat]
+                idxB = Core(XF, YF, VF, self.param, feat).idxB
                 fullIDX = np.append(fullIDX, idxB)
 
             countX = np.array([len(np.where(fullIDX == i)[0]) for i in range(len(idxX))]).astype(int)
-            idxNewV = self.border_blade(self.param.border, countX)
+            idxNewV = self.count_border_blade(self.param.border, countX)
             UPDidxV = np.union1d(idxV, idxNewV)
             if len(UPDidxV) > 140:
                 return Result(idxV, self.param, self.imp, 'allVonePiter')
             idxV = UPDidxV
             itr += 1
 
+'''

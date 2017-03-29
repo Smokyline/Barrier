@@ -7,7 +7,7 @@ import os
 
 def set_title_param(param):
     title = ''
-    for key in ['q', 's', 'r', 'bar', 'delta', 'kmeans', 'alphaMax', 'pers', 'border']:
+    for key in ['q', 's', 'bar', 'delta', 'kmeans', 'alphaMax', 'pers', 'metrix', 'nchCount', 'border', ]:
         value = param[key]
         if value is not False:
             title += '%s=%s ' % (key, value)
@@ -16,24 +16,17 @@ def set_title_param(param):
 
 def res_to_txt(file, row):
     f = open(file, 'a')
-    s = '{} {} {} {} {} {}'.format(row[0], row[1], row[2], row[3], row[4], row[5])  # name |B| acc s param
+    s = '{} {} {} {} {}'.format(row[0], row[1], row[2], row[3], row[4])  # name |B| acc s param
     f.write('%s\n' % s)
     f.close()
 
-
-def points_diff_runnerAwB(A, B):
-    """coord"""
-    narrA = np.empty((0, 2))
-    for i, a in enumerate(A):
-        fDimEQLS = np.where(B[:, 0] == a[0])[0]
-        if len(fDimEQLS) > 0:
-            sDimEQLA = np.where(B[fDimEQLS, 1] == a[1])[0]
-            if len(sDimEQLA) == 0:
-                narrA = np.append(narrA, np.array([a]), axis=0)
-        else:
-            narrA = np.append(narrA, np.array([a]), axis=0)
-    return narrA
-
+def save_xv_to_csv(XV, vi):
+    path = '/Users/Ivan/Documents/workspace/result/Barrier/XVrange/'
+    if not os.path.exists(path):
+        os.makedirs(path)
+    XVdf = pd.DataFrame(np.abs(np.array(XV).ravel()-1))
+    XVdf.to_csv(path + 'XV_' + str(vi+1)+'.csv', index=False, header=False,
+                  sep=';', decimal=',')
 
 def idx_diff_runnerAwB(A, B):
     '''idx'''
@@ -43,9 +36,26 @@ def idx_diff_runnerAwB(A, B):
             narr = np.append(narr, a)
     return narr
 
+def parseIdxH(lX, countX, h):
+    finalIdx = []
+    for i in range(lX):
+        if countX[i] >= h:
+            finalIdx.append(i)
+    return np.array(finalIdx), h
+
+def parseIdx_ro(lX, countX, r):
+    """расчет границы по колмогоровском среднему"""
+    non_zero_count = countX[np.where(countX > 0)]
+    h = (np.sum(non_zero_count ** r) / len(non_zero_count)) ** (1 / r)
+    finalIdx = []
+    for i in range(lX):
+        if countX[i] >= h:
+            finalIdx.append(i)
+    return np.array(finalIdx), h
+
 
 def read_cora_res(idxCX, c):
-    CORAres = read_csv('/Users/Ivan/Documents/workspace/resourses/csv/newEPA/Caucasus_CORA_result.csv',
+    CORAres = read_csv('/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz/kvz_CORA_result.csv',
                        ['idx', 'r1', 'r2', 'r3', 'r4']).T
     idxX = np.array([]).astype(int)
     for res in CORAres:
@@ -80,12 +90,15 @@ def read_csv(path, col):
 
 def persRunner(X, pers, revers=False):
     border = int(len(X) * pers / 100)
+    #if border >= len(X):
+     #   border = len(X)-1
+    sXV = np.argsort(X)
     if revers:
-        sXV = np.argsort(X)[::-1]
-    else:
-        sXV = np.argsort(X)
+        return np.array(sXV[border:]).astype(int), sXV[border]
 
-    return sXV[:border]
+    else:
+        return np.array(sXV[:border]).astype(int), sXV[border]
+
 
 
 def find_VinXV(Xidx, idxXV, Vidx):
@@ -148,16 +161,27 @@ def km(data, k, randCZ=False):
         idxClusters_sort[i] = idx_clusters[remove_index]
         idx_clusters = np.delete(idx_clusters, remove_index, 0)
         centroids = np.delete(centroids, remove_index)
-    return np.array(idxClusters_sort)
+
+    for k, idxs in enumerate(idxClusters_sort):
+        k_data = data[idxs]
+        print('k=%i [%f;%f] mean: %f' % (k+1, min(k_data), max(k_data), np.mean(k_data)))
+    print('---------------------\n')
+
+    alpha = np.min(data[idxClusters_sort[-1]])
+    parsed_data = data[np.where(data > alpha)]
+    return np.array(idxClusters_sort), parsed_data, alpha
 
 
-def acc_check(result, EQ):
+def acc_check(result, EQ, grid=False):
     accEQ = 0
-    p1 = 25 / 111
-    p2 = 50 / 111
+    if grid:
+        r1, r2 = 15.5, 22
+    else:
+        r1, r2 = 25, 50
+    p1 = r1 / 111
+    p2 = r2 / 111
 
     for eq in EQ:
-
         if len(result) == 0:
             acc = 0
         else:
@@ -174,3 +198,25 @@ def acc_check(result, EQ):
                 acc = 0
         accEQ += acc
     return round(accEQ / len(EQ), 4)
+
+
+
+
+
+
+
+
+"""
+def points_diff_runnerAwB(A, B):
+
+    narrA = np.empty((0, 2))
+    for i, a in enumerate(A):
+        fDimEQLS = np.where(B[:, 0] == a[0])[0]
+        if len(fDimEQLS) > 0:
+            sDimEQLA = np.where(B[fDimEQLS, 1] == a[1])[0]
+            if len(sDimEQLA) == 0:
+                narrA = np.append(narrA, np.array([a]), axis=0)
+        else:
+            narrA = np.append(narrA, np.array([a]), axis=0)
+    return narrA
+"""
