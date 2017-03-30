@@ -1,7 +1,7 @@
 from main.barrier.test_foo import *
 from main.alghTools.tools import pers_separator
 from main.alghTools.kmeans import km
-
+import time
 
 def mq_axis1(XV, q):
     """степенное среднее каждой строки """
@@ -22,6 +22,7 @@ def simple_range(Y, X, V, F, delta=False):
     признак f - вещественное число """
     XV = np.zeros((len(X), len(V)))
     lengthY = len(Y)
+    time_start = int(round(time.time() * 1000))
 
     def calc_range(yF, maxF, minF):
         """расстояние между x и v основано на колличестве элементов из Y
@@ -37,7 +38,11 @@ def simple_range(Y, X, V, F, delta=False):
                 xi_array = [1 - findFdelta(Yf, lengthY, max(x, v), min(x, v)) for v in V[:, f]]
             else:
                 xi_array = [calc_range(Yf, max(x, v), min(x, v)) for v in V[:, f]]
+
             XV[iX] += xi_array
+
+    print('XV range ms', int(round(time.time() * 1000)) - time_start)
+
     return XV
 
 
@@ -84,6 +89,7 @@ class Core:
         '''Разделение множества X'''
         self.alpha_const = None
         self.idxB = self.alpha_parser(self.XV, alpha)
+
 
     def calc_VV(self):
         """Вычисление расстояний между V и V для нахождения минимального alpha порога
@@ -142,6 +148,6 @@ class Core:
             if s is None:
                 print('Error\nFalse alpha param  s is None')
             else:
-                self.alpha_const = mq_axis1(MqXV, s)
+                self.alpha_const = np.mean(MqXV ** s) ** (1 / s)
             idxB = np.where(XV <= self.alpha_const)[0]
             return idxB

@@ -1,4 +1,4 @@
-from main.app.barrier_class import BarrierMod
+from main.app.barrier_mod import BarrierMod
 from main.supportAlg.drawMap import Visual
 from main.supportAlg.import_data import ImportData
 from main.supportAlg.comparison import CompareAlgh

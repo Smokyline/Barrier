@@ -1,4 +1,4 @@
-from main.app.barrier_class import BarrierMod
+from main.app.barrier_mod import BarrierMod
 from main.supportAlg.drawMap import Visual
 from main.supportAlg.import_data import ImportData
 import numpy as np
@@ -75,8 +75,8 @@ def run_union_bar(gridVers=False):
 def run_bar(imp):
     bar = BarrierMod(imp, gp)
 
-    res = bar.oneVoneP()
-    #res = bar.oneVoneP_Y()
+    #res = bar.oneVoneP()
+    res = bar.oneVoneP_Y()
 
     return res
 

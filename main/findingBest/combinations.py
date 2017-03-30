@@ -1,4 +1,4 @@
-from main.app.barrier_class import BarrierMod
+from main.app.barrier_mod import BarrierMod
 from main.supportAlg.import_data import ImportData
 from main.alghTools.tools import res_to_txt
 import numpy as np
