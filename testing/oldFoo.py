@@ -37,3 +37,27 @@ def length_2point(XX, X, V, F, p, delta=False, sumP=True):
             XV[iX] += np.array(xi_array)
 
     return XV
+
+
+def found_nch_param_border(X, beta, count=False):
+    def mq(X, s):
+        mq_mean = np.mean(X ** s) ** (1 / s)
+        return mq_mean
+
+    if count:
+        mq_power = np.arange(1, 51, 1)
+    else:
+        mq_power = np.arange(-50, 0, 0.5)
+
+    X = X[np.where(X != 0)]
+    mq_value = [mq(X, s) for s in mq_power]
+    deriv = np.array([mq_value[i + 1] - mq_value[i] for i in range(len(mq_value) - 1)])
+    alpha = calc_nch_alpha(deriv, beta=beta)
+    near_alpha_drv = np.argmin(np.abs(deriv - alpha))
+    border = mq_value[near_alpha_drv]
+
+    if count:
+        idx = np.where(X >= border)[0]
+    else:
+        idx = np.where(X <= border)[0]
+    return idx, border

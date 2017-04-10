@@ -6,22 +6,26 @@ import numpy as np
 
 class ParamGlobal:
     def __init__(self):
-        self.q = False
-        self.s = -1
-        self.delta = False
+        self.s = False
+
         self.kmeans = False
         self.alphaMax = False
-        self.pers = False
+        self.pers = 10
         self.epsilon = False
-        self.vector = False
+        self.beta = False
+        self.mcos = False
+
         self.metrix = False
+        self.delta = False
+        self.vector = False
+
         self.nchCount = True
 
-        # self.border = False
-        #self.border = ['h(X)', 1]
-        self.border = ['ro', 10]
+        #self.border = ['h(X)', 2.5]
+        #self.border = ['ro', 24]
+        #self.border = ['beta', 0.3]
         #self.border = ['kmeans', 25]
-        # self.border = ['pers', 30]
+        self.border = ['pers', 10]
 
         self.FEATS_GLOBAL = None
         # self.FEATS_GLOBAL = np.array([[20, 21, 22]])
@@ -75,8 +79,8 @@ def run_union_bar(gridVers=False):
 def run_bar(imp):
     bar = BarrierMod(imp, gp)
 
-    #res = bar.oneVoneP()
-    res = bar.oneVoneP_Y()
+    res = bar.oneVoneP()
+    #res = bar.oneVoneP_Y()
 
     return res
 
@@ -86,18 +90,20 @@ def comb_grid_param():
         imp = ImportData(zone='kvz', gridVers=gridVers)
         gp.FEATS_GLOBAL = [31, 32, 33]
         # gp.FEATS_GLOBAL = [76, 77, 78, 79, 80, 81, 82]
-        # gp.FEATS_GLOBAL = np.array([[8, 9, 10], [31, 32, 33], [54, 55, 56], [77, 78, 79]])
+        #gp.FEATS_GLOBAL = np.array([[8, 9, 10], [31, 32, 33], [54, 55, 56], [77, 78, 79]])
         #gp.FEATS_GLOBAL = np.array([[31, 32, 33]])
         # gp.FEATS_GLOBAL = np.array([[83, 84, 85]])
         # gp.FEATS_GLOBAL = [n for n in range(1, len(imp.data_full[0]))]
 
         # print([imp.col[i] for i in gp.FEATS_GLOBAL])
 
-        for s in np.arange(-2.5, -4.1, -0.2):
-            gp.s = s
+        for s in np.arange(-2.0, -2.1, -0.2):
+            #gp.s = s
+            gp.s = False
 
             res = run_bar(imp)
             res_idx = res.result
+
 
             imp.set_save_path(folder_name='', res=res)
             vis = Visual(X=imp.data_coord, r=0.225, imp=imp, path=imp.save_path)
@@ -114,3 +120,9 @@ gp = ParamGlobal()
 
 comb_grid_param()
 #run_union_bar(gridVers=True)
+
+"""
+time_start = int(round(time.time() * 1000))
+                print( int(round(time.time() * 1000)) - time_start)  # millsec
+
+"""

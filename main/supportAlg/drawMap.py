@@ -168,8 +168,8 @@ class Visual:
 
         for xy in X:
             ax.add_artist(
-                RegularPolygon(xy=(xy[0], xy[1]), numVertices=4, radius=r - 0.05, orientation=math.pi / 4, lw=0,
-                               color='b', zorder=2, alpha=0.75))
+                RegularPolygon(xy=(xy[0], xy[1]), numVertices=4, radius=0.142, orientation=math.pi / 4, lw=0,
+                               facecolor='b', edgecolor='none', zorder=2, alpha=0.75))
 
         ax.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], marker='^', color='r', lw=0.5, zorder=3)
         ax.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], marker='o', color='r', lw=0.5, zorder=4)
@@ -250,13 +250,14 @@ def check_pix_pers(A, grid=False):
     ax.add_patch(patches.Polygon(pol, color='#008000', zorder=1))
     for x, y, r in zip(A[:, 0], A[:, 1], [0.225 for i in range(len(A))]):
         if grid:
-            ax.add_artist(RegularPolygon(xy=(x, y), numVertices=4, radius=0.18, orientation=math.pi / 4, lw=0,
-                                         facecolor='#ff0000', edgecolor='#ff0000', zorder=2))
+            ax.add_artist(RegularPolygon(xy=(x, y), numVertices=4, radius=0.142, orientation=math.pi / 4, lw=0,
+                                         facecolor='#ff0000', edgecolor='none', zorder=2))
         else:
             ax.add_artist(
                 Circle(xy=(x, y), radius=r, alpha=1, linewidth=0, zorder=2, facecolor='#ff0000', edgecolor='#ff0000'))
 
     fig.canvas.draw()
+    #plt.savefig('/Users/Ivan/Documents/workspace/result/tmp/grid_pers.png', dpi=300)
 
     reso = fig.canvas.get_width_height()
     data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
@@ -385,7 +386,7 @@ def calc_acc_pixpoly(B, eq_data, delta):
     test_dot.set_visible(False)
 
     for x, y, r in zip(B[:, 0], B[:, 1], [delta for i in range(len(B))]):
-        ax.add_artist(RegularPolygon(xy=(x, y), numVertices=4, radius=r - 0.05, orientation=math.pi / 4, lw=0,
+        ax.add_artist(RegularPolygon(xy=(x, y), numVertices=4, radius=0.14, orientation=math.pi / 4, lw=0,
                                      facecolor='#ff0000', edgecolor='#ff0000', zorder=1))
 
     # plt.savefig('/Users/Ivan/Documents/workspace/result/tmp/' + 'field.png', dpi=100)

@@ -51,8 +51,8 @@ class ImportData:
 
         self.data_full = read_csv(res_dir + 'kvz_khar.csv', self.col).T
 
-        #self.data_field = read_csv(res_dir + 'kvz_khar.csv', self.col).T
-        self.data_field = read_csv(res_dir + 'kvz_field.csv', self.col).T
+        self.data_field = read_csv(res_dir + 'kvz_khar.csv', self.col).T
+        #self.data_field = read_csv(res_dir + 'kvz_field.csv', self.col).T
 
         self.data_sample = read_csv(res_dir + 'kvz_sample.csv', self.col).T
         self.data_coord = read_csv(res_dir + 'kvz_coord.csv', ['x', 'y']).T

@@ -36,8 +36,8 @@ class ParamGlobal:
 def run_bar():
     bar = BarrierMod(imp, gp)
     alg_stack = {
-        # 'oneVoneP': bar.oneVoneP,
-        'oneVoneP_Y': bar.oneVoneP_Y
+        'oneVoneP': bar.oneVoneP,
+        #'oneVoneP_Y': bar.oneVoneP_Y
     }
     for name, algmod in alg_stack.items():
         res = algmod()

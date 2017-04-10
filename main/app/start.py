@@ -8,22 +8,27 @@ from main.alghTools.tools import read_cora_res
 
 class ParamGlobal:
     def __init__(self):
-        self.q = False
-        self.s = -0.7
-        self.delta = False
+        self.s = False
+
         self.kmeans = False
         self.alphaMax = False
         self.pers = False
         self.epsilon = False
-        self.bar = False
-        self.metrix = False
-        self.nchCount = False
 
-        # self.border = False
-        self.border = ['h(X)', 8]
-        # self.border = ['ro', 6]
-        # self.border = ['kmeans', 10]
+        self.metrix = False
+        self.delta = False
+        self.vector = False
+
+        self.nchCount = True
+
+        # self.border = ['h(X)', 1]
+        # self.border = ['ro', 24]
+        self.border = ['beta', -0.004]
+        # self.border = ['kmeans', 25]
         # self.border = ['pers', 30]
+
+        self.FEATS_GLOBAL = None
+        # self.FEATS_GLOBAL = np.array([[20, 21, 22]])
 
 
     def global_feats(self):
@@ -43,8 +48,8 @@ class ParamGlobal:
 imp = ImportData(zone='kvz', gridVers=False)
 bar = BarrierMod(imp, ParamGlobal())
 
-#r = bar.oneVoneP()
-r = bar.oneVoneP_Y()
+r = bar.oneVoneP()
+#r = bar.oneVoneP_Y()
 
 
 #r = bar.simple()
