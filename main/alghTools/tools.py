@@ -32,7 +32,7 @@ def read_cora_res(idxCX, c):
 def set_title_param(param):
     """преобрахование значения перменных параметров в str """
     title = ''
-    for key in ['s', 'vector', 'delta', 'kmeans', 'alphaMax', 'pers', 'metrix', 'mcos', 'nchCount', 'border', ]:
+    for key in ['s', 'vector', 'delta', 'kmeans', 'alphaMax', 'pers', 'metrics', 'mcos', 'nchCount', 'border', ]:
         value = param[key]
         if value is not False:
             title += '%s=%s ' % (key, value)
@@ -47,9 +47,9 @@ def res_to_txt(file, row):
     f.close()
 
 
-def save_xv_to_csv(X, i, title):
+def save_xv_to_csv(X, i, folder, title):
     """сохранение расстояний XV в csv файл """
-    path = '/Users/Ivan/Documents/workspace/result/Barrier/%s/'%title
+    path = '/Users/Ivan/Documents/workspace/result/Barrier/range/%s/' % folder
     if not os.path.exists(path):
         os.makedirs(path)
     XVdf = pd.DataFrame(np.array(X).ravel())
@@ -97,14 +97,14 @@ def pers_separator(X, pers, lower=False):
     """разделение множества по проценту от кол-ва"""
     border = int(len(X) * pers / 100)
     sXV = np.argsort(X).astype(int)
-    print(len(X))
-    print(len(np.unique(X)))
-    print('---')
+    #print('lenX', len(X))
+    #print('uniqueX', len(np.unique(X)))
+    #print('------------')
     if lower:
         out, const = sXV[:border], X[sXV[border]]
     else:
         out, const = sXV[len(sXV)-border:], X[sXV[len(sXV)-border]]
-        print('count', s)
+        #print('count', s)
 
 
     return out, const
@@ -202,7 +202,7 @@ def found_nch_param_border(X, beta_p, mcos_p):
     # print('alpha', alpha)
     # print('mq_value', mq_value[near_alpha_drv])
     # print('mq_power', mq_power[near_alpha_drv])
-    print(len(idx))
+    #print(len(idx))
     return idx, border
 
 def calc_nch_alpha(X, beta):

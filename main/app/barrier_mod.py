@@ -72,23 +72,26 @@ class BarrierMod:
                 roXvF.append(res.XV)
                 alpha_const_vF.append(res.alpha_const)
 
-                #save_xv_to_csv(res.XV, [vi+1, fi+1], 'XVrange')
+                #gp_t = 'A'
+                #save_xv_to_csv(res.XV, [vi+1, fi+1], '%srange' % gp_t, 'XVrange')
 
+                print('v%iп%i: %i' % (vi, fi, len(res.idxB)), end=' | ')
 
             '''вычисление кол-ва попаданий Х в вс класс по константе alpha(v, F)'''
             countX = calc_count(idxXvF, roXvF, len(self.X), self.param.nchCount, alpha_const_vF)
             countX_VF.append(countX)
 
             #save_xv_to_csv(np.mean(roXvF, axis=0), vi, 'XVrange')
+            #save_xv_to_csv(roXvF, [vi, 0], 'XVrange')
 
-            #save_xv_to_csv(countX, vi, 'count')
+            #save_xv_to_csv(countX, [vi, 0], '%srange' % gp_t, 'count')
 
             '''разделение кол-ва попаданий X по F большому в вс класс по border'''
             idxB, countX_const = count_border_blade(self.param.border, countX, border_const=None)
             countX_const_arr.append(countX_const)
             #print(alpha_const_vF)
             #print(countX_const)
-            print('len vB', len(idxB), '       alpha', alpha_const_vF)
+            print('\nlen v%iП: %i'%(vi, len(idxB)), '   alpha', alpha_const_vF, end='\n----------------------------\n')
 
             #vis.grid_res(self.imp.data_coord[idxB], title='v%i' % (vi+1), r=0.2)
 

@@ -45,10 +45,10 @@ mq_power = np.arange(0.5, 100, 0.2)
 
 
 """импорт множества"""
-path = '/Users/Ivan/Documents/workspace/result/Barrier/XVrange/XVrange%i-%i.csv' % (1, 3)
-# path = '/Users/Ivan/Documents/workspace/result/Barrier/count/count_1.csv'
+#path = '/Users/Ivan/Documents/workspace/result/Barrier/XVrange/XVrange%i-%i.csv' % (1, 1)
+path = '/Users/Ivan/Documents/workspace/result/Barrier/count/count%i-%i.csv' % (0, 0)
 data = read_csv(path).T[0]
-data = np.abs(data - 1)
+#data = np.abs(data - 1)
 
 print('data:', data)
 print('max min data', max(data), min(data))

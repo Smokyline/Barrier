@@ -17,7 +17,7 @@ def mq_axis1(XV, q):
     return mq_array
 
 
-def simple_range(Y, X, V):
+def simple_range(Y, X, V, metrics=False):
     """Вычисление расстояний между X и V
     признак f - вещественное число """
 
@@ -25,24 +25,39 @@ def simple_range(Y, X, V):
         """расстояние между x и v основано на колличестве элементов из Y
             с таким же параметром
             B(x, v, f) > 0 """
-        #range_x = len(np.where(np.logical_and(yF >= minF, yF <= maxF))[0]) + 1 # 190ms
         range_x = np.count_nonzero((yF > minF) & (yF < maxF)) + 1 #90ms
-
         return range_x / lengthY
+
+    def calc_metrics_range(Y, minF, maxF):
+        delta = 0
+        for y in Y:
+            if not (minF <= y <= maxF):
+                piX1 = abs(y - minF)
+                piX2 = abs(y - maxF)
+                minPix = min(piX1, piX2)
+                maxPix = max(piX1, piX2)
+                delta += (minPix / maxPix)
+        return delta / lengthY
+
 
     lengthY = len(Y)
     lengthX = len(X)
 
     Xv_min = X.copy()
     Xv_max = X.copy()
-    Xv_min[np.where(X > V)] = V
+    Xv_min[np.where(X >= V)] = V
     Xv_max[np.where(X < V)] = V
-    XV = np.array([calc_range(Y, Xv_max[xi], Xv_min[xi]) for xi in range(lengthX)])
+    if metrics:
+        XV = np.array([calc_metrics_range(Y, Xv_max[xi], Xv_min[xi]) for xi in range(lengthX)])
+        XV = 1-XV
+    else:
+        XV = np.array([calc_range(Y, Xv_max[xi], Xv_min[xi]) for xi in range(lengthX)])
 
     return XV
 
 
-def vector_range(Y, X, V, F, delta=False):
+
+def vector_range(Y, X, v, F, metrics=False):
     """Вычисление расстояний между X и V
     признак f - вектор """
     length_Y = len(Y)
@@ -55,17 +70,38 @@ def vector_range(Y, X, V, F, delta=False):
                 B(x, v, F) > 0 """
         Fx = 0
         for f in range(length_feat):
-
             maxF = max(xF[f], vF[f])
             minF = min(xF[f], vF[f])
-
-            #range_x = len(np.where(np.logical_and(yF[:, f] >= minF, yF[:, f] <= maxF))[0]) + 1 #720
             range_x = np.count_nonzero((minF < yF[:, f]) & (yF[:, f] < maxF)) + 1  # 340ms
-
             Fx += range_x / length_Y
         return Fx / length_feat
 
-    XV = np.array([calc_range(Y, x, V, length_F) for x in X])
+    def calc_metrics_range(YF, xF, vF, length_feat):
+        Fx = 0
+        for f in range(length_feat):
+            maxF = max(xF[f], vF[f])
+            minF = min(xF[f], vF[f])
+            out_range_xv = np.where(np.logical_or((YF[:, f] < minF), (YF[:, f] > maxF)))[0]
+            delta = 0
+
+            if len(out_range_xv) != 0:
+                out_Y = YF[out_range_xv, f]
+
+                piX1 = np.abs(out_Y - minF)
+                piX2 = np.abs(out_Y - maxF)
+
+                xyv_max = np.maximum(piX1, piX2)
+                xyv_min = np.minimum(piX1, piX2)
+                delta = np.mean(xyv_min / xyv_max)
+
+            Fx += delta
+        return Fx / length_feat
+
+    if metrics:
+        XV = np.array([calc_metrics_range(Y, x, v, length_F) for x in X])
+        XV = 1-XV
+    else:
+        XV = np.array([calc_range(Y, x, v, length_F) for x in X])
     return XV
 
 
@@ -90,9 +126,7 @@ class Core:
         """Вычисление расстояний между V и V для нахождения минимального alpha порога
             если параметр alphaMax=True """
         if self.param.vector is True:
-            learnV = vector_range(self.Y, self.V, self.V, self.feats, self.param.delta)
-        elif self.param.metrix is True:
-            learnV = metrix_length_2point(self.Y, self.V, self.V)
+            learnV = vector_range(self.Y, self.V, self.V, self.feats)
         else:
             learnV = simple_range(self.Y, self.V, self.V)
 
@@ -103,11 +137,9 @@ class Core:
     def calc_XV(self):
         """Вычисление расстояний между X и V """
         if self.param.vector is True:
-            XV = vector_range(self.Y, self.X, self.V, self.feats, self.param.delta)
-        elif self.param.metrix is True:
-            XV = metrix_length_2point(self.Y, self.X, self.V)
+            XV = vector_range(self.Y, self.X, self.V, self.feats, metrics=self.param.metrics)
         else:
-            XV = simple_range(self.Y, self.X, self.V)
+            XV = simple_range(self.Y, self.X, self.V, metrics=self.param.metrics)
         return XV
 
     def alpha_parser(self, XV, alpha):
@@ -123,7 +155,7 @@ class Core:
             idxB = np.where(self.XV <= self.alpha_const)[0]
             return idxB
 
-        elif type(self.param.pers) is not False:
+        elif self.param.pers is not False:
             '''процент от XV'''
             X = np.ravel(XV)
             idxB, self.alpha_const = pers_separator(X, self.param.pers, lower=True)

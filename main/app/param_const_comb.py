@@ -10,24 +10,34 @@ class ParamGlobal:
 
         self.kmeans = False
         self.alphaMax = False
-        self.pers = 10
+        self.pers = False
         self.epsilon = False
         self.beta = False
-        self.mcos = False
+        self.mcos = 0.9999
 
-        self.metrix = False
+        self.metrics = False
         self.delta = False
         self.vector = False
 
         self.nchCount = True
 
-        #self.border = ['h(X)', 2.5]
-        #self.border = ['ro', 24]
-        #self.border = ['beta', 0.3]
+        #self.border = ['h(X)', 0.98]
+        #self.border = ['ro', 18]
         #self.border = ['kmeans', 25]
-        self.border = ['pers', 10]
+        self.border = ['pers', 6]
 
-        self.FEATS_GLOBAL = None
+        #self.FEATS_GLOBAL = None
+        #self.FEATS_GLOBAL = [45, 46, 47]
+        self.FEATS_GLOBAL = [39, 40, 41]
+        #self.FEATS_GLOBAL = [37, 38, 39, 40, 41]
+        #self.FEATS_GLOBAL = np.array([[37, 38, 39, 40, 41]])
+
+        # self.FEATS_GLOBAL = [76, 77, 78, 79, 80, 81, 82]
+        # self.FEATS_GLOBAL = np.array([[8, 9, 10], [31, 32, 33], [54, 55, 56], [77, 78, 79]])
+        #self.FEATS_GLOBAL = np.array([[31, 32, 33]])
+        #self.FEATS_GLOBAL = np.array([[88, 89, 90, 91, 92]])
+
+        # print([imp.col[i] for i in gp.FEATS_GLOBAL])
         # self.FEATS_GLOBAL = np.array([[20, 21, 22]])
 
     def global_feats(self):
@@ -88,14 +98,7 @@ def run_bar(imp):
 def comb_grid_param():
     for gridVers in [True]:
         imp = ImportData(zone='kvz', gridVers=gridVers)
-        gp.FEATS_GLOBAL = [31, 32, 33]
-        # gp.FEATS_GLOBAL = [76, 77, 78, 79, 80, 81, 82]
-        #gp.FEATS_GLOBAL = np.array([[8, 9, 10], [31, 32, 33], [54, 55, 56], [77, 78, 79]])
-        #gp.FEATS_GLOBAL = np.array([[31, 32, 33]])
-        # gp.FEATS_GLOBAL = np.array([[83, 84, 85]])
-        # gp.FEATS_GLOBAL = [n for n in range(1, len(imp.data_full[0]))]
 
-        # print([imp.col[i] for i in gp.FEATS_GLOBAL])
 
         for s in np.arange(-2.0, -2.1, -0.2):
             #gp.s = s
