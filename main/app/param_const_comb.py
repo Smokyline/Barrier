@@ -13,36 +13,33 @@ class ParamGlobal:
         self.pers = False
         self.epsilon = False
         self.beta = False
-        self.mcos = 0.9999
+        self.mcos = False
+        #self.range_const = 0.945
+        self.range_const = 0.945
 
         self.metrics = False
         self.delta = False
         self.vector = False
+        self.manhattan = True
 
-        self.nchCount = True
+        self.nchCount = False
 
-        #self.border = ['h(X)', 0.98]
+        self.border = ['h(X)', 1]
         #self.border = ['ro', 18]
         #self.border = ['kmeans', 25]
-        self.border = ['pers', 6]
+        #self.border = ['pers', 12]
 
-        #self.FEATS_GLOBAL = None
-        #self.FEATS_GLOBAL = [45, 46, 47]
-        self.FEATS_GLOBAL = [39, 40, 41]
-        #self.FEATS_GLOBAL = [37, 38, 39, 40, 41]
-        #self.FEATS_GLOBAL = np.array([[37, 38, 39, 40, 41]])
+        #self.FEATS_GLOBAL = [56, 57, 58]
+        #self.FEATS_GLOBAL = np.array([[56, 57, 58]])
+        #self.FEATS_GLOBAL = np.array([[64,65,66]])
+        #self.FEATS_GLOBAL = np.array([[111, 112, 113]])
+        self.FEATS_GLOBAL = np.array([[162, 163, 164, 165, 166, 167, 168, 169, 170, 171]])
 
-        # self.FEATS_GLOBAL = [76, 77, 78, 79, 80, 81, 82]
         # self.FEATS_GLOBAL = np.array([[8, 9, 10], [31, 32, 33], [54, 55, 56], [77, 78, 79]])
         #self.FEATS_GLOBAL = np.array([[31, 32, 33]])
-        #self.FEATS_GLOBAL = np.array([[88, 89, 90, 91, 92]])
 
-        # print([imp.col[i] for i in gp.FEATS_GLOBAL])
-        # self.FEATS_GLOBAL = np.array([[20, 21, 22]])
 
     def global_feats(self):
-        # self.FEATS_GLOBAL = [1, 2, 3, 4, 5, 7, 10, 12, 13, 14, 15]  # 11
-        # FEATS_GLOBAL = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12], [13, 14], [15, 16], [17, 18]])
 
         return self.FEATS_GLOBAL
 
