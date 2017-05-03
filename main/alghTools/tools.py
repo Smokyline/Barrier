@@ -32,7 +32,7 @@ def read_cora_res(idxCX, c):
 def set_title_param(param):
     """преобрахование значения перменных параметров в str """
     title = ''
-    for key in ['s', 'vector', 'delta', 'kmeans', 'alphaMax', 'pers', 'metrics', 'mcos', 'nchCount', 'border', ]:
+    for key in ['s', 'vector', 'range_const', 'delta', 'kmeans', 'alphaMax', 'pers', 'metrics', 'manhattan', 'mcos', 'nchCount', 'border', ]:
         value = param[key]
         if value is not False:
             title += '%s=%s ' % (key, value)
@@ -245,6 +245,7 @@ def calc_nch_alpha(X, beta):
             break
 
     return alpha
+
 
 def acc_check(result, EQ, grid=False):
     """вычисление точности алгоритма"""

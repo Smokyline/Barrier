@@ -72,7 +72,7 @@ class BarrierMod:
                 roXvF.append(res.XV)
                 alpha_const_vF.append(res.alpha_const)
 
-                #gp_t = 'A'
+                gp_t = 'B3'
                 #save_xv_to_csv(res.XV, [vi+1, fi+1], '%srange' % gp_t, 'XVrange')
 
                 print('v%iп%i: %i' % (vi, fi, len(res.idxB)), end=' | ')
@@ -81,7 +81,7 @@ class BarrierMod:
             countX = calc_count(idxXvF, roXvF, len(self.X), self.param.nchCount, alpha_const_vF)
             countX_VF.append(countX)
 
-            #save_xv_to_csv(np.mean(roXvF, axis=0), vi, 'XVrange')
+            #save_xv_to_csv(np.mean(roXvF, axis=0), [vi, 0], '%srange' % gp_t, 'XVrange')
             #save_xv_to_csv(roXvF, [vi, 0], 'XVrange')
 
             #save_xv_to_csv(countX, [vi, 0], '%srange' % gp_t, 'count')

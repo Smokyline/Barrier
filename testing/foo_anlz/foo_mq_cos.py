@@ -45,10 +45,10 @@ mq_power = np.arange(0.5, 100, 0.2)
 
 
 """импорт множества"""
-#path = '/Users/Ivan/Documents/workspace/result/Barrier/XVrange/XVrange%i-%i.csv' % (1, 1)
-path = '/Users/Ivan/Documents/workspace/result/Barrier/count/count%i-%i.csv' % (0, 0)
+path = '/Users/Ivan/Documents/workspace/result/Barrier/range/B3range/XVrange%i-%i.csv' % (1, 0)
+#path = '/Users/Ivan/Documents/workspace/result/Barrier/count/count%i-%i.csv' % (0, 0)
 data = read_csv(path).T[0]
-#data = np.abs(data - 1)
+data = np.abs(data - 1)
 
 print('data:', data)
 print('max min data', max(data), min(data))
@@ -79,13 +79,14 @@ near_mq_power = mq_power[near_idx]
 # min_cos = np.min(vectors_cos[near_idx:])
 min_cos = 0.9999
 near_mcos_mq_idx = found_mq_from_alpha(min_cos, vectors_cos)
-near_mq_cos = mq_value[near_mcos_mq_idx]
+#near_mq_cos = mq_value[near_mcos_mq_idx]
+near_mq_cos = np.min(data[np.where(data >= 0.95)])
 
 print('count', len(np.where(data > near_mq_value)[0]))
 print('mq_value', near_mq_value)
 print('mq_power', mq_power[near_idx])
 print('min cos b=0', min_cos)
-print('len Xmcos', len(np.where(data >= near_mq_cos)[0]))
+#print('len Xmcos', len(np.where(data >= near_mq_cos)[0]))
 
 
 

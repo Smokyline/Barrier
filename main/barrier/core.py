@@ -43,10 +43,8 @@ def simple_range(Y, X, V, metrics=False):
     lengthY = len(Y)
     lengthX = len(X)
 
-    Xv_min = X.copy()
-    Xv_max = X.copy()
-    Xv_min[np.where(X >= V)] = V
-    Xv_max[np.where(X < V)] = V
+    Xv_min = np.maximum(X, V)
+    Xv_max = np.minimum(X, V)
     if metrics:
         XV = np.array([calc_metrics_range(Y, Xv_max[xi], Xv_min[xi]) for xi in range(lengthX)])
         XV = 1-XV
@@ -105,6 +103,17 @@ def vector_range(Y, X, v, F, metrics=False):
     return XV
 
 
+def manhattan_range(X, v, F):
+
+    def calc_range(xF, vF):
+        Fx = np.mean(np.abs(xF-vF))
+        return Fx
+
+    XV = np.array([calc_range(x, v) for x in X])
+    return XV
+
+
+
 class Core:
     def __init__(self, X, Y, V, param, feats, alpha=None):
         self.X = X  # объекты распознавания
@@ -138,6 +147,8 @@ class Core:
         """Вычисление расстояний между X и V """
         if self.param.vector is True:
             XV = vector_range(self.Y, self.X, self.V, self.feats, metrics=self.param.metrics)
+        elif self.param.manhattan is True:
+            XV = manhattan_range(self.X, self.V, self.feats)
         else:
             XV = simple_range(self.Y, self.X, self.V, metrics=self.param.metrics)
         return XV
@@ -167,7 +178,12 @@ class Core:
             return np.array(idxB).astype(int)
         elif self.param.beta or self.param.mcos is not False:
             MqXV = np.ravel(XV)
-            idxB, self.alpha_const = found_nch_param_border(np.abs(MqXV-1), self.param.beta, self.param.mcos)
+            idxB, self.alpha_const = found_nch_param_border(np.abs(1-MqXV), self.param.beta, self.param.mcos)
+            return idxB
+        elif self.param.range_const is not False:
+            MqXV = np.ravel(XV)
+            idxB = np.where(np.abs(1-MqXV) >= self.param.range_const)[0]
+            self.alpha_const = self.param.range_const
             return idxB
         else:
             '''разделение по s степенному среднему'''
