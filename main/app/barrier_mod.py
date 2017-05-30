@@ -75,7 +75,7 @@ class BarrierMod:
                 gp_t = 'B3'
                 #save_xv_to_csv(res.XV, [vi+1, fi+1], '%srange' % gp_t, 'XVrange')
 
-                print('v%iп%i: %i' % (vi, fi, len(res.idxB)), end=' | ')
+                #print('v%iп%i: %i' % (vi, fi, len(res.idxB)), end=' | ')
 
             '''вычисление кол-ва попаданий Х в вс класс по константе alpha(v, F)'''
             countX = calc_count(idxXvF, roXvF, len(self.X), self.param.nchCount, alpha_const_vF)
@@ -91,7 +91,7 @@ class BarrierMod:
             countX_const_arr.append(countX_const)
             #print(alpha_const_vF)
             #print(countX_const)
-            print('\nlen v%iП: %i'%(vi, len(idxB)), '   alpha', alpha_const_vF, end='\n----------------------------\n')
+            #print('\nlen v%iП: %i'%(vi, len(idxB)), '   alpha', alpha_const_vF, end='\n----------------------------\n')
 
             #vis.grid_res(self.imp.data_coord[idxB], title='v%i' % (vi+1), r=0.2)
 

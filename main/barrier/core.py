@@ -21,11 +21,11 @@ def simple_range(Y, X, V, metrics=False):
     """Вычисление расстояний между X и V
     признак f - вещественное число """
 
-    def calc_range(yF, maxF, minF):
+    def calc_range(YF, maxF, minF):
         """расстояние между x и v основано на колличестве элементов из Y
             с таким же параметром
             B(x, v, f) > 0 """
-        range_x = np.count_nonzero((yF > minF) & (yF < maxF)) + 1 #90ms
+        range_x = np.count_nonzero((YF >= minF) & (YF <= maxF)) #90ms
         return range_x / lengthY
 
     def calc_metrics_range(Y, minF, maxF):
@@ -43,8 +43,8 @@ def simple_range(Y, X, V, metrics=False):
     lengthY = len(Y)
     lengthX = len(X)
 
-    Xv_min = np.maximum(X, V)
-    Xv_max = np.minimum(X, V)
+    Xv_max = np.maximum(X, V)
+    Xv_min = np.minimum(X, V)
     if metrics:
         XV = np.array([calc_metrics_range(Y, Xv_max[xi], Xv_min[xi]) for xi in range(lengthX)])
         XV = 1-XV
@@ -192,7 +192,6 @@ class Core:
             if s is None:
                 print('Error\nFalse alpha param  s is None')
             else:
-
                 self.alpha_const = np.mean(MqXV ** s) ** (1 / s)
 
             idxB = np.where(XV <= self.alpha_const)[0]

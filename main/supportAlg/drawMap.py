@@ -17,14 +17,17 @@ from  scipy.misc import imsave
 
 
 def get_field_coords():
+    #coordinatesPoly = [30, 52, 37, 46]#kvz+crim
     coordinatesPoly = [36, 52, 37, 46]
     return np.array(coordinatesPoly)
 
 
 def get_squar_poly_coords():
+     #[[32.5, 44.0], [33.7, 46.0], [40.2, 44.8], [40.2, 44], [41.5, 44], [41.7, 44.5], [43.2, 44.5],
     coordinatesPoly = [[36.8, 44.2], [37.4, 45.35], [40.2, 44.8], [40.2, 44], [41.5, 44], [41.7, 44.5], [43.2, 44.5],
                        [44.1, 43.3], [47.8, 43.3], [51.2, 40.2], [51.2, 39.8], [48.5, 37.9], [47, 38.9], [46.1, 38.2],
-                       [44.2, 38.8], [41, 39.6], [40.4, 40.1], [41, 40.9], [41, 42.8], ]
+                       [44.2, 38.8], [41, 39.6], [40.4, 40.1], [41, 40.9], [41, 42.8]]
+
     return np.array(coordinatesPoly)
 
 
@@ -58,6 +61,8 @@ class Visual:
 
         plt.scatter(self.X[:, 0], self.X[:, 1], c='k', marker='.', lw=0, zorder=0, s=8)
 
+
+
         for x, y, r in zip(B[:, 0], B[:, 1], [self.r for i in range(len(B))]):
             circle_B = ax.add_artist(Circle(xy=(x, y),
                                             radius=r, alpha=0.8, linewidth=0.75, zorder=2, facecolor='b',
@@ -69,7 +74,7 @@ class Visual:
         scB = plt.scatter([], [], c='b', linewidth='0.5', label='X(V)', zorder=2)
         scEQis = plt.scatter([], [], c='r', marker='^', linewidth='0.5', label=self.eqLegend[1], zorder=2)
         scEQitr = plt.scatter([], [], c='r', linewidth='0.5', label=self.eqLegend[2], zorder=2)
-        plt.legend(handles=[scB, scEQis, scEQitr], loc=8, bbox_to_anchor=(0.5, -0.3), ncol=2)
+        plt.legend(handles=[scB, scEQis, scEQitr], loc=8, bbox_to_anchor=(0.5, -0.45), ncol=2)
         plt.title(title)
         plt.savefig(self.path + title + '.png', dpi=400)
         plt.close()

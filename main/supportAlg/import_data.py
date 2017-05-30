@@ -15,7 +15,7 @@ class ImportData:
                 res_dir = '/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz/gridVers/d0.1/'
             else:
                 res_dir = '/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz/kvz_upd/'
-                #res_dir = '/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz/'
+                #res_dir = '/Users/Ivan/Documents/workspace/resources/csv/Barrier/%s/' % zone
 
         else:
             res_dir, eq_dir = None, None
@@ -26,15 +26,15 @@ class ImportData:
             self.col = self._read_txt_param(res_dir)
 
             #self.col = ['idx',	'Hmax',	'Hmin',	'DH',	'Top', 'Q',	'HR',	'Nl',	'Rint',	'DH/l',	'Nlc',	'R1',	'R2',
-             #           'Bmax',	'Bmin',	'DB', 'Mmax',	'Mmin',	'DM',	'dps',	'Hdisp',	'Bdisp']
+            #            'Bmax',	'Bmin',	'DB', 'Mmax',	'Mmin',	'DM',]
 
-        self.data_full = read_csv(res_dir + 'kvz_khar.csv', self.col).T
+        self.data_full = read_csv(res_dir + zone +'_khar.csv', self.col).T
 
-        self.data_field = read_csv(res_dir + 'kvz_khar.csv', self.col).T
+        self.data_field = read_csv(res_dir + zone+'_khar.csv', self.col).T
         #self.data_field = read_csv(res_dir + 'kvz_field.csv', self.col).T
 
-        self.data_sample = read_csv(res_dir + 'kvz_sample.csv', self.col).T
-        self.data_coord = read_csv(res_dir + 'kvz_coord.csv', ['x', 'y']).T
+        self.data_sample = read_csv(res_dir + zone+'_sample.csv', self.col).T
+        self.data_coord = read_csv(res_dir +zone+'_coord.csv', ['x', 'y']).T
         self.indexX = np.array(self.data_full[:, 0]).astype(int)
         self.indexV = np.array(self.data_sample[:, 0]).astype(int)
 

@@ -4,48 +4,47 @@ from main.supportAlg.import_data import ImportData
 from main.supportAlg.comparison import CompareAlgh
 from main.alghTools.tools import read_cora_res
 
+import numpy as np
+
 
 
 class ParamGlobal:
     def __init__(self):
-        self.s = False
+        self.s = -2
 
         self.kmeans = False
         self.alphaMax = False
         self.pers = False
         self.epsilon = False
+        self.beta = False
+        self.mcos = False
+        # self.range_const = 0.945
+        self.range_const = False
 
-        self.metrix = False
+        self.metrics = False
         self.delta = False
-        self.vector = False
+        self.manhattan = False
+        self.nchCount = False
 
-        self.nchCount = True
+        self.vector = True
 
-        # self.border = ['h(X)', 1]
-        # self.border = ['ro', 24]
-        self.border = ['beta', -0.004]
-        # self.border = ['kmeans', 25]
-        # self.border = ['pers', 30]
+        self.border = ['h(X)', 1]
 
-        self.FEATS_GLOBAL = None
-        # self.FEATS_GLOBAL = np.array([[20, 21, 22]])
+        #TODO синхронизация с param_conts_comb
 
 
     def global_feats(self):
-        FEATS_GLOBAL = [1, 2, 3, 4, 5, 7, 10, 12, 13, 14, 15]  # 11 old feats
+        #FEATS_GLOBAL = [1, 2, 3, 4, 5, 7, 10, 12, 13, 14, 15]  # 11 old feats
         #FEATS_GLOBAL = [1, 2, 3, 4, 24, 25, 26, 47, 48, 49] #10 new feats
 
-        # FEATS_GLOBAL = [1, 2, 3, 4, 5, 7, 10, 12, 13, 14, 15, 16, 17, 18] #14
-        # FEATS_GLOBAL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18] #18
-        # FEATS = [1, 2, 3, 4, 5, 7, 9, 10, 12, 13, 15, 16, 17, 18, 19, 20, 21]
-        #FEATS_GLOBAL = [[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12], [13, 14], [15, 16], [17, 18]]
-
-        #FEATS_GLOBAL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]  #grid
-        #FEATS_GLOBAL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  #grid
+        #FEATS_GLOBAL = [122, 123, 124]
+        #FEATS_GLOBAL = np.array([[6, 63, 120, 177]])
+        FEATS_GLOBAL = np.array([[63]])
 
         return FEATS_GLOBAL
 
-imp = ImportData(zone='kvz', gridVers=False)
+
+imp = ImportData(zone='kvz', gridVers=True)
 bar = BarrierMod(imp, ParamGlobal())
 
 r = bar.oneVoneP()
@@ -71,7 +70,7 @@ else:
 
 
 
-vis.ln_to_grid(r.result, 'barrier')
+#vis.ln_to_grid(r.result, 'barrier')
 
 #cora_res = read_cora_res(imp.indexX, c=1)
 #vis.ln_to_grid(cora_res, 'cora')
