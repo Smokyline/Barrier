@@ -45,6 +45,7 @@ def simple_range(Y, X, V, metrics=False):
 
     Xv_max = np.maximum(X, V)
     Xv_min = np.minimum(X, V)
+
     if metrics:
         XV = np.array([calc_metrics_range(Y, Xv_max[xi], Xv_min[xi]) for xi in range(lengthX)])
         XV = 1-XV
