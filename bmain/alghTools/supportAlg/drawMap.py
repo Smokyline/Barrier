@@ -1,6 +1,6 @@
 import numpy as np
 import math
-from main.alghTools.tools import read_csv, acc_check
+from bmain.alghTools.tools import read_csv, acc_check
 
 import matplotlib
 
@@ -74,7 +74,7 @@ class Visual:
         scB = plt.scatter([], [], c='b', linewidth='0.5', label='X(V)', zorder=2)
         scEQis = plt.scatter([], [], c='r', marker='^', linewidth='0.5', label=self.eqLegend[1], zorder=2)
         scEQitr = plt.scatter([], [], c='r', linewidth='0.5', label=self.eqLegend[2], zorder=2)
-        plt.legend(handles=[scB, scEQis, scEQitr], loc=8, bbox_to_anchor=(0.5, -0.45), ncol=2)
+        plt.legend(handles=[scB, scEQis, scEQitr], loc=8, bbox_to_anchor=(0.5, -0.3), ncol=2)
         plt.title(title)
         plt.savefig(self.path + title + '.png', dpi=400)
         plt.close()
@@ -107,7 +107,46 @@ class Visual:
         ax.scatter(eq_instr_x, eq_instr_y, c='k', marker='^', linewidths=0.45, zorder=4, s=25)
         plt.grid(True)
         plt.title(u'%s' % head_title, fontdict={'family': 'verdana'})
+
+
+
         plt.savefig(self.path + head_title + '.png', dpi=400)
+        plt.close()
+
+    def grid_res(self, X, title, r):
+        """отображение результатов алгоритма в виде сетки грида"""
+        plt.clf()
+        figManager = plt.get_current_fig_manager()
+        figManager.window.showMaximized()
+        ax = plt.gca()
+        m = Basemap(llcrnrlat=self.m_c[2], urcrnrlat=self.m_c[3],
+                    llcrnrlon=self.m_c[0], urcrnrlon=self.m_c[1],
+                    resolution='l')
+        m.drawcountries(zorder=1, linewidth=0.6)
+        m.drawcoastlines(zorder=1, linewidth=0.6)
+        delta = 2
+        parallels = np.arange(0., 90, delta)
+        m.drawparallels(parallels, labels=[False, True, True, False], zorder=1, linewidth=0.4)
+        meridians = np.arange(0., 360, delta)
+        m.drawmeridians(meridians, labels=[True, False, False, True], zorder=1, linewidth=0.4)
+
+        ax.scatter(self.X[:, 0], self.X[:, 1], marker='.', color='k', lw=0, s=5, zorder=0, alpha=.55)
+
+        for xy in X:
+            ax.add_artist(
+                RegularPolygon(xy=(xy[0], xy[1]), numVertices=4, radius=np.sqrt(r)/10, orientation=math.pi / 4, lw=0,
+                               facecolor='b', edgecolor='none', zorder=2, alpha=0.75))
+
+        ax.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], marker='^', color='r', lw=0.5, zorder=3, s=8)
+        ax.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], marker='o', color='r', lw=0.5, zorder=4, s=8)
+
+        scB = plt.scatter([], [], c='b', linewidth='0.5', label='barrier result', zorder=2)
+        scEQis = plt.scatter([], [], c='r', marker='^', linewidth='0.5', label=self.eqLegend[1], zorder=2)
+        scEQitr = plt.scatter([], [], c='r', linewidth='0.5', label=self.eqLegend[2], zorder=2)
+        plt.legend(handles=[scB, scEQis, scEQitr], loc=8, bbox_to_anchor=(0.5, -0.3), ncol=2)
+
+        plt.title(title)
+        plt.savefig(self.path + title + '.png', dpi=500)
         plt.close()
 
     def ln_diff_res(self, SETS, labels, title, title2):
@@ -152,36 +191,7 @@ class Visual:
         plt.savefig(self.path + title + '.png', dpi=400)
         plt.close()
 
-    def grid_res(self, X, title, r):
-        """отображение результатов алгоритма в виде сетки грида"""
-        plt.clf()
-        figManager = plt.get_current_fig_manager()
-        figManager.window.showMaximized()
-        ax = plt.gca()
-        m = Basemap(llcrnrlat=self.m_c[2], urcrnrlat=self.m_c[3],
-                    llcrnrlon=self.m_c[0], urcrnrlon=self.m_c[1],
-                    resolution='l')
-        m.drawcountries(zorder=1, linewidth=0.6)
-        m.drawcoastlines(zorder=1, linewidth=0.6)
-        delta = 2
-        parallels = np.arange(0., 90, delta)
-        m.drawparallels(parallels, labels=[False, True, True, False], zorder=1, linewidth=0.4)
-        meridians = np.arange(0., 360, delta)
-        m.drawmeridians(meridians, labels=[True, False, False, True], zorder=1, linewidth=0.4)
 
-        ax.scatter(self.X[:, 0], self.X[:, 1], marker='.', color='k', lw=0, s=8, zorder=0)
-
-        for xy in X:
-            ax.add_artist(
-                RegularPolygon(xy=(xy[0], xy[1]), numVertices=4, radius=0.142, orientation=math.pi / 4, lw=0,
-                               facecolor='b', edgecolor='none', zorder=2, alpha=0.75))
-
-        ax.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], marker='^', color='r', lw=0.5, zorder=3)
-        ax.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], marker='o', color='r', lw=0.5, zorder=4)
-
-        plt.title(title)
-        plt.savefig(self.path + title + '.png', dpi=400)
-        plt.close()
 
     def ln_to_grid(self, result, title, r=0.2252):
         """конвертирование окружностей пересечений линеаментов в виде сетки грида"""
@@ -245,7 +255,6 @@ def check_pix_pers(A, grid=False):
     """расчет площади результата алгоритма в полигоне"""
     fig = plt.figure()
     ax = plt.gca(aspect='equal')
-
     pol = get_squar_poly_coords()
 
     plt.axis('off')
@@ -255,17 +264,18 @@ def check_pix_pers(A, grid=False):
     ax.add_patch(patches.Polygon(pol, color='#008000', zorder=1))
     for x, y, r in zip(A[:, 0], A[:, 1], [0.225 for i in range(len(A))]):
         if grid:
-            ax.add_artist(RegularPolygon(xy=(x, y), numVertices=4, radius=0.142, orientation=math.pi / 4, lw=0,
+            ax.add_artist(RegularPolygon(xy=(x, y), numVertices=4, radius=np.sqrt(2)/10, orientation=math.pi / 4, lw=0,
                                          facecolor='#ff0000', edgecolor='none', zorder=2))
         else:
             ax.add_artist(
                 Circle(xy=(x, y), radius=r, alpha=1, linewidth=0, zorder=2, facecolor='#ff0000', edgecolor='#ff0000'))
 
     fig.canvas.draw()
-    #plt.savefig('/Users/Ivan/Documents/workspace/result/tmp/grid_pers.png', dpi=300)
 
+    #plt.savefig('/Users/Ivan/Documents/workspace/result/tmp/grid_pers.png', dpi=300)
     reso = fig.canvas.get_width_height()
     data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
+    plt.close()
     data = data.reshape((reso[0] * reso[1], 3))
 
     idx_green_array1 = np.where(data[:, 1] == 128)[0]
@@ -276,7 +286,6 @@ def check_pix_pers(A, grid=False):
 
     r = len(red_array)
     f = len(green_array) + r
-    plt.close()
     return round(r * 100 / f, 3)
 
 

@@ -1,6 +1,8 @@
-from main.alghTools.tools import acc_check
-from main.supportAlg.drawMap import check_pix_pers, visuaMSdiffPix_ras
 import numpy as np
+
+from bmain.alghTools.supportAlg.drawMap import check_pix_pers, visuaMSdiffPix_ras
+from bmain.alghTools.tools import acc_check
+
 
 def idx_diff_runnerAwB(A, B):
     """нахождение индексов A, которых нет в B """

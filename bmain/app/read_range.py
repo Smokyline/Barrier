@@ -1,9 +1,9 @@
-from main.app.barrier_mod import BarrierMod, Result
-from main.supportAlg.drawMap import Visual
-from main.supportAlg.import_data import ImportData
-from main.alghTools.tools import *
-import numpy as np
-import pandas as pd
+from bmain.supportAlg.import_data import ImportData
+
+from bmain.alghTools.supportAlg.drawMap import Visual
+from bmain.alghTools.tools import *
+from bmain.barrier.barrier_version import Result
+
 
 def read_csv(path):
     """чтение csv файла по col колонкам"""

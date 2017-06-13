@@ -1,7 +1,8 @@
-from main.app.barrier_mod import BarrierMod
-from main.supportAlg.import_data import ImportData
-from main.alghTools.tools import res_to_txt
 import numpy as np
+
+from bmain.alghTools.supportAlg.import_data import ImportData
+from bmain.alghTools.tools import res_to_txt
+from bmain.barrier.barrier_version import BarrierMod
 
 
 class ParamGlobal:
@@ -46,7 +47,7 @@ def run_bar():
         # algname, кол-во объектов, точность, % территории, параметры
         alg_title = res.alg_name + '_' + str(gp.FEATS_GLOBAL)
         row = [alg_title.replace(" ", "_"), res.lenB, res.acc, res.pers, res.param_title.replace(" ", "_")[:-1]]
-        imp.set_save_path(folder_name='comp', res=res)
+        imp.set_save_path(alg_name=res.alg_name, lenf=res.lenf)
         res_to_txt(imp.save_path + name + '.txt', row)
 
 

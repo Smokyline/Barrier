@@ -1,13 +1,10 @@
-from main.app.barrier_mod import BarrierMod, Result
-from main.supportAlg.drawMap import Visual, check_pix_pers
-from main.supportAlg.import_data import ImportData
-from main.alghTools.tools import *
-from testing.foo_anlz.foo_found import calc_a
-
-
 import matplotlib
+from bmain.supportAlg.import_data import ImportData
+
+from bmain.alghTools.supportAlg.drawMap import Visual, check_pix_pers
+from bmain.alghTools.tools import *
+
 matplotlib.use('Qt5Agg')
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 

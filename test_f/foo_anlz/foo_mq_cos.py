@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
-from testing.foo_anlz.foo_found import calc_a
+from test_f.foo_anlz.foo_found import calc_a
 
 def read_csv(path):
     """чтение csv файла по col колонкам"""

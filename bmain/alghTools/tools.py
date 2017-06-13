@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import os
-from main.alghTools.kmeans import km
+from bmain.alghTools.kmeans import km
 
 
 def read_csv(path, col):
@@ -50,6 +50,7 @@ def res_to_txt(file, row):
 def save_xv_to_csv(X, i, folder, title):
     """сохранение расстояний XV в csv файл """
     path = '/Users/Ivan/Documents/workspace/result/Barrier/range/%s/' % folder
+
     if not os.path.exists(path):
         os.makedirs(path)
     XVdf = pd.DataFrame(np.array(X).ravel())
@@ -57,8 +58,8 @@ def save_xv_to_csv(X, i, folder, title):
     XVdf.to_csv(path + name + '.csv', index=False, header=False,
                 sep=';', decimal=',')
 
-def save_res_idx_to_csv(X, res, title):
-    path = '/Users/Ivan/Documents/workspace/result/Barrier/csv_res/'
+def save_res_idx_to_csv(X, res, title, path):
+    path += '/csv_res/'
     if not os.path.exists(path):
         os.makedirs(path)
     one_zero_arr = []

@@ -1,47 +1,9 @@
-from main.app.barrier_mod import BarrierMod
-from main.supportAlg.drawMap import Visual
-from main.supportAlg.import_data import ImportData
 import numpy as np
 
-
-class ParamGlobal:
-    def __init__(self):
-        self.s = False
-
-        self.kmeans = False
-        self.alphaMax = False
-        self.pers = False
-        self.epsilon = False
-        self.beta = False
-        self.mcos = False
-        #self.range_const = 0.945
-        self.range_const = 0.945
-
-        self.metrics = False
-        self.delta = False
-        self.vector = False
-        self.manhattan = True
-
-        self.nchCount = False
-
-        self.border = ['h(X)', 1]
-        #self.border = ['ro', 18]
-        #self.border = ['kmeans', 25]
-        #self.border = ['pers', 12]
-
-        #self.FEATS_GLOBAL = [56, 57, 58]
-        #self.FEATS_GLOBAL = np.array([[56, 57, 58]])
-        #self.FEATS_GLOBAL = np.array([[64,65,66]])
-        #self.FEATS_GLOBAL = np.array([[111, 112, 113]])
-        self.FEATS_GLOBAL = np.array([[162, 163, 164, 165, 166, 167, 168, 169, 170, 171]])
-
-        # self.FEATS_GLOBAL = np.array([[8, 9, 10], [31, 32, 33], [54, 55, 56], [77, 78, 79]])
-        #self.FEATS_GLOBAL = np.array([[31, 32, 33]])
-
-
-    def global_feats(self):
-
-        return self.FEATS_GLOBAL
+from bmain.alghTools.supportAlg.import_data import ImportData
+from bmain.alghTools.supportAlg.drawMap import Visual
+from bmain.app.global_param import ParamGlobal
+from bmain.barrier.barrier_version import BarrierMod
 
 
 def change_gp(gp, s, border, feat):

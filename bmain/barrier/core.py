@@ -1,7 +1,5 @@
-from main.barrier.test_foo import *
-from main.alghTools.tools import pers_separator, found_nch_param_border
-from main.alghTools.kmeans import km
-import time
+from bmain.alghTools.tools import *
+
 
 def mq_axis1(XV, q):
     """степенное среднее каждой строки """
@@ -25,10 +23,13 @@ def simple_range(Y, X, V, metrics=False):
         """расстояние между x и v основано на колличестве элементов из Y
             с таким же параметром
             B(x, v, f) > 0 """
-        range_x = np.count_nonzero((YF >= minF) & (YF <= maxF)) #90ms
-        return range_x / lengthY
+        range_x = 0
+        try:
+            range_x += np.count_nonzero((YF > minF) & (YF < maxF)) #90ms
+        finally:
+            return (range_x + 1) / lengthY
 
-    def calc_metrics_range(Y, minF, maxF):
+    def calc_metrics_range(Y, maxF, minF):
         delta = 0
         for y in Y:
             if not (minF <= y <= maxF):
@@ -38,7 +39,6 @@ def simple_range(Y, X, V, metrics=False):
                 maxPix = max(piX1, piX2)
                 delta += (minPix / maxPix)
         return delta / lengthY
-
 
     lengthY = len(Y)
     lengthX = len(X)
