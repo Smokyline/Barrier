@@ -1,10 +1,11 @@
 from bmain.alghTools.supportAlg.drawMap import check_pix_pers, acc_check
-from bmain.alghTools.tools import set_title_param, save_res_idx_to_csv
+from bmain.alghTools.tools import set_title_param, save_res_idx_to_csv, save_res_coord_to_csv
 
 
 class Result:
     def __init__(self, idxB, countX, countX_const_arr, gp, imp, alg_name):
         self.result = idxB  # индексы высокосейсмичных узлов
+        print(idxB)
         self.lenB = len(idxB)
         self.lenf = len(gp.global_feats())
 
@@ -21,4 +22,5 @@ class Result:
 
         imp.set_save_path(alg_name=alg_name, lenf=self.lenf)
         save_res_idx_to_csv(imp.data_full, idxB, self.title, imp.save_path)
+        save_res_coord_to_csv(imp.data_coord[idxB], self.title, imp.save_path)
 

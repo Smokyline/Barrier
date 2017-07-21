@@ -23,11 +23,10 @@ def simple_range(Y, X, V, metrics=False):
         """расстояние между x и v основано на колличестве элементов из Y
             с таким же параметром
             B(x, v, f) > 0 """
-        range_x = 0
-        try:
-            range_x += np.count_nonzero((YF > minF) & (YF < maxF)) #90ms
-        finally:
-            return (range_x + 1) / lengthY
+        range_x = np.count_nonzero((YF >= minF) & (YF <= maxF))
+
+        return range_x / lengthY
+
 
     def calc_metrics_range(Y, maxF, minF):
         delta = 0
@@ -51,7 +50,6 @@ def simple_range(Y, X, V, metrics=False):
         XV = 1-XV
     else:
         XV = np.array([calc_range(Y, Xv_max[xi], Xv_min[xi]) for xi in range(lengthX)])
-
     return XV
 
 

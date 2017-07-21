@@ -9,24 +9,23 @@ def read_csv(path, col):
     array = []
     frame = pd.read_csv(path, header=0, sep=';', decimal=",")
     for i, title in enumerate(col):
-        try:
-            array.append(frame[title].values)
-        except:
-            print('no_' + title, end=' ')
+        cell = frame[title].values
 
+        try:
+            cell = cell[~np.isnan(cell)]
+        except Exception as ex:
+            print(ex)
+            for j, c in enumerate(cell):
+                try:
+                    np.float(c.replace(',', '.'))
+                except:
+                    print('Error in row:%s "%s"' % (j, c))
+
+        array.append(cell)
+
+    #return np.array(array).astype(float)
     return np.array(array)
 
-
-def read_cora_res(idxCX, c):
-    """импорт результатов алгоритма EPA"""
-    CORAres = read_csv('/Users/Ivan/Documents/workspace/resources/csv/Barrier/kvz/kvz_CORA_result.csv',
-                       ['idx', 'r1', 'r2', 'r3', 'r4']).T
-    idxX = np.array([]).astype(int)
-    for res in CORAres:
-        if '+' in res[c]:
-            idxRes = np.where(idxCX == res[0])[0][0]
-            idxX = np.append(idxX, idxRes)
-    return idxX
 
 
 def set_title_param(param):
@@ -50,18 +49,21 @@ def res_to_txt(file, row):
 def save_xv_to_csv(X, i, folder, title):
     """сохранение расстояний XV в csv файл """
     path = '/Users/Ivan/Documents/workspace/result/Barrier/range/%s/' % folder
-
+    original_umask = os.umask(0)
     if not os.path.exists(path):
-        os.makedirs(path)
+        os.makedirs(path, exist_ok=True)
     XVdf = pd.DataFrame(np.array(X).ravel())
     name = '%s%s-%s' % (title, i[0], i[1])
     XVdf.to_csv(path + name + '.csv', index=False, header=False,
                 sep=';', decimal=',')
+    os.umask(original_umask)
+
 
 def save_res_idx_to_csv(X, res, title, path):
     path += '/csv_res/'
+    original_umask = os.umask(0)
     if not os.path.exists(path):
-        os.makedirs(path)
+        os.makedirs(path, exist_ok=True)
     one_zero_arr = []
     for i in range(len(X)):
         if i in res:
@@ -72,6 +74,29 @@ def save_res_idx_to_csv(X, res, title, path):
     XVdf = pd.DataFrame(np.array(one_zero_arr).ravel())
     XVdf.to_csv(path + title +'.csv', index=False, header=False,
                 sep=';', decimal=',')
+    os.umask(original_umask)
+
+def save_res_coord_to_csv(coord, title, path):
+    path += '/csv_res/'
+    original_umask = os.umask(0)
+    if not os.path.exists(path):
+        os.makedirs(path, exist_ok=True)
+
+    XVdf = pd.DataFrame(coord, columns=['x', 'y'])
+    XVdf.to_csv(path + 'coord_' + title + '.csv', index=False, header=True,
+                sep=';', decimal=',')
+    os.umask(original_umask)
+
+def coord_in_sample(xy, sample_coords):
+    eps = 0.00000006
+    ans = False
+
+    x_dim = np.where(abs(sample_coords[:, 0] - xy[0]) < eps)[0]
+    if len(x_dim) > 0:
+        y_dim = np.where(abs(sample_coords[x_dim, 1] - xy[1]) < eps)[0]
+        if len(y_dim) > 0:
+                ans = True
+    return ans
 
 
 def h_separator(lX, countX, h):

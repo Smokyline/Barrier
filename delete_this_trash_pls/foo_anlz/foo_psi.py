@@ -4,7 +4,7 @@ import matplotlib
 
 matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
-from test_f.foo_anlz.foo_found import calc_a
+from delete_this_trash_pls.foo_anlz.foo_found import calc_a
 
 
 def read_csv(path):

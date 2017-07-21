@@ -1,6 +1,7 @@
 import numpy as np
 import math
-from bmain.alghTools.tools import read_csv, acc_check
+from bmain.alghTools.tools import read_csv, acc_check, coord_in_sample
+from bmain.app.global_param import ParamGlobal
 
 import matplotlib
 
@@ -16,29 +17,16 @@ from PIL import Image
 from  scipy.misc import imsave
 
 
-def get_field_coords():
-    #coordinatesPoly = [30, 52, 37, 46]#kvz+crim
-    coordinatesPoly = [36, 52, 37, 46]
-    return np.array(coordinatesPoly)
-
-
-def get_squar_poly_coords():
-     #[[32.5, 44.0], [33.7, 46.0], [40.2, 44.8], [40.2, 44], [41.5, 44], [41.7, 44.5], [43.2, 44.5],
-    coordinatesPoly = [[36.8, 44.2], [37.4, 45.35], [40.2, 44.8], [40.2, 44], [41.5, 44], [41.7, 44.5], [43.2, 44.5],
-                       [44.1, 43.3], [47.8, 43.3], [51.2, 40.2], [51.2, 39.8], [48.5, 37.9], [47, 38.9], [46.1, 38.2],
-                       [44.2, 38.8], [41, 39.6], [40.4, 40.1], [41, 40.9], [41, 42.8]]
-
-    return np.array(coordinatesPoly)
-
-
 class Visual:
-    def __init__(self, X, r, imp, path):
+    def __init__(self, X, r, imp, gp, path):
         self.X = X
         self.imp = imp
         self.path = path
-        self.m_c = get_field_coords()
+        self.m_c = gp.get_field_coords()
+        self.pol = gp.get_squar_poly_coords()
         self.r = r
-        self.eq_all, self.eq_ist, self.eq_instr, self.eqLegend = imp.eq_stack()
+        self.eq_all, self.eq_ist, self.eq_instr, self.eqLegend = imp.get_eq_stack()
+        self.sample_coord = imp.get_sample_coords()
 
     def visual_circle(self, res, title):
         """отображение результатов в виде кругов"""
@@ -46,27 +34,34 @@ class Visual:
         fig = plt.figure()
         ax = fig.add_subplot(111, aspect='equal')
 
-        pol = get_squar_poly_coords()
+
+        pol = self.pol
         m = Basemap(llcrnrlat=self.m_c[2], urcrnrlat=self.m_c[3],
                     llcrnrlon=self.m_c[0], urcrnrlon=self.m_c[1],
                     resolution='l')
         m.drawcountries(zorder=1, linewidth=0.6)
         m.drawcoastlines(zorder=1, linewidth=0.6)
-        parallels = np.arange(0., 90, 2)
+        d = 2
+        parallels = np.arange(0., 90, d)
         m.drawparallels(parallels, labels=[False, True, True, False], zorder=1, linewidth=0.4)
-        meridians = np.arange(0., 360, 2)
+        meridians = np.arange(0., 360, d)
         m.drawmeridians(meridians, labels=[True, False, False, True], zorder=1, linewidth=0.4)
 
         ax.add_patch(patches.Polygon(pol, edgecolor="b", facecolor='none', alpha=0.6, zorder=0, ))
 
-        plt.scatter(self.X[:, 0], self.X[:, 1], c='k', marker='.', lw=0, zorder=0, s=8)
+        plt.scatter(self.X[:, 0], self.X[:, 1], c='k', marker='.', lw=0, zorder=3, s=13)
 
 
 
         for x, y, r in zip(B[:, 0], B[:, 1], [self.r for i in range(len(B))]):
+            color = 'b'
+
+            #if coord_in_sample((x, y), self.sample_coord): color = 'g'
+
             circle_B = ax.add_artist(Circle(xy=(x, y),
-                                            radius=r, alpha=0.8, linewidth=0.75, zorder=2, facecolor='b',
+                                            radius=r, alpha=0.9, linewidth=0.75, zorder=2, facecolor=color,
                                             edgecolor="k"))
+            plt.scatter(x, y, c='g', marker='.', lw=0, zorder=4, s=15)
 
         plt.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], c='r', marker='^', linewidths=0.45, zorder=4, s=20)
         plt.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], c='r', marker='o', linewidths=0.45, zorder=4, s=20)
@@ -153,7 +148,7 @@ class Visual:
         """отображение разности в алгоритмах"""
         fig = plt.figure()
         ax = fig.add_subplot(111, aspect='equal')
-        sqrt_pol = get_squar_poly_coords()
+        sqrt_pol = self.pol
 
         m = Basemap(llcrnrlat=self.m_c[2], urcrnrlat=self.m_c[3],
                     llcrnrlon=self.m_c[0], urcrnrlon=self.m_c[1],
@@ -255,7 +250,7 @@ def check_pix_pers(A, grid=False):
     """расчет площади результата алгоритма в полигоне"""
     fig = plt.figure()
     ax = plt.gca(aspect='equal')
-    pol = get_squar_poly_coords()
+    pol = ParamGlobal().get_squar_poly_coords()
 
     plt.axis('off')
     plt.xlim(np.min(pol[:, 0]), np.max(pol[:, 0]))
@@ -293,7 +288,7 @@ def check_pix_pers(A, grid=False):
 
 def visuaMSdiffPix_ras(Aln, Bln, r, direc, title):
     """пиксельная разность 2х алгоритмов"""
-    fc = get_field_coords()
+    fc = ParamGlobal().get_field_coords()
 
     def calc_len_pix(data, r):
         lon_0 = np.mean(fc[:2])
@@ -378,7 +373,7 @@ def calc_acc_pixpoly(B, eq_data, delta):
 
     plt.axis('off')
 
-    coord_field = get_field_coords()
+    coord_field = ParamGlobal().get_field_coords()
     plt.xlim(coord_field[0], coord_field[1])
     plt.ylim(coord_field[2], coord_field[3])
     center_x, center_y = np.mean(coord_field[:2]), np.mean(coord_field[2:])
