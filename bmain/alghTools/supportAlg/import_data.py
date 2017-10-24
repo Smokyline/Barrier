@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from bmain.alghTools.tools import read_csv
+from bmain.alghTools.tools import read_csv_pandas
 
 
 class ImportData:
@@ -12,27 +12,28 @@ class ImportData:
         if gridVers:
             self.res_path += 'gridVers/d0.1/'
 
-        self.col = self._read_txt_param(self.res_path)
+        #self.col = self._read_txt_param(self.res_path)
 
-        self.data_full = read_csv(self.res_path + 'khar.csv', self.col).T
+        self.data_full = read_csv_pandas(self.res_path + 'khar.csv')
 
         if ln_field:
-            self.data_field = read_csv(self.res_path + 'field.csv', self.col).T
+            self.data_field = read_csv_pandas(self.res_path + 'field.csv')
         else:
-            self.data_field = read_csv(self.res_path + 'khar.csv', self.col).T
+            self.data_field = read_csv_pandas(self.res_path + 'khar.csv', )
 
-        self.data_sample = read_csv(self.res_path + 'sample.csv', self.col).T
-        self.data_coord = read_csv(self.res_path + 'coord.csv', ['x', 'y']).T
+        self.data_sample = read_csv_pandas(self.res_path + 'sample.csv')
+        self.data_coord = read_csv_pandas(self.res_path + 'coord.csv')
 
         file_name_ist = '_eq_istor.csv'
         file_name_inst = '_eq_instr.csv'
-        self.eq_ist = read_csv(self.res_path + file_name_ist, ['x', 'y']).T
-        self.eq_inst = read_csv(self.res_path + file_name_inst, ['x', 'y']).T
+        self.eq_ist = read_csv_pandas(self.res_path + file_name_ist)
+        self.eq_inst = read_csv_pandas(self.res_path + file_name_inst)
         self.eq_all = np.append(self.eq_ist, self.eq_inst, axis=0)
 
     def get_eq_stack(self):
-        M = 6
-        legend = ['M%s+'%M, 'M%s+ istor'%M, 'M%s+ instr'%M]
+        M = 5
+        #legend = ['M%s+'%M, 'M%s+ istor'%M, 'M%s+ instr'%M]
+        legend = ['M%s+'%M, 'M5+', 'M6+']
         return self.eq_all, self.eq_ist, self.eq_inst, legend
 
     def set_save_path(self, alg_name, lenf):
@@ -49,7 +50,7 @@ class ImportData:
         os.umask(original_umask)
 
     def get_sample_coords(self):
-        idx_feat_sample = read_csv(self.res_path + 'sample.csv', self.col).T[:, 0]
+        idx_feat_sample = read_csv_pandas(self.res_path + 'sample.csv')[:, 0]
         #idx_feat_sample = [self.data_sample[0][0]]
 
         idx_array = []
@@ -68,8 +69,10 @@ class ImportData:
         return f_list
 
     def read_cora_res(self, c=1):
+        #TODO изменить результаты коры для Кавказа
         """импорт результатов алгоритма EPA"""
-        CORAres = read_csv(self.res_path+'/kvz_CORA_result.csv', ['idx', 'r1', 'r2', 'r3', 'r4']).T
+        CORAres = read_csv_pandas(self.res_path+'/kvz_CORA_result.csv')
+        # ['idx', 'r1', 'r2', 'r3', 'r4']
         idxCX = self.data_full[:, 0]
         idxX = np.array([]).astype(int)
         for res in CORAres:
@@ -77,3 +80,15 @@ class ImportData:
                 idxRes = np.where(idxCX == res[0])[0][0]
                 idxX = np.append(idxX, idxRes)
         return idxX
+
+    def read_cora_res_2(self):
+        #TODO изменить результаты коры для Кавказа
+        """импорт результатов алгоритма EPA"""
+        CORAres = read_csv_pandas(self.res_path+'/cora.csv')
+        # ['idx', 'r1', 'r2', 'r3', 'r4']
+        idx_all = self.data_full[:, 0]
+        idx_B = np.array([]).astype(int)
+        for i, res in enumerate(CORAres):
+                idx_in_data = np.where(idx_all == res)[0][0]
+                idx_B = np.append(idx_B, idx_in_data)
+        return idx_B

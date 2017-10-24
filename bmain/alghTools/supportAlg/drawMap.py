@@ -38,38 +38,49 @@ class Visual:
         pol = self.pol
         m = Basemap(llcrnrlat=self.m_c[2], urcrnrlat=self.m_c[3],
                     llcrnrlon=self.m_c[0], urcrnrlon=self.m_c[1],
-                    resolution='l')
+                    resolution='h')
+        #m.fillcontinents(color='white', lake_color='aqua',zorder=0, alpha=.5)
+        m.arcgisimage(service='World_Shaded_Relief', xpixels=1500, verbose=True, zorder=0)
+
         m.drawcountries(zorder=1, linewidth=0.6)
         m.drawcoastlines(zorder=1, linewidth=0.6)
-        d = 2
-        parallels = np.arange(0., 90, d)
+        parallels = np.arange(0., 90, 2)
         m.drawparallels(parallels, labels=[False, True, True, False], zorder=1, linewidth=0.4)
-        meridians = np.arange(0., 360, d)
+        meridians = np.arange(0., 360, 4)
         m.drawmeridians(meridians, labels=[True, False, False, True], zorder=1, linewidth=0.4)
 
         ax.add_patch(patches.Polygon(pol, edgecolor="b", facecolor='none', alpha=0.6, zorder=0, ))
 
-        plt.scatter(self.X[:, 0], self.X[:, 1], c='k', marker='.', lw=0, zorder=3, s=13)
-
+        plt.scatter(self.X[:, 0], self.X[:, 1], c='m', marker='.', lw=0, zorder=3, s=13)
+        plt.plot(ParamGlobal().get_squar_poly_coords(), c='b', alpha=0.7, zorder=2)
 
 
         for x, y, r in zip(B[:, 0], B[:, 1], [self.r for i in range(len(B))]):
-            color = 'b'
+            color = 'g'
 
             #if coord_in_sample((x, y), self.sample_coord): color = 'g'
 
-            circle_B = ax.add_artist(Circle(xy=(x, y),
-                                            radius=r, alpha=0.9, linewidth=0.75, zorder=2, facecolor=color,
-                                            edgecolor="k"))
-            plt.scatter(x, y, c='g', marker='.', lw=0, zorder=4, s=15)
+            # круги без проекции
+            #circle_B = ax.add_artist( Circle(xy=(x, y),radius=r, alpha=0.9, linewidth=0.75, zorder=2, facecolor=color, edgecolor="k"))
 
-        plt.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], c='r', marker='^', linewidths=0.45, zorder=4, s=20)
-        plt.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], c='r', marker='o', linewidths=0.45, zorder=4, s=20)
+            #эллипсы с проекцией
+            m.tissot(x, y, r, 50, alpha=0.9, linewidth=0.75, zorder=2, facecolor=color, edgecolor="k")
 
-        scB = plt.scatter([], [], c='b', linewidth='0.5', label='X(V)', zorder=2)
+            plt.scatter(x, y, c='b', marker='.', lw=0, zorder=4, s=15)
+
+        # исторические - треугольник инструментальные - круг
+        plt.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], c='r', marker='^', linewidths=0.45, zorder=4, s=17, alpha=0.8)
+        plt.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], c='r', marker='o', linewidths=0.45, zorder=4, s=17, alpha=0.8)
+
+        # все - круги
+        #plt.scatter(self.eq_all[:, 0], self.eq_all[:, 1], c='r', marker='o', linewidths=0.45, zorder=4, s=20, alpha=0.8)
+
+
+        scB = plt.scatter([], [], c='g', linewidth='0.5', label='B', zorder=2)
+        scH = plt.scatter([], [], c='m', linewidth='0.5', label='H', zorder=2)
         scEQis = plt.scatter([], [], c='r', marker='^', linewidth='0.5', label=self.eqLegend[1], zorder=2)
         scEQitr = plt.scatter([], [], c='r', linewidth='0.5', label=self.eqLegend[2], zorder=2)
-        plt.legend(handles=[scB, scEQis, scEQitr], loc=8, bbox_to_anchor=(0.5, -0.3), ncol=2)
+        plt.legend(handles=[scB, scH, scEQis, scEQitr], loc=8, bbox_to_anchor=(0.5, -0.4), ncol=2)
         plt.title(title)
         plt.savefig(self.path + title + '.png', dpi=400)
         plt.close()
