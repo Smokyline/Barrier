@@ -1,6 +1,8 @@
 import os
+
 import numpy as np
-from bmain.alghTools.tools import read_csv_pandas
+
+from barrier_modules.tools import read_csv_pandas
 
 
 class ImportData:
@@ -36,7 +38,7 @@ class ImportData:
         legend = ['M%s+'%M, 'M5+', 'M6+']
         return self.eq_all, self.eq_ist, self.eq_inst, legend
 
-    def set_save_path(self, alg_name, lenf):
+    def set_save_path(self, alg_name='', lenf=''):
         if self.folder_name == '':
             save_folder_name = '%s_%s_P=%s' % (self.zone, alg_name, lenf)
         else:

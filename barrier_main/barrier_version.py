@@ -1,8 +1,7 @@
-from bmain.barrier.core import Core
-from bmain.app.result_prepair import Result
-from bmain.alghTools.tools import *
 import multiprocessing as mp
 
+from barrier_main.core import Core
+from barrier_modules.tools import *
 
 
 class BarrierMod:

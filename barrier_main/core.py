@@ -1,4 +1,4 @@
-from bmain.alghTools.tools import *
+from barrier_modules.tools import *
 
 
 def mq_axis1(XV, q):

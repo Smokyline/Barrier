@@ -2,10 +2,11 @@ import numpy as np
 
 class ParamGlobal:
     def __init__(self):
-        self.zone = 'altai'  # проверить M, шаг сетки, границы карты,
+        self.zone = 'altai'  # проверить M, шаг сетки, границы карты
+        self.radius = 0.225
         self.gridVers = False
         self.ln_field = False
-        self.s = -0.7
+        self.s = -1.45
 
         self.kmeans = False
         self.alphaMax = False
@@ -23,7 +24,8 @@ class ParamGlobal:
 
         self.vector = False
 
-        self.border = ['h(X)', 8]
+        #self.border = ['h(X)', 8]
+        self.border = ['ro', 10]
 
 
 
@@ -43,7 +45,7 @@ class ParamGlobal:
         # coordinatesPoly = [30, 52, 37, 46]#kvz+crim
         #coordinatesPoly = [36, 52, 37, 46] # kvz
         #coordinatesPoly = [32.5, 37.3, 43.2, 46] #
-        coordinatesPoly = [82, 110, 45, 56] # altay
+        coordinatesPoly = [82, 112, 45, 57] # altay
 
         return np.array(coordinatesPoly)
 

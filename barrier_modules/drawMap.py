@@ -1,9 +1,10 @@
-import numpy as np
 import math
-from bmain.alghTools.tools import read_csv, acc_check, coord_in_sample
-from bmain.app.global_param import ParamGlobal
 
 import matplotlib
+import numpy as np
+
+from barrier_main.set_global_param import ParamGlobal
+from barrier_modules.tools import read_csv, acc_check
 
 matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
@@ -18,13 +19,14 @@ from  scipy.misc import imsave
 
 
 class Visual:
-    def __init__(self, X, r, imp, gp, path):
+    def __init__(self, X,imp, gp, path):
         self.X = X
         self.imp = imp
+        self.gp = gp
         self.path = path
         self.m_c = gp.get_field_coords()
         self.pol = gp.get_squar_poly_coords()
-        self.r = r
+        self.r = gp.radius
         self.eq_all, self.eq_ist, self.eq_instr, self.eqLegend = imp.get_eq_stack()
         self.sample_coord = imp.get_sample_coords()
 
@@ -146,7 +148,7 @@ class Visual:
         ax.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], marker='^', color='r', lw=0.5, zorder=3, s=8)
         ax.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], marker='o', color='r', lw=0.5, zorder=4, s=8)
 
-        scB = plt.scatter([], [], c='b', linewidth='0.5', label='barrier result', zorder=2)
+        scB = plt.scatter([], [], c='b', linewidth='0.5', label='barrier_main result', zorder=2)
         scEQis = plt.scatter([], [], c='r', marker='^', linewidth='0.5', label=self.eqLegend[1], zorder=2)
         scEQitr = plt.scatter([], [], c='r', linewidth='0.5', label=self.eqLegend[2], zorder=2)
         plt.legend(handles=[scB, scEQis, scEQitr], loc=8, bbox_to_anchor=(0.5, -0.3), ncol=2)
@@ -219,7 +221,7 @@ class Visual:
 
         X = get_grid_around_ln(self.imp.data_coord[result], r=0.15)
         pers = check_pix_pers(X, grid=True)
-        acc = acc_check(X, self.imp.eq_all, grid=True)
+        acc = acc_check(X, self.imp.eq_all, self.r, grid=True)
         title = 'grid_%s B=%s(%s%s) acc=%s' % (title, len(X), pers, '%', acc)
         print(title)
 

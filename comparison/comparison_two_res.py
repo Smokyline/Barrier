@@ -1,7 +1,7 @@
 import numpy as np
+from barrier_modules.drawMap import check_pix_pers, visuaMSdiffPix_ras
 
-from bmain.alghTools.supportAlg.drawMap import check_pix_pers, visuaMSdiffPix_ras
-from bmain.alghTools.tools import acc_check
+from barrier_modules.tools import acc_check
 
 
 def idx_diff_runnerAwB(A, B):
@@ -41,9 +41,9 @@ class CompareAlgh:
         self.persA = check_pix_pers(imp.data_coord[self.algA], grid=imp.gridVers)
         self.persB = check_pix_pers(imp.data_coord[self.algB], grid=imp.gridVers)
 
-        self.accA = acc_check(imp.data_coord[self.algA], imp.eq_all)
-        self.accB = acc_check(imp.data_coord[self.algB], imp.eq_all)
-        self.accUnion = acc_check(imp.data_coord[self.union], imp.eq_all)
+        self.accA = acc_check(imp.data_coord[self.algA], imp.eq_all, r=vis.r)
+        self.accB = acc_check(imp.data_coord[self.algB], imp.eq_all, r=vis.r)
+        self.accUnion = acc_check(imp.data_coord[self.union], imp.eq_all, r=vis.r)
 
         self.data_coord = imp.data_coord
         self.save_path = imp.save_path

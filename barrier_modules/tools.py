@@ -1,7 +1,32 @@
+import os
+
 import numpy as np
 import pandas as pd
-import os
-from bmain.alghTools.kmeans import km
+from barrier_modules.kmeans import km
+
+from barrier_modules.drawMap import check_pix_pers, acc_check
+
+
+class Result:
+    def __init__(self, idxB, countX, countX_const_arr, gp, imp, alg_name):
+        self.result = idxB  # индексы высокосейсмичных узлов
+        self.lenB = len(idxB)
+        self.lenf = len(gp.global_feats())
+
+        self.countX = countX  # кол-во попаданий по признакам
+        self.psi_mean_const = countX_const_arr
+
+        self.pers = check_pix_pers(imp.data_coord[self.result], grid=gp.gridVers)  # процент занимаемой прощади
+        self.acc = acc_check(imp.data_coord[self.result], imp.eq_all, r=gp.radius, grid=gp.gridVers)  # точность
+
+        self.alg_name = alg_name
+        self.param_title = set_title_param(vars(gp))
+        self.title = '%s B=%s(%s%s) acc=%s f=%s %s' % (self.alg_name, self.lenB, self.pers, '%', self.acc,
+                                                       self.lenf, self.param_title)
+
+        imp.set_save_path(alg_name=alg_name, lenf=self.lenf)
+        save_res_idx_to_csv(imp.data_full, idxB, self.title, imp.save_path)
+        save_res_coord_to_csv(imp.data_coord[idxB], self.title, imp.save_path)
 
 
 def read_csv(path, col):
@@ -114,7 +139,9 @@ def h_separator(lX, countX, h):
 def ro_separator(lX, countX, r):
     """Разделение множества попаданий по признаку по степенному среднему"""
     non_zero_count = countX[np.where(countX > 0)]
+    non_zero_count = non_zero_count / 100
     h = (np.sum(non_zero_count ** r) / len(non_zero_count)) ** (1 / r)
+    h = h*100
     finalIdx = []
     for i in range(lX):
         if countX[i] >= h:
@@ -276,15 +303,13 @@ def calc_nch_alpha(X, beta):
     return alpha
 
 
-def acc_check(result, EQ, grid=False):
+def acc_check(result, EQ, r, grid=False):
     """вычисление точности алгоритма"""
     accEQ = 0
     if grid:
         r1, r2 = 15.5, 22
     else:
-        r1, r2 = 25, 50
-    p1 = r1 / 111
-    p2 = r2 / 111
+        r1, r2 = r, r*2
 
     for eq in EQ:
         if len(result) == 0:
@@ -295,13 +320,13 @@ def acc_check(result, EQ, grid=False):
                 evk += (d - result[:, n]) ** 2
             evk = np.sqrt(evk[0])
             b_evk = evk[np.argmin(evk)]
-            if b_evk <= p1:
+            if b_evk <= r1:
                 acc = 1
-            elif p1 < b_evk <= p2:
-                acc = (p2 - b_evk) / p1
+            elif r1 < b_evk <= r2:
+                acc = (r2 - b_evk) / r1
             else:
                 acc = 0
         accEQ += acc
-    return round(accEQ / len(EQ), 4)
+    return round(accEQ / len(EQ), 6)
 
 
