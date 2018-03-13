@@ -1,11 +1,11 @@
 import math
-
-import matplotlib
 import numpy as np
+import pandas as pd
 
 from barrier_main.set_global_param import ParamGlobal
-from barrier_modules.tools import read_csv, acc_check
 
+
+import matplotlib
 matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
@@ -28,11 +28,12 @@ class Visual:
         self.pol = gp.get_squar_poly_coords()
         self.r = gp.radius
         self.eq_all, self.eq_ist, self.eq_instr, self.eqLegend = imp.get_eq_stack()
-        self.sample_coord = imp.get_sample_coords()
+        self.sample_coord = imp.sample_coord
+        self.data_coord = self.imp.data_coord
 
-    def visual_circle(self, res, title):
+    def visual_circle(self, res, EXT, title):
         """отображение результатов в виде кругов"""
-        B = self.imp.data_coord[res]
+        B = self.data_coord[res]
         fig = plt.figure()
         ax = fig.add_subplot(111, aspect='equal')
 
@@ -53,33 +54,41 @@ class Visual:
 
         ax.add_patch(patches.Polygon(pol, edgecolor="b", facecolor='none', alpha=0.6, zorder=0, ))
 
-        plt.scatter(self.X[:, 0], self.X[:, 1], c='m', marker='.', lw=0, zorder=3, s=13)
+        if EXT is not None:
+            ax.scatter(EXT[:, 0], EXT[:, 1], c='#fd41cd', marker='s', s=20, linewidths=0.0, label='e2xt')
+
+        plt.scatter(self.X[:, 0], self.X[:, 1], c='k', marker='.', lw=0, zorder=3, s=13)
         plt.plot(ParamGlobal().get_squar_poly_coords(), c='b', alpha=0.7, zorder=2)
 
 
         for x, y, r in zip(B[:, 0], B[:, 1], [self.r for i in range(len(B))]):
-            color = 'g'
-
-            #if coord_in_sample((x, y), self.sample_coord): color = 'g'
-
             # круги без проекции
             #circle_B = ax.add_artist( Circle(xy=(x, y),radius=r, alpha=0.9, linewidth=0.75, zorder=2, facecolor=color, edgecolor="k"))
 
             #эллипсы с проекцией
-            m.tissot(x, y, r, 50, alpha=0.9, linewidth=0.75, zorder=2, facecolor=color, edgecolor="k")
+            m.tissot(x, y, r, 50, alpha=0.9, linewidth=0.75, zorder=2, facecolor='b', edgecolor="k")
+
+            plt.scatter(x, y, c='g', marker='.', lw=0, zorder=4, s=15)
+
+        for x, y, r in zip(self.sample_coord[:, 0], self.sample_coord[:, 1], [self.r for i in range(len(self.sample_coord))]):
+            # круги без проекции
+            #circle_B = ax.add_artist( Circle(xy=(x, y),radius=r, alpha=0.9, linewidth=0.75, zorder=2, facecolor=color, edgecolor="k"))
+
+            #эллипсы с проекцией
+            m.tissot(x, y, r, 50, alpha=0.9, linewidth=0.75, zorder=2, facecolor='g', edgecolor="k")
 
             plt.scatter(x, y, c='b', marker='.', lw=0, zorder=4, s=15)
 
         # исторические - треугольник инструментальные - круг
-        plt.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], c='r', marker='^', linewidths=0.45, zorder=4, s=17, alpha=0.8)
-        plt.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], c='r', marker='o', linewidths=0.45, zorder=4, s=17, alpha=0.8)
+        plt.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], c='r', marker='^', linewidths=0.7, zorder=4, s=18, alpha=0.8, edgecolors='k')
+        plt.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], c='r', marker='o', linewidths=0.75, zorder=4, s=18, alpha=0.8, edgecolors='k')
 
         # все - круги
         #plt.scatter(self.eq_all[:, 0], self.eq_all[:, 1], c='r', marker='o', linewidths=0.45, zorder=4, s=20, alpha=0.8)
 
 
         scB = plt.scatter([], [], c='g', linewidth='0.5', label='B', zorder=2)
-        scH = plt.scatter([], [], c='m', linewidth='0.5', label='H', zorder=2)
+        scH = plt.scatter([], [], c='k', linewidth='0.5', label='H', zorder=2)
         scEQis = plt.scatter([], [], c='r', marker='^', linewidth='0.5', label=self.eqLegend[1], zorder=2)
         scEQitr = plt.scatter([], [], c='r', linewidth='0.5', label=self.eqLegend[2], zorder=2)
         plt.legend(handles=[scB, scH, scEQis, scEQitr], loc=8, bbox_to_anchor=(0.5, -0.4), ncol=2)
@@ -157,23 +166,31 @@ class Visual:
         plt.savefig(self.path + title + '.png', dpi=500)
         plt.close()
 
-    def ln_diff_res(self, SETS, labels, title, title2):
+    def node_ln_diff_res(self, SETS, EXT=None, labels=None, title=None, title2=None):
         """отображение разности в алгоритмах"""
+
+        sqrt_pol = self.pol
+
         fig = plt.figure()
         ax = fig.add_subplot(111, aspect='equal')
-        sqrt_pol = self.pol
 
         m = Basemap(llcrnrlat=self.m_c[2], urcrnrlat=self.m_c[3],
                     llcrnrlon=self.m_c[0], urcrnrlon=self.m_c[1],
-                    resolution='l')
-        m.drawcountries(zorder=1, linewidth=0.9)
-        m.drawcoastlines(zorder=1, linewidth=0.9)
+                    resolution='h')
+        # m.fillcontinents(color='white', lake_color='aqua',zorder=0, alpha=.5)
+        m.arcgisimage(service='World_Shaded_Relief', xpixels=1500, verbose=True, zorder=0)
+
+        m.drawcountries(zorder=1, linewidth=0.6)
+        m.drawcoastlines(zorder=1, linewidth=0.6)
         parallels = np.arange(0., 90, 2)
         m.drawparallels(parallels, labels=[False, True, True, False], zorder=1, linewidth=0.4)
-        meridians = np.arange(0., 360, 2)
+        meridians = np.arange(0., 360, 4)
         m.drawmeridians(meridians, labels=[True, False, False, True], zorder=1, linewidth=0.4)
 
         ax.add_patch(patches.Polygon(sqrt_pol, edgecolor="b", facecolor='none', alpha=0.4, zorder=0))
+
+        if EXT is not None:
+            ax.scatter(EXT[:, 0], EXT[:, 1], c='#fd41cd', marker='s', s=20, linewidths=0.0, label='e2xt')
 
         plt.scatter(self.X[:, 0], self.X[:, 1], marker='.', s=11, c='k', linewidth=0, zorder=1)
 
@@ -181,18 +198,21 @@ class Visual:
         legends = []
         for i, SET in enumerate(SETS):
             for x, y, r in zip(SET[:, 0], SET[:, 1], [self.r for i in range(len(SET))]):
-                circle = ax.add_artist(Circle(xy=(x, y),
-                                              radius=r, alpha=0.8, linewidth=0.75, zorder=4, facecolor=colors[i],
-                                              edgecolor="k", label=labels[i]))
+                #circle = ax.add_artist(Circle(xy=(x, y),
+                #                              radius=r, alpha=0.8, linewidth=0.75, zorder=4, facecolor=colors[i],
+                 #                             edgecolor="k", label=labels[i]))
+
+                m.tissot(x, y, r, 50, alpha=0.9, linewidth=0.75, zorder=2, facecolor=colors[i], edgecolor="k")
+
             legends.append(plt.scatter([], [], c=colors[i], linewidth='0.5', label=labels[i], zorder=2))
 
         eq_i = plt.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], c='r', marker='^', linewidths=0.45, zorder=5, s=20,
-                           label=self.eqLegend[1])
+                           label=self.eqLegend[1], edgecolors='k')
         eq_in = plt.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], c='r', marker='o', linewidths=0.45, zorder=5,
-                            s=20, label=self.eqLegend[1])
+                            s=20, label=self.eqLegend[1], edgecolors='k')
         legends.append(eq_i)
         legends.append(eq_in)
-        plt.legend(handles=legends, loc=8, bbox_to_anchor=(0.5, -0.3), ncol=3)
+        plt.legend(handles=legends, loc=8, bbox_to_anchor=(0.5, -0.4), ncol=3)
 
         plt.title(title, y=1.07)
         plt.suptitle(title2, y=0.83)
@@ -430,3 +450,63 @@ def calc_acc_pixpoly(B, eq_data, delta):
 
     plt.close()
     return w / len(eq_data), acc_points, miss_points
+
+def read_csv(path, col):
+    """чтение csv файла по col колонкам"""
+    array = []
+    frame = pd.read_csv(path, header=0, sep=';', decimal=",")
+    for i, title in enumerate(col):
+        cell = frame[title].values
+
+        try:
+            cell = cell[~np.isnan(cell)]
+        except Exception as ex:
+            print(ex)
+            for j, c in enumerate(cell):
+                try:
+                    np.float(c.replace(',', '.'))
+                except:
+                    print('Error in row:%s "%s"' % (j, c))
+
+        array.append(cell)
+
+    #return np.array(array).astype(float)
+    return np.array(array)
+
+def sample_color_check(node, EQs, range):
+    evk = np.zeros((1, len(EQs)))
+    for n, d in enumerate(node):
+        evk += (d - EQs[:, n]) ** 2
+    evk = np.sqrt(evk[0])
+    near_sample_range = np.where(evk<=range)[0]
+    if len(near_sample_range) > 0:
+        return True
+    else:
+        return False
+
+def acc_check(result, EQ, r, grid=False):
+
+    """вычисление точности алгоритма"""
+    accEQ = 0
+    if grid:
+        r1, r2 = 15.5, 22
+    else:
+        r1, r2 = r, r*2
+
+    for eq in EQ:
+        if len(result) == 0:
+            acc = 0
+        else:
+            evk = np.zeros((1, len(result)))
+            for n, d in enumerate(eq):
+                evk += (d - result[:, n]) ** 2
+            evk = np.sqrt(evk[0])
+            b_evk = evk[np.argmin(evk)]
+            if b_evk <= r1:
+                acc = 1
+            elif r1 < b_evk <= r2:
+                acc = (r2 - b_evk) / r1
+            else:
+                acc = 0
+        accEQ += acc
+    return round(accEQ / len(EQ), 6)

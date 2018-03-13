@@ -8,7 +8,8 @@ from barrier_modules.import_data import ImportData
 from barrier_main.set_global_param import ParamGlobal
 
 gp = ParamGlobal()
-imp = ImportData(zone=gp.zone, ln_field=gp.ln_field, gridVers=gp.gridVers, folder_name='altai_mk1')
+imp = ImportData(zone=gp.zone, ln_field=gp.ln_field, gridVers=gp.gridVers,
+                 folder_name='altai_mk8_np')
 imp.set_save_path()
 
 original_umask = os.umask(0)
@@ -26,10 +27,13 @@ for line in lines:
     res_comb = np.append(res_comb, [np.array(line).astype(float)], axis=0)
 
 
-res_comb = res_comb[np.where(res_comb[:, 3] < 40)[0]]
-res_comb = res_comb[np.where(res_comb[:, 3] > 16)[0]]
+res_comb = res_comb[np.where(res_comb[:, 3] < 35)[0]]
+res_comb = res_comb[np.where(res_comb[:, 3] > 25)[0]]
 res_comb = res_comb[res_comb[:,2].argsort()]
-print(res_comb[-20:])
+print('s q acc lenB')
+for res in res_comb:
+    print(res)
+
 
 
 

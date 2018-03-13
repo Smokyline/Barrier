@@ -29,12 +29,12 @@ for s_var in s_array:
         print(r.title)
 
         acc = r.acc
-        hs_count =r.lenB
+        hs_count = r.lenB
 
 
         ###
         f = codecs.open(imp.save_path + 'result_combination.txt', "a", "utf-8")
-        f.write(u'%s %s %s %s' % (gp.s, gp.border[1], acc, hs_count))
+        f.write(u'%s %s %s %s\n' % (gp.s, gp.border[1], acc, hs_count))
         f.close()
         ###
 

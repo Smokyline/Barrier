@@ -8,6 +8,7 @@ from barrier_modules.tools import read_csv_pandas
 class ImportData:
     def __init__(self, zone='', ln_field=False, gridVers=False, folder_name=''):
         self.zone = zone
+        self.gridVers = gridVers
         self.folder_name = folder_name
         self.res_path = os.path.expanduser('~' + os.getenv("USER") + '/Documents/workspace/resources/csv/Barrier/%s/'%zone)
 
@@ -26,16 +27,21 @@ class ImportData:
         self.data_sample = read_csv_pandas(self.res_path + 'sample.csv')
         self.data_coord = read_csv_pandas(self.res_path + 'coord.csv')
 
+        try:
+            self.sample_coord = read_csv_pandas(self.res_path + 'sample_coord.csv')
+        except:
+            self.sample_coord = []
+
         file_name_ist = '_eq_istor.csv'
         file_name_inst = '_eq_instr.csv'
-        self.eq_ist = read_csv_pandas(self.res_path + file_name_ist)
-        self.eq_inst = read_csv_pandas(self.res_path + file_name_inst)
+        self.eq_ist = read_csv_pandas(self.res_path + file_name_ist)[:, :2]
+        self.eq_inst = read_csv_pandas(self.res_path + file_name_inst)[:, :2]
         self.eq_all = np.append(self.eq_ist, self.eq_inst, axis=0)
 
     def get_eq_stack(self):
-        M = 5
-        #legend = ['M%s+'%M, 'M%s+ istor'%M, 'M%s+ instr'%M]
-        legend = ['M%s+'%M, 'M5+', 'M6+']
+        M = 6
+        legend = ['M%s+'%M, 'M%s+ istor'%M, 'M%s+ instr'%M]
+        #legend = ['M%s+'%M, 'M5+', 'M6+']
         return self.eq_all, self.eq_ist, self.eq_inst, legend
 
     def set_save_path(self, alg_name='', lenf=''):

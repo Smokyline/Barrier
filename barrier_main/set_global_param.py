@@ -6,7 +6,8 @@ class ParamGlobal:
         self.radius = 0.225
         self.gridVers = False
         self.ln_field = False
-        self.s = -1.45
+        self.s = -1.7
+
 
         self.kmeans = False
         self.alphaMax = False
@@ -25,15 +26,16 @@ class ParamGlobal:
         self.vector = False
 
         #self.border = ['h(X)', 8]
-        self.border = ['ro', 10]
+        self.border = ['ro', 7]
 
 
 
 
     def global_feats(self):
-        FEATS_GLOBAL = [1, 2, 3, 4, 5, 7, 10, 12, 13, 14, 15]  # 11 old feats
+        #FEATS_GLOBAL = [1, 2, 3, 4, 5, 7, 10, 12, 13, 14, 15]  # 11 old feats
         #FEATS_GLOBAL = [1, 2, 3, 4, 5, 7, 10, 12, 13, 14, 15, 16, 17, 18]  # 14 mag
-        # FEATS_GLOBAL = [1, 2, 3, 4, 24, 25, 26, 47, 48, 49] #10 new feats
+        FEATS_GLOBAL = [1, 2, 3, 4, 9, 10, 12, 13, 14, 15, 16, 17, 19]  # altai cora
+        #FEATS_GLOBAL = [1, 2, 3, 4, 9, 10, 12, 13, 14, 15, 16, 17, 18]  # baikal cora
 
         #FEATS_GLOBAL = [58, 59, 60, 61, 62, 63, 64]  #bougue
         # FEATS_GLOBAL = np.array([[6, 63, 120, 177]])
