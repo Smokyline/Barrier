@@ -1,5 +1,5 @@
 import numpy as np
-from barrier_modules.drawMap import check_pix_pers, visuaMSdiffPix_ras
+from barrier_modules.drawMap import check_pix_pers, visuaMSdiffPix_bw, visuaMSdiffPix_color
 
 from barrier_modules.tools import acc_check
 
@@ -28,8 +28,8 @@ def points_diff_runnerAwB(A, B):
 
 
 class CompareAlgh:
-    def __init__(self, imp, vis, barrierX, coraX):
-        self.algA = barrierX
+    def __init__(self, imp, vis, barrierB, coraX):
+        self.algA = barrierB
         self.algB = coraX
 
         self.union = np.union1d(self.algA, self.algB)
@@ -57,10 +57,10 @@ class CompareAlgh:
         """разность (объединение минус пересечение)"""
         return np.union1d(self.AwB, self.BwA)
 
-    def visual_compare(self, result, EXT):
-        compare_title = 'comp %s P=%s Bar(%s%s) vs Cora(%s%s) U=%s(%s%s) ' % (
-            result.alg_name, result.lenf, self.persA, '%', self.persB, '%', len(self.union), self.persUnion, '%')
-        compare_title2 = 'accBar=%s accCora=%s accU=%s tanim=%s BnC=%s B/C=%s C/B=%s' % (
+    def visual_compare(self, EXT):
+        compare_title = 'Barrier(%s%s) vs Cora(%s%s) U=%s(%s%s) ' % (
+            self.persA, '%', self.persB, '%', len(self.union), self.persUnion, '%')
+        compare_title2 = '%s vs %s accU=%s tanim=%s BnC=%s B/C=%s C/B=%s' % (
             self.accA, self.accB, self.accUnion, self.tanimoto(), len(self.inters), len(self.AwB), len(self.BwA))
 
         self.vis.node_ln_diff_res(SETS=[self.data_coord[self.inters], self.data_coord[self.AwB], self.data_coord[self.BwA]], EXT=EXT, labels=['BnC', 'B/C', 'C/B'], title=compare_title, title2=compare_title2)
@@ -70,5 +70,6 @@ class CompareAlgh:
         #self.vis.bw_stere_res(B=self.data_coord[self.algB], head_title='Кора-3', circle_color='none')
         #self.vis.bw_stere_res(B=self.data_coord[self.union], head_title='Объединение', circle_color='#898989')
 
-        #visuaMSdiffPix_ras(self.data_coord[self.union], self.data_coord[self.inters], r=0.225, direc=self.save_path, title='Разность площадей')
+        #visuaMSdiffPix_bw(self.data_coord[self.union], self.data_coord[self.inters], r=0.225, direc=self.save_path, title='Разность площадей')
+        visuaMSdiffPix_color(self.data_coord[self.union], self.data_coord[self.inters], r=0.225, direc=self.save_path, title='Разность площадей')
 

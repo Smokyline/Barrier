@@ -4,9 +4,9 @@ import codecs
 import os
 
 import numpy as np
+from barrier_main.barrier import Barrier
 
-from barrier_main.barrier_version import BarrierMod
-from barrier_main.set_global_param import ParamGlobal
+from barrier_main.parameters import ParamGlobal
 from barrier_modules.import_data import ImportData
 
 original_umask = os.umask(0)
@@ -24,8 +24,8 @@ for s_var in s_array:
         gp.s = s_var
         gp.border = ['ro', border_var]
 
-        bar = BarrierMod(imp, gp)
-        r = bar.oneVoneP()
+        bar = Barrier(imp, gp)
+        r = bar.sample_objects_run()
         print(r.title)
 
         acc = r.acc

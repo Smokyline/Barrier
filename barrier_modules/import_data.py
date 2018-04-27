@@ -11,7 +11,7 @@ class ImportData:
         self.gridVers = gridVers
         self.folder_name = folder_name
         self.res_path = os.path.expanduser('~' + os.getenv("USER") + '/Documents/workspace/resources/csv/Barrier/%s/'%zone)
-
+        print(self.res_path)
         if gridVers:
             self.res_path += 'gridVers/d0.1/'
 
@@ -31,12 +31,15 @@ class ImportData:
             self.sample_coord = read_csv_pandas(self.res_path + 'sample_coord.csv')
         except:
             self.sample_coord = []
+            print('NO SAMPLE COORDINATES!!!')
 
         file_name_ist = '_eq_istor.csv'
         file_name_inst = '_eq_instr.csv'
         self.eq_ist = read_csv_pandas(self.res_path + file_name_ist)[:, :2]
         self.eq_inst = read_csv_pandas(self.res_path + file_name_inst)[:, :2]
         self.eq_all = np.append(self.eq_ist, self.eq_inst, axis=0)
+
+        self.EXT = None
 
     def get_eq_stack(self):
         M = 6

@@ -7,26 +7,6 @@ from barrier_modules.kmeans import km
 from barrier_modules.drawMap import check_pix_pers, acc_check
 
 
-class Result:
-    def __init__(self, idxB, countX, countX_const_arr, gp, imp, alg_name):
-        self.result = idxB  # индексы высокосейсмичных узлов
-        self.lenB = len(idxB)
-        self.lenf = len(gp.global_feats())
-
-        self.countX = countX  # кол-во попаданий по признакам
-        self.psi_mean_const = countX_const_arr
-
-        self.pers = check_pix_pers(imp.data_coord[self.result], grid=gp.gridVers)  # процент занимаемой прощади
-        self.acc = acc_check(imp.data_coord[self.result], imp.eq_all, r=gp.radius, grid=gp.gridVers)  # точность
-
-        self.alg_name = alg_name
-        self.param_title = set_title_param(vars(gp))
-        self.title = '%s B=%s(%s%s) acc=%s f=%s %s' % (self.alg_name, self.lenB, self.pers, '%', self.acc,
-                                                       self.lenf, self.param_title)
-
-        imp.set_save_path(alg_name=alg_name, lenf=self.lenf)
-        save_res_idx_to_csv(imp.data_full, idxB, self.title, imp.save_path)
-        save_res_coord_to_csv(imp.data_coord[idxB], self.title, imp.save_path)
 
 
 def read_csv(path, col):
@@ -59,7 +39,7 @@ def read_csv_pandas(path):
 def set_title_param(param):
     """преобрахование значения перменных параметров в str """
     title = ''
-    for key in ['s', 'vector', 'range_const', 'delta', 'kmeans', 'alphaMax', 'pers', 'metrics', 'manhattan', 'mcos', 'nchCount', 'border', ]:
+    for key in ['s', 'border', ]:
         value = param[key]
         if value is not False:
             title += '%s=%s ' % (key, value)
@@ -87,17 +67,11 @@ def save_xv_to_csv(X, i, folder, title):
     os.umask(original_umask)
 
 
-def save_res_idx_to_csv(X, res, title, path):
+def save_res_idx_to_csv(one_zero_arr, title, path):
     path += '/csv_res/'
     original_umask = os.umask(0)
     if not os.path.exists(path):
         os.makedirs(path, exist_ok=True)
-    one_zero_arr = []
-    for i in range(len(X)):
-        if i in res:
-            one_zero_arr.append(1)
-        else:
-            one_zero_arr.append(0)
 
     XVdf = pd.DataFrame(np.array(one_zero_arr).ravel())
     XVdf.to_csv(path + title +'.csv', index=False, header=False,
@@ -165,47 +139,25 @@ def pers_separator(X, pers, lower=False):
 
     return out, const
 
-def calc_count(full_XvF_count, roXvF, lX, nch=False, alpha_const_vF=None):
+def calc_count(full_XvF_count, lX, ):
     """вычисление кол-ва попаданий X в вс класс по v малому f малому"""
-    if not nch:
-        full_XvF_count = np.ravel(full_XvF_count)
-        countX = np.array([len(np.where(full_XvF_count == i)[0]) for i in range(lX)]).astype(int)
-        return countX
-    else:
-        countX = np.zeros((1, lX))
-        for i, Xvf in enumerate(roXvF):
-            alpha_vf = alpha_const_vF[i]
-
-            #nch_count_Xvf = np.array([alpha_vf / (max(alpha_vf, xvf)) for xvf in np.ravel(Xvf)])
-
-            #Xvf = np.abs(1-np.ravel(Xvf))
-            nch_count_Xvf = np.array([min(alpha_vf, xvf)/ alpha_vf for xvf in Xvf])
-
-            countX += nch_count_Xvf
-        return countX[0] / len(roXvF)
+    full_XvF_count = np.ravel(full_XvF_count)
+    countX = np.array([len(np.where(full_XvF_count == i)[0]) for i in range(lX)]).astype(int)
+    return countX
 
 
-def count_border_blade(border, countX, border_const=None):
+
+def count_border_blade(border, countX):
     """разделение кол-ва попаданий X по признакам в вс класс по v малому"""
 
-    if border_const is None:
-        '''если константа границы по кол-во попаданий в признаки не посчитана'''
-
-        if border[0] == 'h(X)':
-            idxXV, const = h_separator(len(countX), countX, h=border[1])
-        elif border[0] == 'ro':
-            idxXV, const = ro_separator(len(countX), countX, r=border[1])
-        elif border[0] == 'pers':
-            idxXV, const = pers_separator(countX, pers=border[1], lower=False)
-        elif border[0] == 'kmeans':
-            _, idxXV, const = km(countX, border[1], randCZ=False)
-        else:
-            print('wrong border')
-            idxXV, const = None, None
-        return np.array(idxXV).astype(int), const
+    if border[0] == 'h(X)':
+        idxXV, const = h_separator(len(countX), countX, h=border[1])
+    elif border[0] == 'ro':
+        idxXV, const = ro_separator(len(countX), countX, r=border[1])
     else:
-        idxXV = np.array(np.where(countX >= border_const)[0]).astype(int)
-        return idxXV
+        print('wrong border')
+        idxXV, const = None, None
+    return np.array(idxXV).astype(int), const
 
 def found_nch_param_border(X, beta_p, mcos_p):
     if mcos_p is not False:

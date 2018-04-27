@@ -2,7 +2,7 @@ import math
 import numpy as np
 import pandas as pd
 
-from barrier_main.set_global_param import ParamGlobal
+from barrier_main.parameters import ParamGlobal
 
 
 import matplotlib
@@ -16,6 +16,7 @@ import matplotlib.patches as patches
 from PIL import Image
 # from skimage.color import rgb2gray
 from  scipy.misc import imsave
+import os
 
 
 class Visual:
@@ -31,7 +32,7 @@ class Visual:
         self.sample_coord = imp.sample_coord
         self.data_coord = self.imp.data_coord
 
-    def visual_circle(self, res, EXT, title):
+    def draw_hs_circles(self, res, title):
         """отображение результатов в виде кругов"""
         B = self.data_coord[res]
         fig = plt.figure()
@@ -54,8 +55,8 @@ class Visual:
 
         ax.add_patch(patches.Polygon(pol, edgecolor="b", facecolor='none', alpha=0.6, zorder=0, ))
 
-        if EXT is not None:
-            ax.scatter(EXT[:, 0], EXT[:, 1], c='#fd41cd', marker='s', s=20, linewidths=0.0, label='e2xt')
+        if self.imp.EXT is not None:
+            ax.scatter(self.imp.EXT[:, 0], self.imp.EXT[:, 1], c='#fd41cd', marker='s', s=20, linewidths=0.0, label='e2xt')
 
         plt.scatter(self.X[:, 0], self.X[:, 1], c='k', marker='.', lw=0, zorder=3, s=13)
         plt.plot(ParamGlobal().get_squar_poly_coords(), c='b', alpha=0.7, zorder=2)
@@ -70,17 +71,21 @@ class Visual:
 
             plt.scatter(x, y, c='g', marker='.', lw=0, zorder=4, s=15)
 
-        for x, y, r in zip(self.sample_coord[:, 0], self.sample_coord[:, 1], [self.r for i in range(len(self.sample_coord))]):
-            # круги без проекции
-            #circle_B = ax.add_artist( Circle(xy=(x, y),radius=r, alpha=0.9, linewidth=0.75, zorder=2, facecolor=color, edgecolor="k"))
+        try:
+            for x, y, r in zip(self.sample_coord[:, 0], self.sample_coord[:, 1],
+                               [self.r for i in range(len(self.sample_coord))]):
+                # круги без проекции
+                # circle_B = ax.add_artist( Circle(xy=(x, y),radius=r, alpha=0.9, linewidth=0.75, zorder=2, facecolor=color, edgecolor="k"))
 
-            #эллипсы с проекцией
-            m.tissot(x, y, r, 50, alpha=0.9, linewidth=0.75, zorder=2, facecolor='g', edgecolor="k")
+                # эллипсы с проекцией
+                m.tissot(x, y, r, 50, alpha=0.9, linewidth=0.75, zorder=2, facecolor='b', edgecolor="k")
 
-            plt.scatter(x, y, c='b', marker='.', lw=0, zorder=4, s=15)
+                plt.scatter(x, y, c='b', marker='.', lw=0, zorder=4, s=15)
+        except:
+            print('NO SAMPLE COORD... SKIP')
 
         # исторические - треугольник инструментальные - круг
-        plt.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], c='r', marker='^', linewidths=0.7, zorder=4, s=18, alpha=0.8, edgecolors='k')
+        plt.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], c='r', marker='o', linewidths=0.7, zorder=4, s=18, alpha=0.8, edgecolors='k')
         plt.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], c='r', marker='o', linewidths=0.75, zorder=4, s=18, alpha=0.8, edgecolors='k')
 
         # все - круги
@@ -319,7 +324,7 @@ def check_pix_pers(A, grid=False):
 
 ################################################
 
-def visuaMSdiffPix_ras(Aln, Bln, r, direc, title):
+def visuaMSdiffPix_bw(Aln, Bln, r, direc, title):
     """пиксельная разность 2х алгоритмов"""
     fc = ParamGlobal().get_field_coords()
 
@@ -392,6 +397,89 @@ def visuaMSdiffPix_ras(Aln, Bln, r, direc, title):
     meridians = np.arange(0., 360, 2)
     m.drawmeridians(meridians, labels=[0, 0, 0, 1], zorder=1, linewidth=0.4, alpha=0.7)
     plt.savefig('/Users/Ivan/Documents/workspace/result/tmp/basemap_axis.png', dpi=300)
+
+    plt.close()
+
+def visuaMSdiffPix_color(Aln, Bln, r, direc, title):
+    """пиксельная разность 2х алгоритмов"""
+    fc = ParamGlobal().get_field_coords()
+
+    original_umask = os.umask(0)
+    if not os.path.exists(direc+'/tmp/'):
+        os.makedirs(direc+'/tmp/', exist_ok=True)
+    os.umask(original_umask)
+
+    def calc_len_pix(data, r):
+        lon_0 = np.mean(fc[:2])
+        lat_0 = np.mean(fc[2:])
+        m = Basemap(llcrnrlat=fc[2], urcrnrlat=fc[3],
+                    llcrnrlon=fc[0], urcrnrlon=fc[1],
+                    resolution='l')
+
+        ax = plt.gca()
+
+        X_x, X_y = m(data[:, 0], data[:, 1])
+        h_ln = ax.scatter(X_x, X_y, marker='.', alpha=0, zorder=2)
+        b_ln = ax.scatter([], [], marker='o', s=25, alpha=1, c='#969696', linewidth=0.4, zorder=1)
+        for x, y, r in zip(data[:, 0], data[:, 1], [r for i in range(len(data))]):
+            m.tissot(x, y, r, 50, ax=ax, alpha=1, linewidth=0, zorder=3, facecolor='#ff0000',
+                     edgecolor="none")
+
+        plt.savefig(direc+'/tmp/'+'diff_tmp.png', bbox_inches='tight', pad_inches=0,
+                    dpi=250)
+        img = Image.open(direc+'/tmp/'+'diff_tmp.png')
+        rgb_im = img.convert('RGB')
+        data = np.array(rgb_im)
+        H, W = len(data), len(data[0])
+        return data, W, H
+
+    a_data, W, H = calc_len_pix(Aln, r)
+    plt.clf()
+    b_data, _, _ = calc_len_pix(Bln, r)
+    plt.clf()
+    lon_0 = np.mean(fc[:2])
+    lat_0 = np.mean(fc[2:])
+    m = Basemap(llcrnrlat=fc[2], urcrnrlat=fc[3],
+                llcrnrlon=fc[0], urcrnrlon=fc[1],
+                resolution='h')
+    # m.fillcontinents(color='white', lake_color='aqua',zorder=0, alpha=.5)
+    m.arcgisimage(service='World_Shaded_Relief', xpixels=1500, verbose=True, zorder=0)
+    m.drawcountries(zorder=1, linewidth=0.9)
+    m.drawcoastlines(zorder=1, linewidth=0.9)
+    parallels = np.arange(0., 90, 2)
+    m.drawparallels(parallels, labels=[0, 0, 0, 0], zorder=1, linewidth=0.4, alpha=0.7)
+    meridians = np.arange(0., 360, 2)
+    m.drawmeridians(meridians, labels=[0, 0, 0, 0], zorder=1, linewidth=0.4, alpha=0.7)
+    ax = plt.gca()
+
+    X_x, X_y = m(Aln[:, 0], Aln[:, 1])
+    h_ln = ax.scatter(X_x, X_y, marker='.', alpha=0, zorder=2)
+    b_ln = ax.scatter([], [], marker='o', s=25, alpha=1, c='#969696', linewidth=0.4, zorder=1)
+    for x, y, r in zip(Aln[:, 0], Aln[:, 1], [r for i in range(len(Aln))]):
+        m.tissot(x, y, r, 50, ax=ax, alpha=0, linewidth=0, zorder=3, facecolor='#ff0000',
+                 edgecolor="none")
+
+    plt.savefig(direc+'/tmp/'+'basemap.png', bbox_inches='tight', pad_inches=0, dpi=250)
+    img = Image.open(direc+'/tmp/'+'basemap.png')
+    rgb_im = img.convert('RGB')
+    data_final = np.array(rgb_im)
+    pers = 0
+    for h in range(H):
+        for w in range(W):
+            if np.array_equal(a_data[h][w], b_data[h][w]):
+                pass
+            else:
+                pers += 1
+                data_final[h][w] = [232, 0, 100]
+
+    print('разность %s%s' % (pers * 100 / (W * H), '%'))
+
+    imsave(direc + title + '.png', data_final)
+    parallels = np.arange(0., 90, 2)
+    m.drawparallels(parallels, labels=[1, 0, 0, 0], zorder=1, linewidth=0.4, alpha=0.7)
+    meridians = np.arange(0., 360, 2)
+    m.drawmeridians(meridians, labels=[0, 0, 0, 1], zorder=1, linewidth=0.4, alpha=0.7)
+    plt.savefig(direc+'/tmp/'+'basemap_axis.png', dpi=300)
 
     plt.close()
 

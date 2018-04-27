@@ -10,10 +10,9 @@ from matplotlib.patches import RegularPolygon
 import matplotlib.patches as patches
 
 from barrier_modules.import_data import ImportData
-from barrier_main.barrier_version import BarrierMod
-from barrier_main.set_global_param import ParamGlobal
+from barrier_main.parameters import ParamGlobal
 from barrier_modules.drawMap import Visual
-from barrier_main.core import Core
+from barrier_main.barrier import Core
 from barrier_modules.tools import *
 
 
@@ -123,6 +122,7 @@ def oneVoneP(V, X, Y, gp, imp):
             full_idxB = np.append(full_idxB, idxxxx)
 
         final_idxB = np.unique(full_idxB).astype(int)
+        #TODO ссылку на резалт
         return Result(final_idxB, countX_VF, countX_const_arr, gp, imp, 'oneVoneP')
 
 
