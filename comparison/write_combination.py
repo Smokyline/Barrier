@@ -25,7 +25,7 @@ for s_var in s_array:
         gp.border = ['ro', border_var]
 
         bar = Barrier(imp, gp)
-        r = bar.sample_objects_run()
+        r = bar.sample_union()
         print(r.title)
 
         acc = r.acc

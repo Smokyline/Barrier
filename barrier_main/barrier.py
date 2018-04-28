@@ -40,8 +40,8 @@ class Core:
         else:
             self.alpha_const = np.mean(MqXV ** s) ** (1 / s)
 
-        idxB = np.where(XV <= self.alpha_const)[0]
-        return idxB
+        idxXvf = np.where(XV <= self.alpha_const)[0]
+        return idxXvf
 
     def count_range(self, Y, X, V):
         """Вычисление расстояний между X и V
@@ -92,33 +92,44 @@ class Barrier:
         self.feats = gp.global_feats()
 
 
-    def feats_of_object_run(self, que, v):
+    def feats_and_v(self, que, v):
         idxXvF = np.array([]).astype(int)
         roXvF = []  # расстояния X до v малого F большое
+        countBinF = np.zeros((1, len(self.feats)))[0]  # кол-во B в признаке
         for fi, feat in enumerate(self.feats):
             XF = self.X[:, feat]
             YF = self.Y[:, feat]
-            # VF = np.array([v])[:, feat]
             VF = v[feat]
 
-            res = Core(XF, YF, VF, self.param, feat)
-            idxXvF = np.append(idxXvF, res.idxB)
-            roXvF.append(res.XV)
+            core = Core(XF, YF, VF, self.param, feat)
+            idxXvF = np.append(idxXvF, core.idxB)
+            roXvF.append(core.XV)
 
-        '''вычисление кол-ва попаданий Х в вс класс по константе alpha(v, F)'''
-        countX = tools.calc_count(idxXvF, len(self.X))
 
+
+        def calc_count(full_XvF_count, lX):
+            """вычисление кол-ва попаданий X в вс класс по v малому f малому"""
+            full_XvF_count = np.ravel(full_XvF_count)
+            countX = np.array([len(np.where(full_XvF_count == i)[0]) for i in range(lX)]).astype(int)
+            return countX
+
+        '''вычисление кол-ва попаданий Х в вс класс по v малому'''
+        countX = calc_count(idxXvF, len(self.X))
+        print(idxXvF)
+        print('-------------')
+
+        ######################################
         '''разделение кол-ва попаданий X по F большому в вс класс по border'''
         idxB, countX_const = tools.count_border_blade(self.param.border, countX)
         que.put([countX, countX_const, idxB])
 
 
-    def sample_objects_run(self):
+    def sample_union(self):
         V_measure = []
         for vi, v in enumerate(self.V):
             "близость объектов к объекту обучения по всем признакам"
             v_que = mp.Queue()
-            p = mp.Process(target=self.feats_of_object_run, args=(v_que, v))
+            p = mp.Process(target=self.feats_and_v, args=(v_que, v))
             V_measure.append(v_que)
             p.start()
 

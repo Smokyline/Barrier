@@ -13,4 +13,4 @@ imp = ImportData(zone=gp.zone, ln_field=gp.ln_field, gridVers=gp.gridVers, folde
 EXT = read_csv_pandas('/home/ivan/Documents/workspace/resources/csv/Barrier/altai/altaySayBaikal_EXT.csv')
 
 barier = Barrier(imp, gp)
-barrier_result = barier.sample_objects_run()
+barrier_result = barier.sample_union()

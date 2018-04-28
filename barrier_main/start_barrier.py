@@ -16,7 +16,7 @@ original_umask = os.umask(0)
 
 
 barrier = Barrier(imp, gp)
-barrier.sample_objects_run()
+barrier.sample_union()
 barrier_result = Result(barrier, gp, imp)
 print(barrier_result.title)
 

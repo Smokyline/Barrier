@@ -123,30 +123,6 @@ def ro_separator(lX, countX, r):
     return np.array(finalIdx), h
 
 
-def pers_separator(X, pers, lower=False):
-    """разделение множества по проценту от кол-ва"""
-    border = int(len(X) * pers / 100)
-    sXV = np.argsort(X).astype(int)
-    #print('lenX', len(X))
-    #print('uniqueX', len(np.unique(X)))
-    #print('------------')
-    if lower:
-        out, const = sXV[:border], X[sXV[border]]
-    else:
-        out, const = sXV[len(sXV)-border:], X[sXV[len(sXV)-border]]
-        #print('count', s)
-
-
-    return out, const
-
-def calc_count(full_XvF_count, lX, ):
-    """вычисление кол-ва попаданий X в вс класс по v малому f малому"""
-    full_XvF_count = np.ravel(full_XvF_count)
-    countX = np.array([len(np.where(full_XvF_count == i)[0]) for i in range(lX)]).astype(int)
-    return countX
-
-
-
 def count_border_blade(border, countX):
     """разделение кол-ва попаданий X по признакам в вс класс по v малому"""
 
@@ -159,59 +135,10 @@ def count_border_blade(border, countX):
         idxXV, const = None, None
     return np.array(idxXV).astype(int), const
 
-def found_nch_param_border(X, beta_p, mcos_p):
-    if mcos_p is not False:
-        beta = 0
-        mcos = mcos_p
-    else:
-        beta = beta_p
-        mcos = None
 
-    def mq(X, s):
-        mq_mean = np.mean(X ** s) ** (1 / s)
-        return mq_mean
+def calc_count_X_in_F():
+    pass
 
-    def calc_scal_cos(v1, v2):
-        return np.dot(v1, v2) / (np.sqrt(np.sum(v1 ** 2)) * np.sqrt(np.sum(v2 ** 2)))
-
-    def norm(X):
-        return (X - np.min(X)) / (np.max(X) - np.min(X))
-
-    def found_mq_from_alpha(alpha, X):
-        idxs = np.where(X <= alpha)[0]
-        mq_idx = idxs[-1]
-        return mq_idx
-
-    mq_power = np.arange(0.5, 50, 0.1)
-
-    #X = X[np.where(X > 0)]
-    mq_value = [mq(X, s) for s in mq_power]
-    f = mq_value
-
-    vectors_cos = []
-    vector_i_range = np.arange(1, len(mq_value) - 1)
-    for i in vector_i_range:
-        v1 = np.array([-1, f[i - 1] - f[i]])
-        v2 = np.array([1, f[i + 1] - f[i]])
-        cos_v1v2 = calc_scal_cos(v1, v2)
-        vectors_cos.append(cos_v1v2)
-    vectors_cos = np.abs(np.array(vectors_cos))
-    vectors_cos = norm(vectors_cos)
-
-    if mcos_p is not False:
-        border = mq_value[found_mq_from_alpha(mcos, vectors_cos)]
-    else:
-        alpha = calc_nch_alpha(vectors_cos, beta=beta)
-        near_idx = found_mq_from_alpha(alpha, vectors_cos) - 1  # поиск наилучшей степени
-        border = mq_value[near_idx]
-
-    idx = np.where(X >= border)[0]
-
-    # print('alpha', alpha)
-    # print('mq_value', mq_value[near_alpha_drv])
-    # print('mq_power', mq_power[near_alpha_drv])
-    #print(len(idx))
-    return idx, border
 
 def calc_nch_alpha(X, beta):
     min_x = -0.998
