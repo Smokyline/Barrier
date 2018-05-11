@@ -1,7 +1,6 @@
 import numpy as np
-from barrier_modules.drawMap import check_pix_pers, visuaMSdiffPix_bw, visuaMSdiffPix_color
+from module.drawMap import check_pix_pers, acc_check, visuaMSdiffPix_bw, visuaMSdiffPix_color
 
-from barrier_modules.tools import acc_check
 
 
 def idx_diff_runnerAwB(A, B):

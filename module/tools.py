@@ -2,44 +2,22 @@ import os
 
 import numpy as np
 import pandas as pd
-from barrier_modules.kmeans import km
-
-from barrier_modules.drawMap import check_pix_pers, acc_check
 
 
-
-
-def read_csv(path, col):
-    """чтение csv файла по col колонкам"""
-    array = []
-    frame = pd.read_csv(path, header=0, sep=';', decimal=",")
-    for i, title in enumerate(col):
-        cell = frame[title].values
-
-        try:
-            cell = cell[~np.isnan(cell)]
-        except Exception as ex:
-            print(ex)
-            for j, c in enumerate(cell):
-                try:
-                    np.float(c.replace(',', '.'))
-                except:
-                    print('Error in row:%s "%s"' % (j, c))
-
-        array.append(cell)
-
-    #return np.array(array).astype(float)
-    return np.array(array)
-
-def read_csv_pandas(path):
+def read_csv_pandas(path, header=False):
     df = pd.read_csv(path, delimiter=';', header=0, decimal=',')
-    return np.array(df)
+    if header:
+        header = df.columns.values.tolist()
+        return np.array(df), np.array(header)
+    else:
+        return np.array(df)
+
 
 
 def set_title_param(param):
     """преобрахование значения перменных параметров в str """
     title = ''
-    for key in ['s', 'border', ]:
+    for key in ['s', 'border', 'omega']:
         value = param[key]
         if value is not False:
             title += '%s=%s ' % (key, value)

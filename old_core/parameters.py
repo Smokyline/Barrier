@@ -8,6 +8,8 @@ class ParamGlobal:
         self.ln_field = False
         self.s = -0.7
 
+        self.omega = False
+
 
 
         self.border = ['h(X)', 8]

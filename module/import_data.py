@@ -2,41 +2,28 @@ import os
 
 import numpy as np
 
-from barrier_modules.tools import read_csv_pandas
+from module.tools import read_csv_pandas
 
 
 class ImportData:
-    def __init__(self, zone='', ln_field=False, gridVers=False, folder_name=''):
+    def __init__(self, zone='', param=None, gridVers=False, folder_name=''):
         self.zone = zone
         self.gridVers = gridVers
         self.folder_name = folder_name
         self.res_path = os.path.expanduser('~' + os.getenv("USER") + '/Documents/workspace/resources/csv/Barrier/%s/'%zone)
-        print(self.res_path)
-        if gridVers:
-            self.res_path += 'gridVers/d0.1/'
 
-        #self.col = self._read_txt_param(self.res_path)
+        self.data_full, self.data_header = read_csv_pandas(self.res_path + 'khar.csv', header=True)
 
-        self.data_full = read_csv_pandas(self.res_path + 'khar.csv')
+        self.data_header = self.data_header[3:][param.global_feats()]
+        print(self.data_header)
+        self.data = np.array(self.data_full[:, 3:])[:, param.global_feats()]
+        self.data_coord = self.data_full[:, 1:3]
 
-        if ln_field:
-            self.data_field = read_csv_pandas(self.res_path + 'field.csv')
-        else:
-            self.data_field = read_csv_pandas(self.res_path + 'khar.csv', )
+        self.train, self.train_coord = self.get_train_set_from_all(param.get_sample_ln_idx())
 
-        self.data_sample = read_csv_pandas(self.res_path + 'sample.csv')
-        self.data_coord = read_csv_pandas(self.res_path + 'coord.csv')
 
-        try:
-            self.sample_coord = read_csv_pandas(self.res_path + 'sample_coord.csv')
-        except:
-            self.sample_coord = []
-            print('NO SAMPLE COORDINATES!!!')
-
-        file_name_ist = '_eq_istor.csv'
-        file_name_inst = '_eq_instr.csv'
-        self.eq_ist = read_csv_pandas(self.res_path + file_name_ist)[:, :2]
-        self.eq_inst = read_csv_pandas(self.res_path + file_name_inst)[:, :2]
+        self.eq_ist = read_csv_pandas(self.res_path + '_eq_istor.csv', header=False)[:, :2]
+        self.eq_inst = read_csv_pandas(self.res_path + '_eq_instr.csv', header=False)[:, :2]
         self.eq_all = np.append(self.eq_ist, self.eq_inst, axis=0)
 
         self.EXT = None
@@ -60,15 +47,12 @@ class ImportData:
             os.makedirs(self.save_path, exist_ok=True)
         os.umask(original_umask)
 
-    def get_sample_coords(self):
-        idx_feat_sample = read_csv_pandas(self.res_path + 'sample.csv')[:, 0]
-        #idx_feat_sample = [self.data_sample[0][0]]
-
+    def get_train_set_from_all(self, sample_ln_idx,):
         idx_array = []
         for j, idx in enumerate(self.data_full[:, 0]):
-            if idx in idx_feat_sample:
+            if idx in sample_ln_idx:
                 idx_array.append(j)
-        return self.data_coord[idx_array]
+        return self.data[idx_array], self.data_full[idx_array, 1:3]
 
     def _read_txt_param(self, res_dir):
         path = res_dir + 'param_str.txt'
@@ -82,9 +66,9 @@ class ImportData:
     def read_cora_res(self, c=1):
         #TODO изменить результаты коры для Кавказа
         """импорт результатов алгоритма EPA"""
-        CORAres = read_csv_pandas(self.res_path+'/kvz_CORA_result.csv')
+        CORAres = read_csv_pandas(self.res_path+'/kvz_CORA_result.csv', header=False)
         # ['idx', 'r1', 'r2', 'r3', 'r4']
-        idxCX = self.data_full[:, 0]
+        idxCX = self.data[:, 0]
         idxX = np.array([]).astype(int)
         for res in CORAres:
             if '+' in res[c]:
@@ -95,9 +79,9 @@ class ImportData:
     def read_cora_res_2(self):
         #TODO изменить результаты коры для Кавказа
         """импорт результатов алгоритма EPA"""
-        CORAres = read_csv_pandas(self.res_path+'/cora.csv')
+        CORAres = read_csv_pandas(self.res_path+'/cora.csv', header=False)
         # ['idx', 'r1', 'r2', 'r3', 'r4']
-        idx_all = self.data_full[:, 0]
+        idx_all = self.data[:, 0]
         idx_B = np.array([]).astype(int)
         for i, res in enumerate(CORAres):
                 idx_in_data = np.where(idx_all == res)[0][0]

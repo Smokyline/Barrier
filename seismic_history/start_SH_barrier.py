@@ -1,12 +1,12 @@
 import os
 
-from barrier_modules.import_data import ImportData
-from barrier_main.barrier import Barrier
+from module.import_data import ImportData
+from barrier.barrier import Barrier
 
-from barrier_main.parameters import ParamGlobal
-from barrier_modules.drawMap import Visual
+from barrier.parameters import ParamGlobal
+from module.drawMap import Visual
 from comparison.comparison_two_res import CompareAlgh
-from barrier_modules.tools import read_csv_pandas
+from module.tools import read_csv_pandas
 
 gp = ParamGlobal()
 imp = ImportData(zone=gp.zone, ln_field=gp.ln_field, gridVers=gp.gridVers, folder_name='altai_mk1')

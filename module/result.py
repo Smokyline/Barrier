@@ -1,20 +1,21 @@
-from barrier_modules import tools
-from barrier_modules.drawMap import Visual
+from module import tools
+from module.drawMap import Visual, check_pix_pers, acc_check
 from comparison.comparison_two_res import CompareAlgh
 
 class Result:
     def __init__(self, barrier, gp, imp):
-        self.hs_indexes = barrier.final_hs_index  # индексы высокосейсмичных узлов
+        self.hs_indexes = barrier.hs_indexes  # индексы высокосейсмичных узлов
         self.lenB = len(self.hs_indexes)
         self.lenX = len(imp.data_full)
         self.lenf = len(gp.global_feats())
 
-        self.countX = barrier.count_of_hs_obj  # кол-во попаданий объектов в hs по признакам
+        self.feats_count = barrier.hs_F_count
+        self.feats_top = barrier.hs_F_top
 
-        self.pers = tools.check_pix_pers(imp.data_coord[self.hs_indexes], grid=gp.gridVers)  # процент занимаемой прощади
-        self.acc = tools.acc_check(imp.data_coord[self.hs_indexes], imp.eq_all, r=gp.radius, grid=gp.gridVers)  # точность
+        self.pers = check_pix_pers(imp.data_coord[self.hs_indexes], grid=gp.gridVers)  # процент занимаемой прощади
+        self.acc = acc_check(imp.data_coord[self.hs_indexes], imp.eq_all, r=gp.radius, grid=gp.gridVers)  # точность
 
-        self.alg_name = barrier.alg_name
+        self.alg_name = 'Barrier'
         self.param_title = tools.set_title_param(vars(gp))
         self.title = '%s B=%s(%s%s) acc=%s f=%s %s' % (self.alg_name, self.lenB, self.pers, '%', self.acc,
                                                        self.lenf, self.param_title)
@@ -33,6 +34,9 @@ class Result:
 
         self.visual.draw_hs_circles(res=self.cora_res, title='Cora')
 
+    def visual_hs_feats(self):
+        self.visual.feats_diagram(self.feats_count, 'count_X')
+        self.visual.feats_diagram(self.feats_top, 'top_B0')
 
     def visual_barrier(self):
 

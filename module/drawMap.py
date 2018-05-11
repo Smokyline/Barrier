@@ -2,7 +2,7 @@ import math
 import numpy as np
 import pandas as pd
 
-from barrier_main.parameters import ParamGlobal
+from barrier.parameters import ParamGlobal
 
 
 import matplotlib
@@ -29,7 +29,7 @@ class Visual:
         self.pol = gp.get_squar_poly_coords()
         self.r = gp.radius
         self.eq_all, self.eq_ist, self.eq_instr, self.eqLegend = imp.get_eq_stack()
-        self.sample_coord = imp.sample_coord
+        self.train_coord = imp.train_coord
         self.data_coord = self.imp.data_coord
 
     def draw_hs_circles(self, res, title):
@@ -72,8 +72,8 @@ class Visual:
             plt.scatter(x, y, c='g', marker='.', lw=0, zorder=4, s=15)
 
         try:
-            for x, y, r in zip(self.sample_coord[:, 0], self.sample_coord[:, 1],
-                               [self.r for i in range(len(self.sample_coord))]):
+            for x, y, r in zip(self.train_coord[:, 0], self.train_coord[:, 1],
+                               [self.r for i in range(len(self.train_coord))]):
                 # круги без проекции
                 # circle_B = ax.add_artist( Circle(xy=(x, y),radius=r, alpha=0.9, linewidth=0.75, zorder=2, facecolor=color, edgecolor="k"))
 
@@ -135,6 +135,23 @@ class Visual:
         plt.savefig(self.path + head_title + '.png', dpi=400)
         plt.close()
 
+    def feats_diagram(self, F, title):
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+
+        ax.bar(range(len(F)), F)
+
+        ax.set_ylabel(title)
+        ax.set_xlabel('feat')
+        ax.set_xticks(range(len(F)), )
+        ax.set_xticklabels(self.imp.data_header, rotation='vertical')
+
+        plt.grid(True)
+        fig.tight_layout()
+        plt.savefig(self.path + title + '.png', dpi=400)
+        plt.close()
+
     def grid_res(self, X, title, r):
         """отображение результатов алгоритма в виде сетки грида"""
         plt.clf()
@@ -162,7 +179,7 @@ class Visual:
         ax.scatter(self.eq_ist[:, 0], self.eq_ist[:, 1], marker='^', color='r', lw=0.5, zorder=3, s=8)
         ax.scatter(self.eq_instr[:, 0], self.eq_instr[:, 1], marker='o', color='r', lw=0.5, zorder=4, s=8)
 
-        scB = plt.scatter([], [], c='b', linewidth='0.5', label='barrier_main result', zorder=2)
+        scB = plt.scatter([], [], c='b', linewidth='0.5', label='barrier result', zorder=2)
         scEQis = plt.scatter([], [], c='r', marker='^', linewidth='0.5', label=self.eqLegend[1], zorder=2)
         scEQitr = plt.scatter([], [], c='r', linewidth='0.5', label=self.eqLegend[2], zorder=2)
         plt.legend(handles=[scB, scEQis, scEQitr], loc=8, bbox_to_anchor=(0.5, -0.3), ncol=2)

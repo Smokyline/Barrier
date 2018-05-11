@@ -4,10 +4,10 @@ import codecs
 import os
 
 import numpy as np
-from barrier_main.barrier import Barrier
+from barrier.barrier import Barrier
 
-from barrier_main.parameters import ParamGlobal
-from barrier_modules.import_data import ImportData
+from barrier.parameters import ParamGlobal
+from module.import_data import ImportData
 
 original_umask = os.umask(0)
 

@@ -1,4 +1,4 @@
-from barrier_modules import tools
+from module import tools
 import numpy as np
 import multiprocessing as mp
 
@@ -16,15 +16,6 @@ class Core:
         '''Разделение множества X'''
         self.alpha_const = None
         self.idxB = self.alpha_parser(self.XV)
-
-
-    def calc_VV(self):
-        """Вычисление расстояний между V и V для нахождения минимального alpha порога
-            если параметр alphaMax=True """
-        learnV = self.count_range(self.Y, self.V, self.V)
-        if len(learnV[0]) > 1:
-            learnV = self.mq_axis1(learnV, self.param.q)
-        return learnV
 
     def calc_XV(self):
         """Вычисление расстояний между X и V """
@@ -64,19 +55,6 @@ class Core:
         XV = np.array([calc_range(Y, Xv_max[xi], Xv_min[xi]) for xi in range(lengthX)])
         return XV
 
-    def mq_axis1(self, XV, q):
-        """степенное среднее каждой строки """
-        if q is None:
-            print('Error\nq is None or v!=1')
-            mq_array = None
-        else:
-            mq_array = np.array([])
-            for xv in XV:
-                xv = xv[np.where(xv != 0)]
-                mq_xv = np.mean(xv ** q) ** (1 / q)
-                mq_array = np.append(mq_array, [mq_xv])
-        return mq_array
-
 
 
 class Barrier:
@@ -115,7 +93,6 @@ class Barrier:
 
         '''вычисление кол-ва попаданий Х в вс класс по v малому'''
         countX = calc_count(idxXvF, len(self.X))
-        print(idxXvF)
         print('-------------')
 
         ######################################
@@ -142,7 +119,7 @@ class Barrier:
 
         self.count_of_hs_obj = np.ravel(V_measure[:, 0])
 
-        self.final_hs_index = np.unique(array_of_hs_idx_v).astype(int)
+        self.hs_indexes = np.unique(array_of_hs_idx_v).astype(int)
 
 
 

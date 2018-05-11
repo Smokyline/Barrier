@@ -9,11 +9,11 @@ from matplotlib.patches import Circle
 from matplotlib.patches import RegularPolygon
 import matplotlib.patches as patches
 
-from barrier_modules.import_data import ImportData
-from barrier_main.parameters import ParamGlobal
-from barrier_modules.drawMap import Visual
-from barrier_main.barrier import Core
-from barrier_modules.tools import *
+from module.import_data import ImportData
+from barrier.parameters import ParamGlobal
+from module.drawMap import Visual
+from barrier.barrier import Core
+from module.tools import *
 
 
 def ploting_nodes(high_seism_nodes, miss_B_nodes, X, EXT, sample_coord, title, path):
@@ -155,7 +155,7 @@ for j, year_idx in enumerate([idx_1905a, idx_1905b, idx_1922, idx_1938, idx_1900
         else:
             year_miss_sample_coord = np.append(year_miss_sample_coord, [SAMPLE_COORD[i]], axis=0)
 
-    r = oneVoneP(year_sample, imp.data_full, imp.data_full, gp, imp)
+    r = oneVoneP(year_sample, imp.data, imp.data, gp, imp)
     title = 'year:%s s:%s q:%s |B0|:%s |B|:%s' % (date_year[j], gp.s, gp.border[1], len(year_sample), r.lenB)
     ploting_nodes(imp.data_coord[r.result], year_miss_sample_coord, imp.data_coord, EXT, year_sample_coord, title,
                   imp.save_path)

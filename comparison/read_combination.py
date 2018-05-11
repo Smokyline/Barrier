@@ -3,9 +3,9 @@
 import os
 
 import numpy as np
-from barrier_modules.import_data import ImportData
+from module.import_data import ImportData
 
-from barrier_main.parameters import ParamGlobal
+from barrier.parameters import ParamGlobal
 
 gp = ParamGlobal()
 imp = ImportData(zone=gp.zone, ln_field=gp.ln_field, gridVers=gp.gridVers,

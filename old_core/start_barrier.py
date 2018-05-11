@@ -1,12 +1,12 @@
 import os
-from barrier_main.barrier import Barrier
-from barrier_modules.result import Result
+from old_core.barrier import Barrier
+from module.result import Result
 
-from barrier_modules.import_data import ImportData
+from module.import_data import ImportData
 
-from barrier_main.parameters import ParamGlobal
+from old_core.parameters import ParamGlobal
 
-from barrier_modules.tools import read_csv_pandas
+from module.tools import read_csv_pandas
 
 gp = ParamGlobal()
 imp = ImportData(zone=gp.zone, ln_field=gp.ln_field, gridVers=gp.gridVers, folder_name='kvz_mk1')
@@ -21,7 +21,7 @@ barrier_result = Result(barrier, gp, imp)
 print(barrier_result.title)
 
 # сохранение результата в csv
-barrier_result.save_res_to_csv()
+#barrier_result.save_res_to_csv()
 
 # карта с высокосейсмичными линеаментами Барьер
 #barrier_result.visual_barrier()
