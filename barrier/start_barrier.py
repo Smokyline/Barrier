@@ -8,7 +8,7 @@ from barrier.parameters import ParamGlobal
 from module.tools import read_csv_pandas
 
 gp = ParamGlobal()
-imp = ImportData(zone=gp.zone, param=gp, gridVers=gp.gridVers, folder_name='kvz_mk1')
+imp = ImportData(zone=gp.zone, param=gp, gridVers=gp.gridVers, folder_name='altai_mk1')
 #imp.EXT = read_csv_pandas('/home/ivan/Documents/workspace/resources/csv/Barrier/altai/altaySayBaikal_EXT.csv')
 
 original_umask = os.umask(0)

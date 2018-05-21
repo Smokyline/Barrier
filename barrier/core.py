@@ -12,7 +12,7 @@ class Barrier:
         self.lenX, self.lenf = np.shape(X)
 
         self.MY = self.matrix_XY()
-        self.hs_indexes = self.recog_hs_idx(self.MY)
+        self.hs_indexes_unionV, self.hs_indexes_v = self.recog_hs_idx(self.MY)
         self.hs_F_top, self.hs_F_count = self.recog_hs_feats(self.MY)
 
     def recog_hs_feats(self, MY):
@@ -27,12 +27,15 @@ class Barrier:
         C = np.zeros((1, self.lenf))[0]  # кол-во высокосейсмичных узлов
         Z = []  # кол-во попаданий в топ
 
-        for My in MY:
-            ro_My = np.sum(My[self.hs_indexes, :], axis=0)  # кол-во попаданий признака в В класс
+        for idx_v, My in enumerate(MY):
+            ro_My = np.sum(My[self.hs_indexes_v[idx_v], :], axis=0)  # кол-во попаданий признака в В класс
             sort_idx = np.argsort(ro_My)  # from lowest to highest
 
             """нахождение высокосейсмичных признаков по кол-ву объектов в В классе"""
-            C += ro_My
+            for p in sort_idx[-self.param.omega:]:
+                C[p] += ro_My[p]
+            #C += ro_My
+
 
             """нахождение высокосейсмичных признаков по кол-ву попаданий в топ"""
             Z.append(sort_idx[-self.param.omega:])
@@ -44,12 +47,15 @@ class Barrier:
     def recog_hs_idx(self, MY):
         """нахождение высокосейсмичных объектов во множестве Х"""
 
-        hs_idx = []
+        hs_idx_v = []
+        hs_idx_unionV = []
         for My in MY:
             ro_My = np.sum(My, axis=1)  # кол-во попаданий х в В класс по y
             idx_hs, _ = tools.count_border_blade(self.param.border, ro_My)
-            hs_idx.extend(idx_hs)
-        return np.unique(hs_idx)
+            hs_idx_v.append(idx_hs)
+            hs_idx_unionV.extend(idx_hs)
+
+        return np.unique(hs_idx_unionV), hs_idx_v
 
     def matrix_Xy(self, que, y):
         """матрица сейсмичности Х к объекту обучения по всем признакам """

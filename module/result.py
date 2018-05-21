@@ -4,7 +4,7 @@ from comparison.comparison_two_res import CompareAlgh
 
 class Result:
     def __init__(self, barrier, gp, imp):
-        self.hs_indexes = barrier.hs_indexes  # индексы высокосейсмичных узлов
+        self.hs_indexes = barrier.hs_indexes_unionV  # индексы высокосейсмичных узлов
         self.lenB = len(self.hs_indexes)
         self.lenX = len(imp.data_full)
         self.lenf = len(gp.global_feats())
