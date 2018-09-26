@@ -1,6 +1,8 @@
 import os
 from module.result import Result
 from module.import_data import ImportData
+import numpy as np
+
 
 from barrier.core import Barrier
 from barrier.parameters import ParamGlobal
@@ -8,7 +10,7 @@ from barrier.parameters import ParamGlobal
 from module.tools import read_csv_pandas
 
 gp = ParamGlobal()
-imp = ImportData(zone=gp.zone, param=gp, gridVers=gp.gridVers, folder_name='altai_mk1')
+imp = ImportData(zone=gp.zone, param=gp, gridVers=gp.gridVers, folder_name='kvz_mk2')
 #imp.EXT = read_csv_pandas('/home/ivan/Documents/workspace/resources/csv/Barrier/altai/altaySayBaikal_EXT.csv')
 
 original_umask = os.umask(0)
@@ -21,6 +23,8 @@ barrier = Barrier(X, Y, gp)
 
 barrier_result = Result(barrier, gp, imp)
 print(barrier_result.title)
+idxxx = np.array(imp.data_full[:, 0])
+#print('hs idx:', idxxx[barrier_result.hs_indexes])
 
 # сохранение результата в csv
 #barrier_result.save_res_to_csv()
@@ -29,7 +33,7 @@ print(barrier_result.title)
 barrier_result.visual_barrier()
 
 # карта с высокосейсмичными объектами Коры
-#barrier_result.visual_cora(vers=1)
+#barrier_result.visual_cora(vers=1)  # kvz only
 
 # сравнение Коры и Барьер
 #barrier_result.compare_algh()

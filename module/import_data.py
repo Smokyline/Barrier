@@ -66,7 +66,7 @@ class ImportData:
     def read_cora_res(self, c=1):
         #TODO изменить результаты коры для Кавказа
         """импорт результатов алгоритма EPA"""
-        CORAres = read_csv_pandas(self.res_path+'/kvz_CORA_result.csv', header=False)
+        CORAres = read_csv_pandas(self.res_path+'kvz_CORA_result.csv', header=False)
         # ['idx', 'r1', 'r2', 'r3', 'r4']
         idxCX = self.data[:, 0]
         idxX = np.array([]).astype(int)

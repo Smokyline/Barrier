@@ -1,0 +1,53 @@
+import matplotlib
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+
+
+def read_csv_pandas(path, header=False):
+    df = pd.read_csv(path, delimiter=';', header=0, decimal=',')
+    if header:
+        header = df.columns.values.tolist()
+        return np.array(df), np.array(header)
+    else:
+        return np.array(df)
+
+
+full = read_csv_pandas(
+    "/home/ivan/Documents/workspace/resources/csv/Barrier/kvz/old/feats/all.csv")
+hs = read_csv_pandas(
+    "/home/ivan/Documents/workspace/resources/csv/Barrier/kvz/old/feats/hs.csv")
+
+#[0, 1, 2, 3, 4, 6, 9, 11, 12, 13, 14, 15, 16, 17]
+FEAT = 3+17
+
+
+plt.grid(True)
+
+x_full = np.arange(len(full))
+
+sort_idx = np.argsort(full[:, FEAT])
+y_full = np.array(full[sort_idx, FEAT])
+
+clrs = ['grey' for i in x_full]
+sns.barplot(x = x_full, y = y_full, palette=clrs)
+
+
+
+
+y_hs = []
+for i, idx in enumerate(full[sort_idx, 0]):
+    y = None
+    if idx in np.array(hs[:, 0]).astype(int):
+        y = np.array(y_full)[i]
+    else:
+        y = 0
+    y_hs.append(y)
+
+clrs = ['red' for i in x_full]
+sns.barplot(x = x_full, y = y_hs, palette=clrs)
+
+plt.title(str(FEAT))
+plt.savefig('/home/ivan/Documents/workspace/resources/csv/Barrier/kvz/old/feats/'+str(FEAT)+'.png', dpi=900)
+#plt.show()

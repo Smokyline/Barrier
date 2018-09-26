@@ -2,11 +2,12 @@ import math
 import numpy as np
 import pandas as pd
 
+
 from barrier.parameters import ParamGlobal
 
 
 import matplotlib
-matplotlib.use('Qt5Agg')
+matplotlib.use('Qt5agg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 from matplotlib.patches import Circle
@@ -614,4 +615,4 @@ def acc_check(result, EQ, r, grid=False):
             else:
                 acc = 0
         accEQ += acc
-    return round(accEQ / len(EQ), 6)
+    return round(accEQ / len(EQ), 4)

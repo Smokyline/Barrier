@@ -4,28 +4,35 @@ import codecs
 import os
 
 import numpy as np
-from barrier.barrier import Barrier
+from barrier.core import Barrier
 
 from barrier.parameters import ParamGlobal
 from module.import_data import ImportData
+from module.result import Result
+
 
 original_umask = os.umask(0)
 
 
 
 gp = ParamGlobal()
-imp = ImportData(zone=gp.zone, ln_field=gp.ln_field, gridVers=gp.gridVers, folder_name='altai_mk1')
+imp = ImportData(zone=gp.zone, param=gp, gridVers=gp.gridVers, folder_name='kvz_mk2')
 imp.set_save_path()
 s_array = np.arange(-0.1, -9.1, -0.05)
 border_array = np.arange(1, 25, 0.5)
+X = imp.data
+Y = imp.train
 
 for s_var in s_array:
     for border_var in border_array:
         gp.s = s_var
         gp.border = ['ro', border_var]
 
-        bar = Barrier(imp, gp)
-        r = bar.sample_union()
+
+        barrier = Barrier(X, Y, gp)
+
+        r = Result(barrier, gp, imp)
+
         print(r.title)
 
         acc = r.acc
