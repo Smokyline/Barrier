@@ -68,7 +68,7 @@ class ImportData:
         """импорт результатов алгоритма EPA"""
         CORAres = read_csv_pandas(self.res_path+'kvz_CORA_result.csv', header=False)
         # ['idx', 'r1', 'r2', 'r3', 'r4']
-        idxCX = self.data[:, 0]
+        idxCX = self.data_full[:, 0]
         idxX = np.array([]).astype(int)
         for res in CORAres:
             if '+' in res[c]:
@@ -79,11 +79,11 @@ class ImportData:
     def read_cora_res_2(self):
         #TODO изменить результаты коры для Кавказа
         """импорт результатов алгоритма EPA"""
-        CORAres = read_csv_pandas(self.res_path+'/cora.csv', header=False)
+        CORAres = read_csv_pandas(self.res_path+'cora.csv', header=False).ravel()
         # ['idx', 'r1', 'r2', 'r3', 'r4']
-        idx_all = self.data[:, 0]
+        idx_all = self.data_full[:, 0]
         idx_B = np.array([]).astype(int)
         for i, res in enumerate(CORAres):
-                idx_in_data = np.where(idx_all == res)[0][0]
-                idx_B = np.append(idx_B, idx_in_data)
+            idx_in_data = np.where(idx_all == res)[0]
+            idx_B = np.append(idx_B, idx_in_data)
         return idx_B

@@ -8,7 +8,7 @@ from module.import_data import ImportData
 from barrier.parameters import ParamGlobal
 
 gp = ParamGlobal()
-imp = ImportData(zone=gp.zone, param=gp, gridVers=gp.gridVers, folder_name='kvz_mk2')
+imp = ImportData(zone=gp.zone, param=gp, gridVers=gp.gridVers, folder_name='altai_mk2')
 imp.set_save_path()
 
 original_umask = os.umask(0)
@@ -26,8 +26,8 @@ for line in lines:
     res_comb = np.append(res_comb, [np.array(line).astype(float)], axis=0)
 
 
-res_comb = res_comb[np.where(res_comb[:, 3] < 145)[0]]
-res_comb = res_comb[np.where(res_comb[:, 3] > 115)[0]]
+res_comb = res_comb[np.where(res_comb[:, 3] <= 34)[0]]
+res_comb = res_comb[np.where(res_comb[:, 3] >= 33)[0]]
 res_comb = res_comb[res_comb[:,2].argsort()]
 print('s q acc lenB')
 for res in res_comb:

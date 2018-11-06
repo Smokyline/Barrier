@@ -2,18 +2,18 @@ import numpy as np
 
 class ParamGlobal:
     def __init__(self):
-        self.zone = 'kvz'  # проверить M, шаг сетки, границы карты
+        self.zone = 'altai'  # проверить M, шаг сетки, границы карты
         self.radius = 0.225
         self.gridVers = False
         self.ln_field = False
-        self.s = -1.25
+        self.s = -1.8
 
         self.omega = 3
 
 
 
         #self.border = ['h(X)', 10]
-        self.border = ['ro', 7]
+        self.border = ['ro', 6]
 
 
 
@@ -27,7 +27,8 @@ class ParamGlobal:
 
 
         #FEATS_GLOBAL = [0, 1, 2, 3, 4, 6, 9, 11, 12, 13, 14]  # 11 old feats
-        FEATS_GLOBAL = [0, 1, 2, 3, 4, 6, 9, 11, 12, 13, 14, 15, 16, 17]  # 14 +mag
+        #FEATS_GLOBAL = [0, 1, 2, 3, 4, 6, 9, 11, 12, 13, 14, 15, 16, 17]  # 14 +mag
+        FEATS_GLOBAL = [0, 1, 2, 3, 8, 12, 13, 14, 16]  # altai
 
 
         #FEATS_GLOBAL = np.arange(0, 18)

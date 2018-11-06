@@ -39,12 +39,13 @@ class Result:
         self.visual.feats_diagram(self.feats_top, 'top_B0')
 
     def visual_barrier(self):
-
         self.visual.draw_hs_circles(res=self.hs_indexes, title=self.title)
 
 
     def compare_algh(self):
-        c = CompareAlgh(imp=self.imp, vis=self.visual, barrierB=self.hs_indexes, coraX=self.cora_res)
+
+        c = CompareAlgh(imp=self.imp, vis=self.visual, barrierB=self.hs_indexes,
+                        coraX=self.imp.read_cora_res_2())
         c.visual_compare(EXT=self.imp.EXT)
 
     def save_res_to_csv(self):

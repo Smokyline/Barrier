@@ -62,7 +62,6 @@ class Visual:
         plt.scatter(self.X[:, 0], self.X[:, 1], c='k', marker='.', lw=0, zorder=3, s=13)
         plt.plot(ParamGlobal().get_squar_poly_coords(), c='b', alpha=0.7, zorder=2)
 
-
         for x, y, r in zip(B[:, 0], B[:, 1], [self.r for i in range(len(B))]):
             # круги без проекции
             #circle_B = ax.add_artist( Circle(xy=(x, y),radius=r, alpha=0.9, linewidth=0.75, zorder=2, facecolor=color, edgecolor="k"))

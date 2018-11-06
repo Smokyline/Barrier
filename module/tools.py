@@ -91,10 +91,22 @@ def h_separator(lX, countX, h):
 
 def ro_separator(lX, countX, r):
     """Разделение множества попаданий по признаку по степенному среднему"""
+
+    """
     non_zero_count = countX[np.where(countX > 0)]
     non_zero_count = non_zero_count / 100
     h = (np.sum(non_zero_count ** r) / len(non_zero_count)) ** (1 / r)
     h = h*100
+    finalIdx = []
+    for i in range(lX):
+        if countX[i] >= h:
+            finalIdx.append(i)
+    return np.array(finalIdx), h
+    """
+    countX[np.where(countX == 0)] = countX[np.where(countX == 0)] + 0.00000001
+    #non_zero_count = non_zero_count / 100
+    h = (np.sum(countX ** r) / len(countX)) ** (1 / r)
+    #h = h*100
     finalIdx = []
     for i in range(lX):
         if countX[i] >= h:

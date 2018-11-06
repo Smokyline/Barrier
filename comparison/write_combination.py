@@ -16,10 +16,10 @@ original_umask = os.umask(0)
 
 
 gp = ParamGlobal()
-imp = ImportData(zone=gp.zone, param=gp, gridVers=gp.gridVers, folder_name='kvz_mk2')
+imp = ImportData(zone=gp.zone, param=gp, gridVers=gp.gridVers, folder_name='altai_mk2')
 imp.set_save_path()
 s_array = np.arange(-0.1, -9.1, -0.05)
-border_array = np.arange(1, 25, 0.5)
+border_array = np.arange(5, 15, 0.5)
 X = imp.data
 Y = imp.train
 
